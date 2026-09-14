@@ -1,0 +1,1 @@
+{"id": "tr-rust-t1-0029", "tier": 1, "fixture": "rs-rosetta", "nl": "every source file as a module", "paraphrases": ["each file treated as its own scope", "which top-level units make up this project?"], "css": ".mod", "distractors": [".class", ".fn"], "treeql": null}
