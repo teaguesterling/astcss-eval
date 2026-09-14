@@ -116,8 +116,20 @@ specific node type instead (no leading dot).
 
 - **Don't use `.fn`, `.if`, `.loop`, `.jump`, `.member`, `.import`**: they select
   nothing, or a FILTER clause (`.if`) or `::` casts (`.member`).
-- **Table definitions carry no name**: `create_table[name^="s"]` matches nothing
-  in sql-fledgling. `#name` does bind on `invocation` (`invocation#count`: 22).
+- **Table names bind** (corrected: an earlier version of this note said they don't, from
+  one test whose prefix no table happened to have). `create_table#raw_conversations`,
+  `create_table[name^="_"]` (6) on sql-fledgling and `create_table#organizations`,
+  `create_table[name$="_log"]` (2) on sql-duckdb-mcp all match; `invocation#count` (22)
+  binds too. (Found by the SQL drafting agent.)
+- `+` rarely holds between columns (`column_definition + column_definition`: 0 on
+  sql-fledgling, 1 on sql-duckdb-mcp) and `create_table > column_definition` (24) is far
+  smaller than the descendant form (136): most columns sit under an intermediate node.
+  Subqueries are not inside `select_expression` on sql-fledgling, so
+  `select_expression:not(:has(subquery))` equals bare `select_expression` there.
+- **DuckDB table macros parse as `create_table`**: `CREATE OR REPLACE MACRO f(...) AS TABLE SELECT ...`
+  becomes a `create_table` named `SELECT` (23 on sql-fledgling) or `WITH` (7), so 30 of that
+  fixture's 39 `create_table` nodes are macros. Don't name tables `SELECT` or `WITH`, and
+  prefer sql-duckdb-mcp for requests about real tables.
 - Statements are wrapped: `.mod > create_table` matches nothing; use a
   descendant step (`cte invocation`) rather than `>` from the file root.
 - `.class` is `create_table`, `create_view`, `create_query`; `.call` is

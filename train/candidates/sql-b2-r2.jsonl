@@ -1,0 +1,1 @@
+{"id": "tr-sql-t4-0019c", "tier": 4, "fixture": "sql-duckdb-mcp", "nl": "queries with no nested select inside", "paraphrases": ["top-level statements that avoid an inner subquery", "which selects never open up a further nested query?"], "css": "create_query:not(:has(subquery))", "distractors": ["create_query", "create_query:has(subquery)"], "treeql": null}
