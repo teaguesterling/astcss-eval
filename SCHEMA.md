@@ -57,6 +57,8 @@ its reference frozen — so the day the engine is fixed, the diff is visible:
 - `has-syntax-tokens` — inside `:has`/`:not(:has)` an alias also matches
   syntax-only keyword tokens (`def`, `class`, `for`, `as`), which it excludes
   everywhere else (sitting_duck #133)
+- `comment-includes-annotations` — `.comment` is kind-level `METADATA`, so it
+  also matches decorated definitions (sitting_duck #134)
 
 Node sets are unique per fixture across all batches: a candidate whose node
 set or id is already frozen in an earlier batch's accepted or pending file is
