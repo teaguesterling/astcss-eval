@@ -1,97 +1,39 @@
 [
   {
     "model": "google/gemma-4-26B-A4B-it",
-    "n": 40,
+    "n": 35,
     "request_errors": 0,
-    "executes": 39,
-    "exec_match": 35,
-    "exact": 33,
+    "executes": 34,
+    "exec_match": 30,
+    "exact": 28,
     "by_tier": {
       "1": [
         8,
         10
       ],
       "2": [
-        9,
-        10
+        6,
+        7
       ],
       "3": [
-        9,
-        10
+        8,
+        9
       ],
       "4": [
-        9,
-        10
+        8,
+        9
       ]
     },
-    "median_latency_s": 0.64,
-    "mean_completion_tokens": 6.575,
+    "median_latency_s": 0.63,
+    "mean_completion_tokens": 6.542857142857143,
     "thinking": "off"
   },
   {
     "model": "Qwen/Qwen3.6-27B",
-    "n": 40,
+    "n": 35,
     "request_errors": 0,
-    "executes": 40,
-    "exec_match": 35,
-    "exact": 33,
-    "by_tier": {
-      "1": [
-        7,
-        10
-      ],
-      "2": [
-        9,
-        10
-      ],
-      "3": [
-        9,
-        10
-      ],
-      "4": [
-        10,
-        10
-      ]
-    },
-    "median_latency_s": 2.62,
-    "mean_completion_tokens": 5.125,
-    "thinking": "off"
-  },
-  {
-    "model": "Qwen/Qwen3-30B-A3B-Thinking",
-    "n": 40,
-    "request_errors": 0,
-    "executes": 39,
-    "exec_match": 32,
-    "exact": 30,
-    "by_tier": {
-      "1": [
-        7,
-        10
-      ],
-      "2": [
-        8,
-        10
-      ],
-      "3": [
-        9,
-        10
-      ],
-      "4": [
-        8,
-        10
-      ]
-    },
-    "median_latency_s": 49.955,
-    "mean_completion_tokens": 1783.825,
-    "thinking": "on"
-  },
-  {
-    "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
-    "n": 40,
-    "request_errors": 0,
-    "executes": 39,
-    "exec_match": 29,
+    "executes": 35,
+    "exec_match": 30,
     "exact": 28,
     "by_tier": {
       "1": [
@@ -99,252 +41,310 @@
         10
       ],
       "2": [
-        7,
-        10
+        6,
+        7
       ],
       "3": [
         8,
+        9
+      ],
+      "4": [
+        9,
+        9
+      ]
+    },
+    "median_latency_s": 2.62,
+    "mean_completion_tokens": 5.057142857142857,
+    "thinking": "off"
+  },
+  {
+    "model": "Qwen/Qwen3-30B-A3B-Thinking",
+    "n": 35,
+    "request_errors": 0,
+    "executes": 34,
+    "exec_match": 27,
+    "exact": 25,
+    "by_tier": {
+      "1": [
+        7,
         10
+      ],
+      "2": [
+        5,
+        7
+      ],
+      "3": [
+        8,
+        9
       ],
       "4": [
         7,
-        10
+        9
       ]
     },
-    "median_latency_s": 0.495,
-    "mean_completion_tokens": 5.575,
-    "thinking": "none"
+    "median_latency_s": 51.6,
+    "mean_completion_tokens": 1916.5142857142857,
+    "thinking": "on"
   },
   {
     "model": "qwen3.5-9b-uncensored",
-    "n": 40,
+    "n": 35,
     "request_errors": 0,
-    "executes": 40,
-    "exec_match": 29,
-    "exact": 26,
+    "executes": 35,
+    "exec_match": 25,
+    "exact": 23,
     "by_tier": {
       "1": [
         6,
         10
       ],
       "2": [
-        8,
-        10
+        5,
+        7
       ],
       "3": [
-        8,
-        10
+        7,
+        9
       ],
       "4": [
         7,
-        10
+        9
       ]
     },
-    "median_latency_s": 0.655,
-    "mean_completion_tokens": 5.375,
+    "median_latency_s": 0.65,
+    "mean_completion_tokens": 5.4,
     "thinking": "off"
   },
   {
-    "model": "openai/gpt-oss-120b",
-    "n": 40,
+    "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+    "n": 35,
     "request_errors": 0,
-    "executes": 39,
-    "exec_match": 29,
-    "exact": 25,
+    "executes": 34,
+    "exec_match": 24,
+    "exact": 23,
+    "by_tier": {
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        4,
+        7
+      ],
+      "3": [
+        7,
+        9
+      ],
+      "4": [
+        6,
+        9
+      ]
+    },
+    "median_latency_s": 0.49,
+    "mean_completion_tokens": 5.571428571428571,
+    "thinking": "none"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "n": 35,
+    "request_errors": 0,
+    "executes": 34,
+    "exec_match": 24,
+    "exact": 20,
     "by_tier": {
       "1": [
         5,
         10
       ],
       "2": [
-        9,
-        10
+        6,
+        7
       ],
       "3": [
-        7,
-        10
+        6,
+        9
       ],
       "4": [
-        8,
-        10
+        7,
+        9
       ]
     },
-    "median_latency_s": 8.195,
-    "mean_completion_tokens": 206.5,
+    "median_latency_s": 8.32,
+    "mean_completion_tokens": 212.9142857142857,
     "thinking": "low"
   },
   {
     "model": "Qwen/Qwen3.5-35B-A3B",
-    "n": 40,
+    "n": 35,
     "request_errors": 0,
-    "executes": 35,
-    "exec_match": 28,
-    "exact": 25,
+    "executes": 30,
+    "exec_match": 23,
+    "exact": 20,
     "by_tier": {
       "1": [
         6,
         10
       ],
       "2": [
-        8,
-        10
+        5,
+        7
       ],
       "3": [
-        6,
-        10
+        5,
+        9
       ],
       "4": [
-        8,
-        10
+        7,
+        9
       ]
     },
     "median_latency_s": 0.68,
-    "mean_completion_tokens": 6.35,
+    "mean_completion_tokens": 6.428571428571429,
     "thinking": "off"
   },
   {
     "model": "openai/gpt-oss-20b",
-    "n": 40,
+    "n": 35,
     "request_errors": 0,
-    "executes": 38,
-    "exec_match": 27,
-    "exact": 27,
+    "executes": 33,
+    "exec_match": 22,
+    "exact": 22,
     "by_tier": {
       "1": [
         6,
         10
       ],
       "2": [
-        8,
-        10
+        5,
+        7
       ],
       "3": [
-        5,
-        10
+        4,
+        9
       ],
       "4": [
-        8,
-        10
+        7,
+        9
       ]
     },
-    "median_latency_s": 5.785,
-    "mean_completion_tokens": 288.225,
+    "median_latency_s": 5.78,
+    "mean_completion_tokens": 309.51428571428573,
     "thinking": "low"
   },
   {
     "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct-Turbo",
-    "n": 40,
+    "n": 35,
     "request_errors": 0,
-    "executes": 39,
-    "exec_match": 26,
-    "exact": 25,
+    "executes": 34,
+    "exec_match": 21,
+    "exact": 20,
     "by_tier": {
       "1": [
         5,
         10
       ],
       "2": [
-        8,
-        10
+        5,
+        7
       ],
       "3": [
-        8,
-        10
+        7,
+        9
       ],
       "4": [
-        5,
-        10
+        4,
+        9
       ]
     },
-    "median_latency_s": 0.615,
-    "mean_completion_tokens": 5.625,
+    "median_latency_s": 0.63,
+    "mean_completion_tokens": 5.6,
     "thinking": "none"
   },
   {
     "model": "Qwen/Qwen3-30B-A3B-Instruct",
-    "n": 40,
+    "n": 35,
     "request_errors": 0,
-    "executes": 36,
-    "exec_match": 24,
-    "exact": 22,
+    "executes": 31,
+    "exec_match": 19,
+    "exact": 18,
     "by_tier": {
       "1": [
         5,
         10
       ],
       "2": [
-        7,
-        10
+        4,
+        7
       ],
       "3": [
-        5,
-        10
+        4,
+        9
       ],
       "4": [
-        7,
-        10
+        6,
+        9
       ]
     },
-    "median_latency_s": 0.515,
-    "mean_completion_tokens": 6.225,
+    "median_latency_s": 0.52,
+    "mean_completion_tokens": 6.228571428571429,
     "thinking": "none"
   },
   {
     "model": "Qwen/Qwen3-8B",
-    "n": 40,
+    "n": 35,
     "request_errors": 0,
-    "executes": 34,
-    "exec_match": 20,
-    "exact": 16,
+    "executes": 29,
+    "exec_match": 17,
+    "exact": 14,
     "by_tier": {
       "1": [
         6,
         10
       ],
       "2": [
-        6,
-        10
+        3,
+        7
       ],
       "3": [
         3,
-        10
+        9
       ],
       "4": [
         5,
-        10
+        9
       ]
     },
-    "median_latency_s": 0.585,
-    "mean_completion_tokens": 6.2,
+    "median_latency_s": 0.59,
+    "mean_completion_tokens": 6.4,
     "thinking": "off"
   },
   {
     "model": "zai-org/GLM-4.7-Flash",
-    "n": 40,
+    "n": 35,
     "request_errors": 0,
-    "executes": 36,
-    "exec_match": 19,
-    "exact": 19,
+    "executes": 32,
+    "exec_match": 16,
+    "exact": 16,
     "by_tier": {
       "1": [
         2,
         10
       ],
       "2": [
-        4,
-        10
+        2,
+        7
       ],
       "3": [
-        6,
-        10
+        5,
+        9
       ],
       "4": [
         7,
-        10
+        9
       ]
     },
     "median_latency_s": 1.28,
-    "mean_completion_tokens": 6.743589743589744,
+    "mean_completion_tokens": 6.742857142857143,
     "thinking": "off"
   }
 ]

@@ -54,6 +54,19 @@ def load_pairs():
     return pairs
 
 
+def leaked_ids(card, pairs):
+    """Pairs whose exact selector appears in the card as a whole token -- the prompt
+    hands the model that answer. Bare classes and node types are the vocabulary the
+    card exists to list, so they don't count."""
+    out = []
+    for p in pairs:
+        if re.fullmatch(r"\.?[A-Za-z_]+", p["css"]):
+            continue
+        if re.search(r"(?:^|(?<=\s))" + re.escape(p["css"]) + r"(?=\s|$)", card, flags=re.M):
+            out.append(p["id"])
+    return sorted(out)
+
+
 def sample(pairs, per_tier, seed):
     """Deterministic stratified sample: the same (per_tier, seed) always picks the same ids."""
     out = []
@@ -310,10 +323,23 @@ def rescore(out_dir, pairs_by_id):
         if k not in latest or not r.get("error") or latest[k].get("error"):
             latest[k] = r
     scored = score(list(latest.values()), pairs_by_id)
+    meta_path = os.path.join(out_dir, "meta.json")
+    meta = json.load(open(meta_path)) if os.path.exists(meta_path) else {}
+    leaked = set(meta.get("leaked_ids") or [])
+    if "leaked_ids" not in meta and meta.get("card_sha256"):
+        # Runs from before leak tracking (stage 1) used card.md; recompute against it
+        # only if it is still the card they ran with.
+        card = open(CARD).read()
+        if hashlib.sha256(card.encode()).hexdigest() == meta["card_sha256"]:
+            leaked = set(leaked_ids(card, list(pairs_by_id.values())))
     with open(os.path.join(out_dir, "scores.jsonl"), "w") as fh:
         for r in scored:
+            r["leaked"] = r["id"] in leaked
             fh.write(json.dumps(r, ensure_ascii=False) + "\n")
-    summary = summarize(scored)
+    summary = summarize([r for r in scored if not r["leaked"]])
+    excluded = sorted({r["id"] for r in scored if r["leaked"]})
+    if excluded:
+        print("excluded %d pairs whose selector appears in the card: %s" % (len(excluded), ", ".join(excluded)))
     with open(os.path.join(out_dir, "summary.json"), "w") as fh:
         json.dump(summary, fh, indent=2)
     print_summary(summary)
@@ -337,7 +363,8 @@ def cmd_oracle(args):
 
 def cmd_run(args):
     key = auth_key()
-    card = open(CARD).read()
+    card_path = os.path.abspath(args.card or CARD)
+    card = open(card_path).read()
     pairs = sample(load_pairs(), args.per_tier, args.seed)
     by_id = {p["id"]: p for p in pairs}
     cat = catalog(key)
@@ -365,7 +392,9 @@ def cmd_run(args):
     if not os.path.exists(meta_path):
         json.dump({"started": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "models": models,
                    "per_tier": args.per_tier, "seed": args.seed, "pair_ids": [p["id"] for p in pairs],
+                   "card": os.path.relpath(card_path, HERE),
                    "card_sha256": hashlib.sha256(card.encode()).hexdigest(),
+                   "leaked_ids": leaked_ids(card, load_pairs()),
                    "catalog_thinking": {m: cat[m] for m in models}, "engine": V.engine_identity()},
                   open(meta_path, "w"), indent=2)
 
@@ -433,6 +462,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("command", choices=("oracle", "run", "score"))
     ap.add_argument("--models")
+    ap.add_argument("--card", help="vocabulary card for the system prompt (default card.md)")
     ap.add_argument("--per-tier", type=int, default=10)
     ap.add_argument("--seed", default="qualify-v1")
     ap.add_argument("--out")
