@@ -16,6 +16,7 @@ can check; the rest come from verify.py:
   - verify.verify(): bounds, load-bearing modifiers, distractors differ
   - no two accepted pairs on the same fixture freeze the same node set
 """
+import glob
 import json
 import os
 import re
@@ -67,10 +68,21 @@ def main(path, batch):
     report = V.verify(rows)
     engine = V.engine_identity()
 
-    accepted, rejected, held, seen = [], [], [], {}
+    accepted, rejected, held, seen, prior_ids = [], [], [], {}, {}
+    # Earlier batches' frozen pairs: a node set or id already taken is taken forever.
+    for prior in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl"))):
+        name = os.path.basename(prior)
+        if name.startswith("rejected-") or name.endswith("-%s.jsonl" % batch):
+            continue
+        for line in open(prior):
+            p = json.loads(line)
+            seen[(p["fixture"], p["reference"]["sha256"])] = p["id"]
+            prior_ids[p["id"]] = name
     for r in rows:
         v = report[r["id"]]
         reasons = static_reasons(r) + list(v["reasons"])
+        if r["id"] in prior_ids:
+            reasons.append("id already frozen in %s" % prior_ids[r["id"]])
         ref = v.get("reference")
         if ref and not reasons:
             key = (r["fixture"], ref["sha256"])
