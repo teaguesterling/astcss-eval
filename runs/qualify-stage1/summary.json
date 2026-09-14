@@ -145,6 +145,35 @@
     "thinking": "off"
   },
   {
+    "model": "openai/gpt-oss-120b",
+    "n": 40,
+    "request_errors": 0,
+    "executes": 39,
+    "exec_match": 29,
+    "exact": 25,
+    "by_tier": {
+      "1": [
+        5,
+        10
+      ],
+      "2": [
+        9,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        8,
+        10
+      ]
+    },
+    "median_latency_s": 8.195,
+    "mean_completion_tokens": 206.5,
+    "thinking": "low"
+  },
+  {
     "model": "Qwen/Qwen3.5-35B-A3B",
     "n": 40,
     "request_errors": 0,
