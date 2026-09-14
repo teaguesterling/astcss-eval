@@ -1,0 +1,89 @@
+[
+  {
+    "model": "google/gemma-4-26B-A4B-it",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 105,
+    "exec_match": 95,
+    "exact": 90,
+    "by_tier": {
+      "1": [
+        18,
+        21
+      ],
+      "2": [
+        23,
+        25
+      ],
+      "3": [
+        27,
+        31
+      ],
+      "4": [
+        27,
+        31
+      ]
+    },
+    "median_latency_s": 0.58,
+    "mean_completion_tokens": 6.787037037037037,
+    "thinking": "off"
+  },
+  {
+    "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 107,
+    "exec_match": 84,
+    "exact": 78,
+    "by_tier": {
+      "1": [
+        16,
+        21
+      ],
+      "2": [
+        24,
+        25
+      ],
+      "3": [
+        22,
+        31
+      ],
+      "4": [
+        22,
+        31
+      ]
+    },
+    "median_latency_s": 0.45,
+    "mean_completion_tokens": 5.962962962962963,
+    "thinking": "none"
+  },
+  {
+    "model": "qwen3.5-9b-uncensored",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 104,
+    "exec_match": 76,
+    "exact": 68,
+    "by_tier": {
+      "1": [
+        15,
+        21
+      ],
+      "2": [
+        19,
+        25
+      ],
+      "3": [
+        20,
+        31
+      ],
+      "4": [
+        22,
+        31
+      ]
+    },
+    "median_latency_s": 0.61,
+    "mean_completion_tokens": 5.796296296296297,
+    "thinking": "off"
+  }
+]
