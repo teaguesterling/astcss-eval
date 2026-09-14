@@ -1,9 +1,9 @@
 {
-  "accepted": 42,
+  "accepted": 36,
   "accepted_by_tier": {
-    "2": 8,
-    "3": 18,
-    "4": 16
+    "2": 7,
+    "3": 17,
+    "4": 12
   },
   "batch": "rust-b2",
   "candidates": 54,
@@ -16,7 +16,7 @@
     "sitting_duck_checkout_head": "1a10b7d3da97d6ca92ac3f1c73ac1307ce1c01f0"
   },
   "pending": 0,
-  "rejected": 12,
+  "rejected": 18,
   "source": "train/candidates/rust-b2.jsonl",
-  "when": "2026-09-14T16:21:56-0700"
+  "when": "2026-09-14T16:33:50-0700"
 }

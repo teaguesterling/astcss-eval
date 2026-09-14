@@ -1,9 +1,9 @@
 {
-  "accepted": 23,
+  "accepted": 21,
   "accepted_by_tier": {
     "1": 5,
-    "3": 9,
-    "4": 9
+    "3": 8,
+    "4": 8
   },
   "batch": "rust-b3",
   "candidates": 27,
@@ -16,7 +16,7 @@
     "sitting_duck_checkout_head": "1a10b7d3da97d6ca92ac3f1c73ac1307ce1c01f0"
   },
   "pending": 0,
-  "rejected": 4,
+  "rejected": 6,
   "source": "train/candidates/rust-b3.jsonl",
-  "when": "2026-09-14T16:24:33-0700"
+  "when": "2026-09-14T16:34:15-0700"
 }
