@@ -1,0 +1,60 @@
+[
+  {
+    "model": "google/gemma-4-26B-A4B-it",
+    "n": 101,
+    "request_errors": 0,
+    "executes": 100,
+    "exec_match": 88,
+    "exact": 81,
+    "by_tier": {
+      "1": [
+        18,
+        21
+      ],
+      "2": [
+        19,
+        21
+      ],
+      "3": [
+        25,
+        29
+      ],
+      "4": [
+        26,
+        30
+      ]
+    },
+    "median_latency_s": 0.58,
+    "mean_completion_tokens": 6.8316831683168315,
+    "thinking": "off"
+  },
+  {
+    "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+    "n": 101,
+    "request_errors": 0,
+    "executes": 99,
+    "exec_match": 77,
+    "exact": 71,
+    "by_tier": {
+      "1": [
+        16,
+        21
+      ],
+      "2": [
+        19,
+        21
+      ],
+      "3": [
+        21,
+        29
+      ],
+      "4": [
+        21,
+        30
+      ]
+    },
+    "median_latency_s": 0.46,
+    "mean_completion_tokens": 5.861386138613861,
+    "thinking": "none"
+  }
+]
