@@ -130,6 +130,14 @@ specific node type instead (no leading dot).
   becomes a `create_table` named `SELECT` (23 on sql-fledgling) or `WITH` (7), so 30 of that
   fixture's 39 `create_table` nodes are macros. Don't name tables `SELECT` or `WITH`, and
   prefer sql-duckdb-mcp for requests about real tables.
+- **Parser choice, not an engine defect.** These fixtures are parsed with the generic
+  tree-sitter `sql` grammar (chosen by the `.sql` extension), which does not know DuckDB's
+  `CREATE MACRO`. sitting_duck's separate `duckdb` language uses DuckDB's own parser and
+  names them (#44): `read_ast(path, 'duckdb')` on sql-fledgling gives `create_table_macro` 70
+  (find_calls, find_in_ast, ...), `create_macro` 7, `create_table` 4, and `.fn` 77. But that
+  tree is statement-level (172 nodes in all, 4 `parse_error`), with almost no structure
+  inside a statement. A DuckDB-dialect training set would be a separate `duckdb` fixture,
+  good for definition-level pairs only.
 - Statements are wrapped: `.mod > create_table` matches nothing; use a
   descendant step (`cte invocation`) rather than `>` from the file root.
 - `.class` is `create_table`, `create_view`, `create_query`; `.call` is
