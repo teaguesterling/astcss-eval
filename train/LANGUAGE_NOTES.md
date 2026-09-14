@@ -96,6 +96,8 @@ specific node type instead (no leading dot).
   `process_substitution`, not ordinary commands. Use `command`.
 - **Don't use `.member`**: it is variable expansion (`simple_expansion`,
   `expansion`).
+- **Don't use `#name` on `command`**: it almost never binds (`command#echo` matches
+  1 of 1,253 commands in sh-homelab). Commands can be selected, not named.
 - `.fn` is `function_definition`; `.if` includes `case_item`, `elif_clause`,
   `else_clause`; `.var` is `variable_assignment`, `declaration_command`.
   No `.class`, `.import`, `.jump`, `.try`.
@@ -104,6 +106,10 @@ specific node type instead (no leading dot).
 
 - **Don't use `.fn`, `.if`, `.loop`, `.jump`, `.member`, `.import`**: they select
   nothing, or a FILTER clause (`.if`) or `::` casts (`.member`).
+- **Table definitions carry no name**: `create_table[name^="s"]` matches nothing
+  in sql-fledgling. `#name` does bind on `invocation` (`invocation#count`: 22).
+- Statements are wrapped: `.mod > create_table` matches nothing; use a
+  descendant step (`cte invocation`) rather than `>` from the file root.
 - `.class` is `create_table`, `create_view`, `create_query`; `.call` is
   `invocation` (function calls, e.g. `count(...)`) and `window_function`;
   `.comp` is `select_expression`, `subquery`, `cte`; `.var` is
