@@ -50,6 +50,10 @@ specific node type instead (no leading dot).
 - `.fn` is `arrow_function`, `function_declaration`, `function_expression`,
   `method_definition`, generator functions. `.call` includes `new_expression`.
 - js-rosetta has no classes or imports.
+- **`.class > .fn` matches nothing**: tree-sitter puts a `class_body` between a class and
+  its methods; use `.class .fn` (descendant). `.mod > import_statement` equals bare
+  `import_statement` (imports are always direct children of the module), so its `>`
+  step is never load-bearing. (Found by the JavaScript drafting agent.)
 
 ## C++ — fixtures cpp-duck-hunt, cpp-duckdb-yaml, cpp-duckdb-mcp
 
