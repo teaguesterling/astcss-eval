@@ -1,0 +1,303 @@
+#pragma once
+
+#include "duckdb.hpp"
+#include "duckdb_compat.hpp"
+#include "duckdb/main/database.hpp"
+#include "duckdb/planner/expression/bound_parameter_data.hpp"
+#include "json_utils.hpp"
+
+namespace duckdb {
+
+//! Check if a query is allowed based on its parsed statement type.
+//! Uses conn.Prepare() to get the actual StatementType, then checks against
+//! allowed/denied type name lists (e.g., "SELECT", "INSERT", "DROP").
+//! Fails closed: unparseable queries are denied.
+bool IsQueryAllowedByType(DatabaseInstance &db, const string &query, const vector<string> &allowed_types,
+                          const vector<string> &denied_types);
+
+//! Check if a pre-parsed statement type is allowed by the allowlist/denylist.
+//! Use this overload when the StatementType is already known to avoid redundant Prepare() calls.
+bool IsQueryAllowedByType(StatementType type, const vector<string> &allowed_types, const vector<string> &denied_types);
+
+//! Check if a statement type is read-only (suitable for the query/export/describe tools).
+//! Only SELECT and EXPLAIN are considered read-only.
+bool IsReadOnlyStatementType(StatementType type);
+
+// Result structure for tool calls
+struct CallToolResult {
+	bool success = false;
+	Value result;
+	string error_message;
+
+	static CallToolResult Success(const Value &result) {
+		CallToolResult call_result;
+		call_result.success = true;
+		call_result.result = result;
+		return call_result;
+	}
+
+	static CallToolResult Error(const string &error) {
+		CallToolResult call_result;
+		call_result.success = false;
+		call_result.error_message = error;
+		return call_result;
+	}
+};
+
+// Tool input schema for validation
+struct ToolInputSchema {
+	string type = "object";
+	unordered_map<string, Value> properties;
+	vector<string> required_fields;
+
+	bool ValidateInput(const Value &input) const;
+	Value ToJSON() const;
+};
+
+// Parse properties and required JSON into ToolInputSchema
+ToolInputSchema ParseToolInputSchema(const string &properties_json, const string &required_json);
+
+// Abstract base class for tool handlers
+class ToolHandler {
+public:
+	virtual ~ToolHandler() = default;
+
+	// Execute tool with given arguments
+	virtual CallToolResult Execute(const Value &arguments) = 0;
+
+	// Tool metadata
+	virtual string GetName() const = 0;
+	virtual string GetDescription() const = 0;
+	virtual ToolInputSchema GetInputSchema() const = 0;
+};
+
+// Query tool handler - executes SQL queries
+class QueryToolHandler : public ToolHandler {
+public:
+	QueryToolHandler(DatabaseInstance &db, const vector<string> &allowed_queries = {},
+	                 const vector<string> &denied_queries = {}, const string &default_format = "json");
+
+	CallToolResult Execute(const Value &arguments) override;
+	string GetName() const override {
+		return "query";
+	}
+	string GetDescription() const override {
+		return "Execute a read-only SQL query and return results. "
+		       "Supported formats: json (default), jsonl, csv, markdown.";
+	}
+	ToolInputSchema GetInputSchema() const override;
+
+private:
+	DatabaseInstance &db_instance;
+	vector<string> allowed_queries;
+	vector<string> denied_queries;
+	string default_result_format;
+
+	string FormatResult(QueryResult &result, const string &format) const;
+};
+
+// Describe tool handler - describes tables and queries
+class DescribeToolHandler : public ToolHandler {
+public:
+	DescribeToolHandler(DatabaseInstance &db, const vector<string> &allowed_queries = {},
+	                    const vector<string> &denied_queries = {});
+
+	CallToolResult Execute(const Value &arguments) override;
+	string GetName() const override {
+		return "describe";
+	}
+	string GetDescription() const override {
+		return "Get table or query schema information";
+	}
+	ToolInputSchema GetInputSchema() const override;
+
+private:
+	DatabaseInstance &db_instance;
+	vector<string> allowed_queries;
+	vector<string> denied_queries;
+
+	Value DescribeTable(const string &table_name) const;
+	Value DescribeQuery(const string &query) const;
+};
+
+// Export tool handler - exports query results to various formats
+class ExportToolHandler : public ToolHandler {
+public:
+	ExportToolHandler(DatabaseInstance &db, const vector<string> &allowed_queries = {},
+	                  const vector<string> &denied_queries = {}, bool allow_file_output = false);
+
+	CallToolResult Execute(const Value &arguments) override;
+	string GetName() const override {
+		return "export";
+	}
+	string GetDescription() const override;
+	ToolInputSchema GetInputSchema() const override;
+
+private:
+	DatabaseInstance &db_instance;
+	vector<string> allowed_queries;
+	vector<string> denied_queries;
+	bool allow_file_output;
+
+	string ExportToFile(QueryResult &result, const string &format, const string &output_path) const;
+	string FormatData(QueryResult &result, const string &format) const;
+};
+
+// SQL tool handler - executes predefined SQL templates with parameters
+class SQLToolHandler : public ToolHandler {
+public:
+	SQLToolHandler(const string &name, const string &description, const string &sql_template,
+	               const ToolInputSchema &input_schema, DatabaseInstance &db, const string &result_format = "json");
+
+	CallToolResult Execute(const Value &arguments) override;
+	string GetName() const override {
+		return tool_name;
+	}
+	string GetDescription() const override {
+		return tool_description;
+	}
+	ToolInputSchema GetInputSchema() const override {
+		return input_schema;
+	}
+
+	// Accessors for state introspection
+	const string &GetSqlTemplate() const {
+		return sql_template;
+	}
+	const string &GetResultFormat() const {
+		return result_format;
+	}
+
+private:
+	string tool_name;
+	string tool_description;
+	string sql_template;
+	ToolInputSchema input_schema;
+	DatabaseInstance &db_instance;
+	string result_format;
+
+	string SubstituteParameters(const string &template_sql, const JSONArgumentParser &parser) const;
+	CompatNamedParamMap<BoundParameterData> BuildNamedParameters(const JSONArgumentParser &parser) const;
+};
+
+// Execution SQL tool handler - executes multi-statement SQL templates with prepared binding
+class ExecutionSQLToolHandler : public ToolHandler {
+public:
+	ExecutionSQLToolHandler(const string &name, const string &description, const string &sql_template,
+	                        const ToolInputSchema &input_schema, DatabaseInstance &db, const string &bindings_json,
+	                        const string &result_format = "json");
+
+	CallToolResult Execute(const Value &arguments) override;
+	string GetName() const override {
+		return tool_name;
+	}
+	string GetDescription() const override {
+		return tool_description;
+	}
+	ToolInputSchema GetInputSchema() const override {
+		return input_schema;
+	}
+
+	// Accessors for state introspection
+	const string &GetSqlTemplate() const {
+		return sql_template;
+	}
+	const string &GetResultFormat() const {
+		return result_format;
+	}
+
+private:
+	string tool_name;
+	string tool_description;
+	string sql_template;
+	ToolInputSchema input_schema;
+	DatabaseInstance &db_instance;
+	string result_format;
+
+	// Parsed at construction time from bindings_json
+	bool per_statement_bindings; // true = array form, false = object form
+	vector<unordered_map<string, string>> statement_binding_specs;
+	// Each inner map: param_name -> json_schema_type
+
+	CompatNamedParamMap<BoundParameterData>
+	BuildNamedParameters(const JSONArgumentParser &parser, const unordered_map<string, string> &binding_spec) const;
+};
+
+// List tables tool handler - lists all tables (and optionally views) in the database
+class ListTablesToolHandler : public ToolHandler {
+public:
+	ListTablesToolHandler(DatabaseInstance &db);
+
+	CallToolResult Execute(const Value &arguments) override;
+	string GetName() const override {
+		return "list_tables";
+	}
+	string GetDescription() const override {
+		return "List all tables in the database, optionally including views. "
+		       "Returns table names, schemas, row counts, and column counts.";
+	}
+	ToolInputSchema GetInputSchema() const override;
+
+private:
+	DatabaseInstance &db_instance;
+};
+
+// Database info tool handler - provides comprehensive database overview
+class DatabaseInfoToolHandler : public ToolHandler {
+public:
+	DatabaseInfoToolHandler(DatabaseInstance &db);
+
+	CallToolResult Execute(const Value &arguments) override;
+	string GetName() const override {
+		return "database_info";
+	}
+	string GetDescription() const override {
+		return "Get comprehensive database information including attached databases, "
+		       "schemas, tables, views, and loaded extensions.";
+	}
+	ToolInputSchema GetInputSchema() const override;
+
+private:
+	DatabaseInstance &db_instance;
+
+	Value GetDatabasesInfo() const;
+	Value GetSchemasInfo() const;
+	Value GetTablesInfo() const;
+	Value GetViewsInfo() const;
+	Value GetExtensionsInfo() const;
+};
+
+// Execute tool handler - executes DDL/DML statements (INSERT, UPDATE, DELETE, CREATE, etc.)
+class ExecuteToolHandler : public ToolHandler {
+public:
+	ExecuteToolHandler(DatabaseInstance &db, bool allow_ddl = true, bool allow_dml = true, bool allow_load = false,
+	                   bool allow_attach = false, bool allow_set = false);
+
+	CallToolResult Execute(const Value &arguments) override;
+	string GetName() const override {
+		return "execute";
+	}
+	string GetDescription() const override {
+		return "Execute DDL (CREATE, DROP, ALTER) or DML (INSERT, UPDATE, DELETE) statements. "
+		       "Returns affected row count for DML, success status for DDL.";
+	}
+	ToolInputSchema GetInputSchema() const override;
+
+private:
+	DatabaseInstance &db_instance;
+	bool allow_ddl;
+	bool allow_dml;
+	bool allow_load;   // LOAD, UPDATE_EXTENSIONS
+	bool allow_attach; // ATTACH, DETACH, COPY_DATABASE
+	bool allow_set;    // SET, VARIABLE_SET, PRAGMA
+
+	// Uses DuckDB's StatementType enum for robust statement classification
+	bool IsSafeDDLStatement(StatementType type) const;
+	bool IsLoadStatement(StatementType type) const;
+	bool IsAttachStatement(StatementType type) const;
+	bool IsSetStatement(StatementType type) const;
+	bool IsDMLStatement(StatementType type) const;
+	bool IsAllowedStatement(StatementType type) const;
+};
+
+} // namespace duckdb

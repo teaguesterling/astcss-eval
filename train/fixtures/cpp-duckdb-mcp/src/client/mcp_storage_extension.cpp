@@ -1,0 +1,135 @@
+#include "client/mcp_storage_extension.hpp"
+#include "duckdb_compat.hpp"
+#include "mcp_instance_state.hpp"
+#include "protocol/mcp_connection.hpp"
+#include "protocol/mcp_transport.hpp"
+#include "mcpfs/mcp_file_system.hpp"
+#include "catalog/mcp_catalog.hpp"
+#include "client/mcp_transaction_manager.hpp"
+#include "duckdb_mcp_security.hpp"
+#include "duckdb/common/exception.hpp"
+#include "duckdb/parser/parsed_data/create_schema_info.hpp"
+#include "duckdb/catalog/catalog_entry/schema_catalog_entry.hpp"
+#include "duckdb/storage/standard_buffer_manager.hpp"
+#include "duckdb/storage/object_cache.hpp"
+#include "duckdb/transaction/duck_transaction_manager.hpp"
+#include "duckdb/common/string_util.hpp"
+#include "duckdb/common/constants.hpp"
+
+namespace duckdb {
+
+unique_ptr<StorageExtension> MCPStorageExtension::Create() {
+	auto result = make_uniq<StorageExtension>();
+	result->attach = MCPStorageAttach;
+	result->create_transaction_manager = MCPStorageTransactionManager;
+	return result;
+}
+
+unique_ptr<Catalog> MCPStorageExtension::MCPStorageAttach(optional_ptr<StorageExtensionInfo> storage_info,
+                                                          ClientContext &context, AttachedDatabase &db,
+                                                          const string &name, AttachInfo &info,
+                                                          AttachOptions &options) {
+	// Create MCP connection from attach info
+	auto &db_instance = DatabaseInstance::GetDatabase(context);
+	auto mcp_connection = CreateMCPConnection(db_instance, info);
+
+	// Attempt to connect and initialize
+	if (!mcp_connection->Connect()) {
+		throw IOException("Failed to connect to MCP server: " + mcp_connection->GetLastError());
+	}
+
+	if (!mcp_connection->Initialize()) {
+		throw IOException("Failed to initialize MCP connection: " + mcp_connection->GetLastError());
+	}
+
+	// Register the connection with our registry and MCPFS
+	RegisterMCPConnection(context, name, mcp_connection);
+
+	// Create and return MCP catalog
+	auto catalog = make_uniq<MCPCatalog>(db, mcp_connection);
+	catalog->Initialize(false); // Don't load builtin functions
+
+	return std::move(catalog);
+}
+
+unique_ptr<TransactionManager>
+MCPStorageExtension::MCPStorageTransactionManager(optional_ptr<StorageExtensionInfo> storage_info, AttachedDatabase &db,
+                                                  Catalog &catalog) {
+	// MCP is read-only, use minimal transaction manager
+	return make_uniq<MCPTransactionManager>(db);
+}
+
+shared_ptr<MCPConnection> MCPStorageExtension::CreateMCPConnection(DatabaseInstance &db, const AttachInfo &info) {
+	// Parse structured parameters from ATTACH statement (includes security validation)
+	auto params = ParseMCPAttachParams(db, info);
+
+	// Validate parameters
+	if (!params.IsValid()) {
+		throw InvalidInputException("Invalid MCP connection parameters. Required: command");
+	}
+
+	// Only stdio transport supported for now
+	if (params.transport != "stdio") {
+		throw InvalidInputException("Currently only stdio transport is supported. Got: " + params.transport);
+	}
+
+	// Create transport configuration with validated parameters
+	StdioTransport::StdioConfig transport_config;
+	transport_config.command_path = params.command;
+	transport_config.arguments = params.args;
+	transport_config.working_directory = params.working_dir;
+	transport_config.environment = params.env;
+
+	// Parse additional legacy options for backward compatibility
+	if (info.options.find("timeout") != info.options.end()) {
+		auto timeout_value = info.options.at("timeout");
+		if (!timeout_value.IsNull()) {
+			transport_config.timeout_seconds = std::stoi(timeout_value.ToString());
+		}
+	}
+
+	// Create transport
+	auto transport = make_uniq<StdioTransport>(transport_config);
+
+	// Create connection (registration happens in RegisterMCPConnection)
+	// AttachInfo::name is an Identifier on v2.0; reading it back out as a string
+	// is deliberate (MCPConnection stores the ATTACH alias verbatim).
+	auto connection = make_shared_ptr<MCPConnection>(CompatNameStr(info.name), std::move(transport));
+	return connection;
+}
+
+void MCPStorageExtension::RegisterMCPConnection(ClientContext &context, const string &name,
+                                                shared_ptr<MCPConnection> connection) {
+	// Register with per-instance connection registry
+	MCPInstanceState::Get(context).connection_registry.RegisterConnection(name, connection);
+
+	// Also register with MCPFS for file access
+	auto &db = DatabaseInstance::GetDatabase(context);
+	auto &fs = FileSystem::GetFileSystem(db);
+
+	// Try to get MCPFS and register connection
+	// This is simplified - would need proper subsystem access in real implementation
+}
+
+// MCPConnectionRegistry implementation
+
+void MCPConnectionRegistry::RegisterConnection(const string &name, shared_ptr<MCPConnection> connection) {
+	lock_guard<mutex> lock(registry_mutex);
+	connections[name] = connection;
+}
+
+void MCPConnectionRegistry::UnregisterConnection(const string &name) {
+	lock_guard<mutex> lock(registry_mutex);
+	connections.erase(name);
+}
+
+shared_ptr<MCPConnection> MCPConnectionRegistry::GetConnection(const string &name) {
+	lock_guard<mutex> lock(registry_mutex);
+	auto it = connections.find(name);
+	if (it != connections.end()) {
+		return it->second;
+	}
+	return nullptr;
+}
+
+} // namespace duckdb

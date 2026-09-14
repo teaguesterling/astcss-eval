@@ -38,6 +38,13 @@ FIXTURES = {
     "py-variety": "fixtures/py-variety/*.py",
     "repo-small-py": "fixtures/repo-small-py/*.py",
 }
+# Training fixtures (train/fixtures/MANIFEST.json) register alongside the eval's,
+# never replacing them; the eval's two entries above stay exactly as frozen.
+_TRAIN_MANIFEST = os.path.join(HERE, "train", "fixtures", "MANIFEST.json")
+if os.path.exists(_TRAIN_MANIFEST):
+    import json as _json
+    for _name in _json.load(open(_TRAIN_MANIFEST))["fixtures"]:
+        FIXTURES.setdefault(_name, "train/fixtures/%s/**/*.*" % _name)
 MIN_NODES, MAX_NODES = 1, 50
 COMBINATORS = ("child_selector", "descendant_selector", "sibling_selector",
                "adjacent_sibling_selector")
@@ -211,7 +218,7 @@ def execute(queries):
     lines = []
     for fx in sorted({f for _, f, _ in queries}):
         pattern = os.path.join(HERE, FIXTURES[fx])
-        if not glob.glob(pattern):
+        if not glob.glob(pattern, recursive=True):
             raise FileNotFoundError(pattern)
         lines.append("CREATE TABLE %s AS SELECT * FROM read_ast('%s');" % (_table(fx), _q(pattern)))
     for qid, fx, sel in queries:

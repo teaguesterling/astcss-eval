@@ -1,6 +1,9 @@
 """Verify a batch of candidate pairs and split it into accepted and rejected.
 
-usage: pilot.py <candidates.jsonl> <batch-id>
+usage: pilot.py <candidates.jsonl> <batch-id> [root]
+
+`root` (default: this directory) holds pairs/ and batches/; training batches use
+`train`, so they never write into, or deduplicate against, the eval's pairs/.
 
 Writes, under this directory:
   pairs/accepted-<batch>.jsonl   rows that passed every gate, in SCHEMA.md shape
@@ -61,7 +64,7 @@ def static_reasons(p):
     return reasons
 
 
-def main(path, batch):
+def main(path, batch, root=HERE):
     rows = [json.loads(line) for line in open(path) if line.strip()]
     for r in rows:
         r["selector"] = r["css"]
@@ -70,7 +73,7 @@ def main(path, batch):
 
     accepted, rejected, held, seen, prior_ids = [], [], [], {}, {}
     # Earlier batches' frozen pairs: a node set or id already taken is taken forever.
-    for prior in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl"))):
+    for prior in sorted(glob.glob(os.path.join(root, "pairs", "*.jsonl"))):
         name = os.path.basename(prior)
         if name.startswith("rejected-") or name.endswith("-%s.jsonl" % batch):
             continue
@@ -114,10 +117,10 @@ def main(path, batch):
             out["reference"] = ref
             accepted.append(out)
 
-    os.makedirs(os.path.join(HERE, "pairs"), exist_ok=True)
-    os.makedirs(os.path.join(HERE, "batches"), exist_ok=True)
+    os.makedirs(os.path.join(root, "pairs"), exist_ok=True)
+    os.makedirs(os.path.join(root, "batches"), exist_ok=True)
     for name, data in (("accepted", accepted), ("rejected", rejected), ("pending", held)):
-        with open(os.path.join(HERE, "pairs", "%s-%s.jsonl" % (name, batch)), "w") as fh:
+        with open(os.path.join(root, "pairs", "%s-%s.jsonl" % (name, batch)), "w") as fh:
             for row in data:
                 fh.write(json.dumps(row, ensure_ascii=False) + "\n")
     by_tier = {}
@@ -127,7 +130,7 @@ def main(path, batch):
             "when": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "engine": engine,
             "candidates": len(rows), "accepted": len(accepted), "rejected": len(rejected),
             "pending": len(held), "accepted_by_tier": by_tier}
-    with open(os.path.join(HERE, "batches", "%s.json" % batch), "w") as fh:
+    with open(os.path.join(root, "batches", "%s.json" % batch), "w") as fh:
         json.dump(meta, fh, indent=2, sort_keys=True)
 
     print("batch %s: %d candidates, %d accepted %s, %d pending, %d rejected\n"
@@ -143,4 +146,4 @@ def main(path, batch):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], os.path.join(HERE, sys.argv[3]) if len(sys.argv) > 3 else HERE)
