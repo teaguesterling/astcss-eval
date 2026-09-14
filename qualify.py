@@ -115,8 +115,34 @@ def npu_tasked(key):
             for m in (o.get("activate_model") or []) if m.get("active_tasks")}
 
 
-def ensure_loaded(key, want, log):
-    """Leave exactly `want` resident; refuse to evict anything with in-flight requests.
+def model_types(key):
+    return {m["model_id"]: m.get("type") for m in mgmt("models", key)["data"]}
+
+
+def yield_npu(key, model, log, max_wait=1800):
+    """Wait until no other model has NPU tasks, so our requests never overlap another
+    client's work (concurrent NPU load is what hard-resets this device). A batch that
+    starts during one of our ~1 s requests can still overlap; this narrows the window,
+    it does not close it. An unreadable NPU status counts as busy."""
+    t0, said = time.time(), False
+    while True:
+        tasked = npu_tasked(key)
+        others = None if tasked is None else sorted(m for m in tasked if m != model)
+        if others == []:
+            if said:
+                log("  npu free after %.0fs" % (time.time() - t0))
+            return
+        if time.time() - t0 > max_wait:
+            raise RuntimeError("NPU still busy (%s) after %ds" % (others, max_wait))
+        if not said:
+            log("  yielding: NPU tasks on %s" % (others if others is not None else "unknown -- status unreadable"))
+            said = True
+        time.sleep(3)
+
+
+def ensure_loaded(key, want, log, types):
+    """Make `want` resident, stopping only other chat models; refuse to evict anything
+    with in-flight requests. Non-chat models (the embedder another client uses) stay.
 
     `active_request_count` alone lies: in stage 1 it read 3 on an idle
     Qwen3-30B-A3B-Instruct for minutes after the last response while the NPU
@@ -126,9 +152,10 @@ def ensure_loaded(key, want, log):
     deadline = time.time() + 300
     while True:
         now, active = running(key)
-        if now == [want]:
+        evict = [m for m in now if m != want and types.get(m) in CHAT_TYPES]
+        if want in now and not evict:
             return 0.0
-        counted = {m for m in now if m != want and active.get(m)}
+        counted = {m for m in evict if active.get(m)}
         tasked = npu_tasked(key) if counted else set()
         busy = sorted(counted if tasked is None else counted & tasked)
         if not busy:
@@ -138,11 +165,10 @@ def ensure_loaded(key, want, log):
         log("  waiting: %s report in-flight requests" % busy)
         time.sleep(10)
     t0 = time.time()
-    for m in now:
-        if m != want:
-            mgmt("models/%s/stop" % m, key, "POST")
+    for m in evict:
+        mgmt("models/%s/stop" % m, key, "POST")
     for _ in range(40):
-        if not [m for m in running(key)[0] if m != want]:
+        if not set(evict) & set(running(key)[0]):
             break
         time.sleep(3)
     if want not in running(key)[0]:
@@ -243,9 +269,11 @@ def summarize(scored):
     for r in scored:
         by_model.setdefault(r["model"], []).append(r)
     summary = []
-    for model, rs in by_model.items():
-        answered = [r for r in rs if not r.get("error")]
-        row = {"model": model, "n": len(rs), "request_errors": len(rs) - len(answered),
+    for model, all_rows in by_model.items():
+        # A request the device refused is not a wrong answer: rates are over answered
+        # pairs only, and refusals are counted in their own column.
+        rs = answered = [r for r in all_rows if not r.get("error")]
+        row = {"model": model, "n": len(rs), "request_errors": len(all_rows) - len(answered),
                "executes": sum(r["executes"] for r in rs), "exec_match": sum(r["exec_match"] for r in rs),
                "exact": sum(r["exact"] for r in rs),
                "by_tier": {t: [sum(r["exec_match"] for r in rs if r["tier"] == t), sum(1 for r in rs if r["tier"] == t)]
@@ -253,7 +281,7 @@ def summarize(scored):
                "median_latency_s": statistics.median([r["latency_s"] for r in answered]) if answered else None,
                "mean_completion_tokens": (statistics.mean([r["completion_tokens"] for r in answered if r.get("completion_tokens")])
                                           if any(r.get("completion_tokens") for r in answered) else None),
-               "thinking": rs[0].get("thinking")}
+               "thinking": all_rows[0].get("thinking")}
         summary.append(row)
     summary.sort(key=lambda s: (-s["exec_match"], s["median_latency_s"] or 1e9))
     return summary
@@ -261,20 +289,27 @@ def summarize(scored):
 
 def print_summary(summary):
     tiers = sorted({t for s in summary for t in s["by_tier"]})
-    print("\n%-42s %4s %6s %6s %6s  %s  %8s %6s %s" % ("model", "n", "exec", "match", "exact",
+    print("\n%-42s %4s %4s %6s %6s %6s  %s  %8s %6s %s" % ("model", "n", "err", "exec", "match", "exact",
           " ".join("T%-5s" % t for t in tiers), "med s", "tok", "think"))
     for s in summary:
         pct = lambda a: "%5.1f%%" % (100.0 * a / s["n"]) if s["n"] else "   -  "
         tier_cells = " ".join("%-6s" % ("%d/%d" % tuple(s["by_tier"].get(t, [0, 0]))) for t in tiers)
-        print("%-42s %4d %6s %6s %6s  %s  %8s %6s %s" % (
-            s["model"][:42], s["n"], pct(s["executes"]), pct(s["exec_match"]), pct(s["exact"]), tier_cells,
+        print("%-42s %4d %4d %6s %6s %6s  %s  %8s %6s %s" % (
+            s["model"][:42], s["n"], s["request_errors"], pct(s["executes"]), pct(s["exec_match"]), pct(s["exact"]), tier_cells,
             s["median_latency_s"], "%.0f" % s["mean_completion_tokens"] if s["mean_completion_tokens"] else "-",
             s["thinking"]))
 
 
 def rescore(out_dir, pairs_by_id):
     rows = [json.loads(line) for line in open(os.path.join(out_dir, "responses.jsonl")) if line.strip()]
-    scored = score(rows, pairs_by_id)
+    # A resumed run re-asks pairs whose request failed: one row per (model, pair),
+    # the latest answer winning over any earlier refusal.
+    latest = {}
+    for r in rows:
+        k = (r["model"], r["id"])
+        if k not in latest or not r.get("error") or latest[k].get("error"):
+            latest[k] = r
+    scored = score(list(latest.values()), pairs_by_id)
     with open(os.path.join(out_dir, "scores.jsonl"), "w") as fh:
         for r in scored:
             fh.write(json.dumps(r, ensure_ascii=False) + "\n")
@@ -306,6 +341,7 @@ def cmd_run(args):
     pairs = sample(load_pairs(), args.per_tier, args.seed)
     by_id = {p["id"]: p for p in pairs}
     cat = catalog(key)
+    types = model_types(key)
     models = args.models.split(",") if args.models else sorted(cat)
     unknown = [m for m in models if m not in cat]
     if unknown:
@@ -343,7 +379,7 @@ def cmd_run(args):
                     log("%s: already complete" % model)
                     continue
                 try:
-                    load_s = ensure_loaded(key, model, log)
+                    load_s = ensure_loaded(key, model, log, types)
                     log("%s: loaded in %.0fs, %d pairs to ask" % (model, load_s, len(todo)))
                 except Exception as e:
                     log("%s: LOAD FAILED %s: %s" % (model, type(e).__name__, e))
@@ -353,7 +389,18 @@ def cmd_run(args):
                     body, mode = request_body(model, cat[model], card, p["nl"])
                     row = {"model": model, "id": p["id"], "thinking": mode, "nl": p["nl"]}
                     try:
-                        row.update(chat(key, body))
+                        yield_npu(key, model, log)
+                        try:
+                            row.update(chat(key, body))
+                        except urllib.error.HTTPError as e:
+                            if e.code != 503:
+                                raise
+                            # Stage 1: GLM-4.7-Flash was unloaded mid-run by something else.
+                            log("  %s: 503 %s -- reloading, retrying once"
+                                % (model, e.read().decode("utf-8", "replace")[:120]))
+                            ensure_loaded(key, model, log, types)
+                            yield_npu(key, model, log)
+                            row.update(chat(key, body))
                         row["prediction"] = extract(row["content"])
                         strikes = 0
                     except Exception as e:
@@ -373,7 +420,7 @@ def cmd_run(args):
             # have loaded a second model (stage 1 found the embedder beside 30B-Instruct).
             try:
                 log("restoring %s" % original)
-                ensure_loaded(key, original[0], log)
+                ensure_loaded(key, original[0], log, types)
                 for extra in original[1:]:
                     if extra not in running(key)[0]:
                         mgmt("models/%s/start" % extra, key, "POST", timeout=180)

@@ -1,5 +1,63 @@
 [
   {
+    "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+    "n": 40,
+    "request_errors": 0,
+    "executes": 39,
+    "exec_match": 29,
+    "exact": 28,
+    "by_tier": {
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        8,
+        10
+      ],
+      "4": [
+        7,
+        10
+      ]
+    },
+    "median_latency_s": 0.495,
+    "mean_completion_tokens": 5.575,
+    "thinking": "none"
+  },
+  {
+    "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct-Turbo",
+    "n": 40,
+    "request_errors": 0,
+    "executes": 39,
+    "exec_match": 26,
+    "exact": 25,
+    "by_tier": {
+      "1": [
+        5,
+        10
+      ],
+      "2": [
+        8,
+        10
+      ],
+      "3": [
+        8,
+        10
+      ],
+      "4": [
+        5,
+        10
+      ]
+    },
+    "median_latency_s": 0.615,
+    "mean_completion_tokens": 5.625,
+    "thinking": "none"
+  },
+  {
     "model": "Qwen/Qwen3-30B-A3B-Instruct",
     "n": 40,
     "request_errors": 0,
@@ -55,6 +113,27 @@
     },
     "median_latency_s": 0.585,
     "mean_completion_tokens": 6.2,
+    "thinking": "off"
+  },
+  {
+    "model": "zai-org/GLM-4.7-Flash",
+    "n": 11,
+    "request_errors": 3,
+    "executes": 8,
+    "exec_match": 2,
+    "exact": 2,
+    "by_tier": {
+      "1": [
+        2,
+        10
+      ],
+      "2": [
+        0,
+        1
+      ]
+    },
+    "median_latency_s": 1.24,
+    "mean_completion_tokens": 6,
     "thinking": "off"
   }
 ]
