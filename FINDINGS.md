@@ -46,6 +46,42 @@ raises "attribute filters inside :has(...) are not supported", so the tutorial's
 full example `.class#UserService .func:has(.call#execute):not(:has(.try)):has(.str[peek*=SELECT])`
 errors (noted in PR #129): `pending_engine:attr-in-has`.
 
+**Unknown `.class` names silently match nothing.** `.with_statement`,
+`.while_statement`, `.with`, `.decorator` and `.nosuchclass` all return 0 rows
+with no error, while an unknown pseudo-class is refused. It is the selector-level
+face of #132 (added there as a comment with the numbers below).
+
+## From the stage 1 qualifier (11 models x 40 pairs, card v1)
+
+Pairs that nearly every model missed were read answer by answer before being
+blamed on the models:
+
+- **Leading dot on node types** — 18 misses, from all 11 models (`.with_statement`
+  7x on t1-p20, `.while_statement`, `.continue_statement`, `.decorated_definition`,
+  `.except_handler`).
+  The card lists types without a dot but never says the dot is wrong, and the
+  engine returns 0 rows instead of an error.
+- **`.while` / `.continue` are whole-kind aliases.** "while loops" -> `.loop` (4x)
+  or `.while` returns all 56 loops; "continue statements" -> `.jump#continue` (5x)
+  returns 0 (jumps have no name). Card v1 does not warn about either.
+- **`#name` is the bare name.** "json dumps calls" -> `.call#json.dumps` (6 of 11
+  models) returns 0; the callee name is `dumps`. Card v1 does not say so.
+- **`.mod >` habit.** 12 misses (8 from GLM-4.7-Flash) prefix `.mod >` where the
+  request says nothing about module level; card v1's `.mod > .fn` example is the
+  likely source.
+- **Three-step chains and filters on the first step** — 19 answers refused by the
+  engine, despite the card's "exactly two steps" line.
+- **t2-p22 is an NL defect, not a hard pair.** "subcommand parsers being added"
+  expects `.call#add_parser`; answering needs argparse trivia (one model guessed
+  `add_subparsers`, a different real call). One of 11 models matched. Its NL should
+  name the call, the way a developer who knows the code would ask.
+- **Genuine discriminators**, where the misses are model errors: t4-p08 "classes
+  with a speak method" (6 models returned the methods, `.class .fn#speak`) and
+  t4-p29 "conditionals that return or skip" (`.if .jump` returns the jumps).
+- **Engine refusal of an equivalent answer**: `.loop:has(.call[name="append"])`
+  means `.loop:has(.call#append)` but attribute filters inside `:has` are refused
+  (gemma-4-26B-A4B-it, t4-p31).
+
 ## Taxonomy observations (no defect claimed)
 
 - `.loop` includes comprehension `for_in_clause`, and `.if` includes `if_clause`,
