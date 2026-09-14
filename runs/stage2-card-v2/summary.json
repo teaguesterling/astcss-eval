@@ -1,0 +1,118 @@
+[
+  {
+    "model": "Qwen/Qwen3.6-27B",
+    "n": 109,
+    "request_errors": 0,
+    "executes": 108,
+    "exec_match": 101,
+    "exact": 94,
+    "by_tier": {
+      "1": [
+        20,
+        21
+      ],
+      "2": [
+        25,
+        26
+      ],
+      "3": [
+        29,
+        31
+      ],
+      "4": [
+        27,
+        31
+      ]
+    },
+    "median_latency_s": 2.63,
+    "mean_completion_tokens": 5.532110091743119,
+    "thinking": "off"
+  },
+  {
+    "model": "claude-haiku-4-5-20251001",
+    "n": 109,
+    "request_errors": 0,
+    "executes": 108,
+    "exec_match": 100,
+    "exact": 85,
+    "by_tier": {
+      "1": [
+        19,
+        21
+      ],
+      "2": [
+        25,
+        26
+      ],
+      "3": [
+        30,
+        31
+      ],
+      "4": [
+        26,
+        31
+      ]
+    },
+    "median_latency_s": 5.45,
+    "mean_completion_tokens": 526.5412844036697,
+    "thinking": "n/a"
+  },
+  {
+    "model": "google/gemma-4-26B-A4B-it",
+    "n": 109,
+    "request_errors": 0,
+    "executes": 105,
+    "exec_match": 82,
+    "exact": 61,
+    "by_tier": {
+      "1": [
+        15,
+        21
+      ],
+      "2": [
+        22,
+        26
+      ],
+      "3": [
+        25,
+        31
+      ],
+      "4": [
+        20,
+        31
+      ]
+    },
+    "median_latency_s": 0.66,
+    "mean_completion_tokens": 7.055045871559633,
+    "thinking": "off"
+  },
+  {
+    "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+    "n": 109,
+    "request_errors": 0,
+    "executes": 108,
+    "exec_match": 76,
+    "exact": 68,
+    "by_tier": {
+      "1": [
+        16,
+        21
+      ],
+      "2": [
+        21,
+        26
+      ],
+      "3": [
+        21,
+        31
+      ],
+      "4": [
+        18,
+        31
+      ]
+    },
+    "median_latency_s": 0.5,
+    "mean_completion_tokens": 5.486238532110092,
+    "thinking": "none"
+  }
+]
