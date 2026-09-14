@@ -67,7 +67,7 @@ def main(path, batch):
     report = V.verify(rows)
     engine = V.engine_identity()
 
-    accepted, rejected, seen = [], [], {}
+    accepted, rejected, held, seen = [], [], [], {}
     for r in rows:
         v = report[r["id"]]
         reasons = static_reasons(r) + list(v["reasons"])
@@ -81,7 +81,14 @@ def main(path, batch):
         out = {k: r[k] for k in ("id", "tier", "nl", "paraphrases", "css", "fixture", "distractors")}
         out["treeql"] = r.get("treeql")
         out["verification"] = {"batch": batch, "relaxations": v["relaxations"], "distractors": v["distractors"]}
-        if reasons:
+        pending = [t for t in r.get("tags", []) if t.startswith("pending_engine:")]
+        if pending and not reasons:
+            # It passes the gates, but the engine's answer is known wrong: keep the
+            # frozen set for when the engine is fixed, never score it.
+            out["tags"] = pending
+            out["reference"] = ref
+            held.append(out)
+        elif reasons:
             out["tags"] = ["rejected"]
             out["reasons"] = reasons
             if ref:
@@ -94,7 +101,7 @@ def main(path, batch):
 
     os.makedirs(os.path.join(HERE, "pairs"), exist_ok=True)
     os.makedirs(os.path.join(HERE, "batches"), exist_ok=True)
-    for name, data in (("accepted", accepted), ("rejected", rejected)):
+    for name, data in (("accepted", accepted), ("rejected", rejected), ("pending", held)):
         with open(os.path.join(HERE, "pairs", "%s-%s.jsonl" % (name, batch)), "w") as fh:
             for row in data:
                 fh.write(json.dumps(row, ensure_ascii=False) + "\n")
@@ -104,14 +111,16 @@ def main(path, batch):
     meta = {"batch": batch, "source": os.path.relpath(path, HERE),
             "when": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "engine": engine,
             "candidates": len(rows), "accepted": len(accepted), "rejected": len(rejected),
-            "accepted_by_tier": by_tier}
+            "pending": len(held), "accepted_by_tier": by_tier}
     with open(os.path.join(HERE, "batches", "%s.json" % batch), "w") as fh:
         json.dump(meta, fh, indent=2, sort_keys=True)
 
-    print("batch %s: %d candidates, %d accepted %s, %d rejected\n"
-          % (batch, len(rows), len(accepted), by_tier, len(rejected)))
-    for row in accepted + rejected:
-        ok = "ACCEPT" if row in accepted else "reject"
+    print("batch %s: %d candidates, %d accepted %s, %d pending, %d rejected\n"
+          % (batch, len(rows), len(accepted), by_tier, len(held), len(rejected)))
+    for row in accepted + held + rejected:
+        ok = "ACCEPT" if row in accepted else ("hold" if row in held else "reject")
+        if row in held:
+            row = dict(row, reasons=row["tags"])
         n = row.get("reference", {}).get("count", "-")
         print("%-6s %-7s %-44s %-13s n=%s" % (ok, row["id"], row["css"][:44], row["fixture"], n))
         for why in row.get("reasons", []):
