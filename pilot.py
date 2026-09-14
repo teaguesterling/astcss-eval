@@ -114,6 +114,39 @@ def has_truth_mismatches(rows):
     return bad
 
 
+def eval_overlap(rows):
+    """Training gate: the held-out eval must stay held out.
+
+    A training pair whose request or a paraphrase is an eval request, or (tier 2 and
+    above) whose selector is an eval answer, would teach the eval's answers directly,
+    whatever the fixture or language: a selector string is language-agnostic. Bare
+    tier-1 classes and node types are vocabulary the card already lists, so they are
+    allowed. Eval pairs are pairs/{accepted,pending,retired}*.jsonl."""
+    norm = lambda s: " ".join(s.lower().split())  # noqa: E731
+    ev_nl, ev_css = {}, {}
+    for path in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl"))):
+        if os.path.basename(path).startswith("rejected-"):
+            continue
+        for line in open(path):
+            p = json.loads(line)
+            for t in [p.get("nl", "")] + (p.get("paraphrases") or []):
+                if t:
+                    ev_nl[norm(t)] = p["id"]
+            if p.get("css"):
+                ev_css[p["css"]] = p["id"]
+    bad = {}
+    for r in rows:
+        hits = []
+        for t in [r.get("nl", "")] + (r.get("paraphrases") or []):
+            if t and norm(t) in ev_nl:
+                hits.append('request "%s" is eval pair %s\'s' % (t, ev_nl[norm(t)]))
+        if r.get("tier", 0) >= 2 and r.get("css") in ev_css:
+            hits.append("selector %s is eval pair %s's answer" % (r["css"], ev_css[r["css"]]))
+        if hits:
+            bad[r["id"]] = "overlaps the held-out eval: " + "; ".join(hits)
+    return bad
+
+
 def main(path, batch, root=HERE):
     rows = [json.loads(line) for line in open(path) if line.strip()]
     for r in rows:
@@ -121,6 +154,7 @@ def main(path, batch, root=HERE):
     report = V.verify(rows)
     # Training batches only: the eval's pairs were audited by hand (FINDINGS.md).
     has_bad = has_truth_mismatches(rows) if os.path.abspath(root) != HERE else {}
+    overlap_bad = eval_overlap(rows) if os.path.abspath(root) != HERE else {}
     engine = V.engine_identity()
 
     accepted, rejected, held, seen, prior_ids = [], [], [], {}, {}
@@ -141,6 +175,8 @@ def main(path, batch, root=HERE):
         reasons = static_reasons(r) + list(v["reasons"])
         if r["id"] in has_bad:
             reasons.append(has_bad[r["id"]])
+        if r["id"] in overlap_bad:
+            reasons.append(overlap_bad[r["id"]])
         if r["id"] in prior_ids:
             reasons.append("id already frozen in %s" % prior_ids[r["id"]])
         ref = v.get("reference")
