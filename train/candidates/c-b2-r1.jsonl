@@ -1,0 +1,1 @@
+{"id": "tr-c-t4-0028", "tier": 4, "fixture": "c-duckhts", "nl": "functions that call error", "paraphrases": ["which routines report a fatal problem through the shared failure helper", "find every definition invoking the library's abort on failure routine"], "css": ".fn:has(.call#error)", "distractors": [".fn:has(.call#perror)", ".fn:has(.call#assert)"], "treeql": null}

@@ -78,6 +78,12 @@ specific node type instead (no leading dot).
 - `.fn` is `function_definition` and `preproc_function_def`; `.class` is
   `struct_specifier`, `type_definition`, `enum_specifier`, `union_specifier`.
   `.jump` includes `goto_statement`.
+- **`>` from a function or struct to its contents matches nothing**: a
+  `function_definition`'s only direct child is its `compound_statement`, and struct
+  fields sit inside a `field_declaration_list` (`.fn > .call`, `.fn > .var`,
+  `.class > .var` are all 0). Use descendant steps; `>` works for flat relations such as
+  `.mod > .class` or `preproc_ifdef > .fn`. Bare classes exceed 50 nodes on c-duckhts
+  (`.fn` 272, `.call` 2,040), so T1 pairs need node types. (Found by the C drafting agent.)
 
 ## Java — fixture java-rosetta
 
