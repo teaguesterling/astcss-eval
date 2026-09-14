@@ -22,6 +22,7 @@ device reports in-flight requests on it, and whatever was loaded before the run
 is loaded again after it.
 """
 import argparse
+import concurrent.futures
 import glob
 import hashlib
 import json
@@ -29,7 +30,9 @@ import os
 import random
 import re
 import statistics
+import subprocess
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -240,6 +243,63 @@ def chat(key, body, timeout=900):
             "completion_tokens": usage.get("completion_tokens"), "finish_reason": finish}
 
 
+def claude_chat(model, card_path, nl, cwd, timeout=300):
+    """One request to an Anthropic model through `claude -p`, as a control arm.
+
+    The card replaces the system prompt; tools, skills, MCP servers and settings
+    sources are all off, and it runs from an empty directory so no CLAUDE.md is
+    discovered (a probe measured 1082 input tokens: card plus request, nothing
+    else). A tool use or error is an error, never an answer."""
+    cmd = ["claude", "-p", "--tools", "", "--disable-slash-commands", "--setting-sources", "",
+           "--strict-mcp-config", "--no-session-persistence", "--output-format", "json",
+           "--model", model, "--system-prompt-file", card_path]
+    t0 = time.time()
+    proc = subprocess.run(cmd, input=nl, capture_output=True, text=True, timeout=timeout, cwd=cwd)
+    try:
+        data = json.loads(proc.stdout)
+    except ValueError:
+        raise RuntimeError("claude -p exit %s: %s" % (proc.returncode, (proc.stdout or proc.stderr)[:300]))
+    items = data if isinstance(data, list) else [data]
+    results = [x for x in items if x.get("type") == "result"]
+    if not results:
+        raise RuntimeError("claude -p gave no result event (exit %s)" % proc.returncode)
+    res = results[-1]
+    tool_uses = sum(1 for x in items if x.get("type") == "assistant"
+                    for c in (x.get("message", {}).get("content") or [])
+                    if isinstance(c, dict) and c.get("type") == "tool_use")
+    if res.get("is_error") or tool_uses:
+        raise RuntimeError("claude -p: %s (tool_uses=%d)" % (str(res.get("result"))[:200], tool_uses))
+    usage = res.get("usage") or {}
+    return {"content": res.get("result") or "", "reasoning_chars": 0,
+            "latency_s": round(time.time() - t0, 2), "first_token_s": None,
+            "completion_tokens": usage.get("output_tokens"), "input_tokens": usage.get("input_tokens"),
+            "finish_reason": res.get("stop_reason"), "cost_usd": res.get("total_cost_usd")}
+
+
+def run_cloud(model, card_path, todo, fh, log, workers=4):
+    """Cloud models don't touch the device, so they skip loading and NPU yielding and
+    run a few requests at a time. Latency includes ~4 s of CLI start-up: it is not
+    comparable to device latency."""
+    cwd = tempfile.mkdtemp(prefix="qualify-cloud-")
+    log("%s: cloud via claude -p, %d pairs, %d at a time" % (model, len(todo), workers))
+
+    def ask(p):
+        row = {"model": model, "id": p["id"], "thinking": "n/a", "nl": p["nl"]}
+        try:
+            row.update(claude_chat(model, card_path, p["nl"], cwd))
+            row["prediction"] = extract(row["content"])
+        except Exception as e:
+            row["error"] = "%s: %s" % (type(e).__name__, str(e)[:300])
+        return row
+
+    with concurrent.futures.ThreadPoolExecutor(workers) as ex:
+        for row in ex.map(ask, todo):
+            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+            fh.flush()
+            log("%s %-7s %6ss %-40s %s" % (model[:24], row["id"], row.get("latency_s", "-"),
+                                           (row.get("prediction") or "")[:40], row.get("error", "")[:80]))
+
+
 # ---------------------------------------------------------------------------
 # Extraction and scoring
 # ---------------------------------------------------------------------------
@@ -370,7 +430,7 @@ def cmd_run(args):
     cat = catalog(key)
     types = model_types(key)
     models = args.models.split(",") if args.models else sorted(cat)
-    unknown = [m for m in models if m not in cat]
+    unknown = [m for m in models if m not in cat and not m.startswith("claude-")]
     if unknown:
         sys.exit("not downloaded chat models on the device: %s" % unknown)
 
@@ -395,7 +455,7 @@ def cmd_run(args):
                    "card": os.path.relpath(card_path, HERE),
                    "card_sha256": hashlib.sha256(card.encode()).hexdigest(),
                    "leaked_ids": leaked_ids(card, load_pairs()),
-                   "catalog_thinking": {m: cat[m] for m in models}, "engine": V.engine_identity()},
+                   "catalog_thinking": {m: cat.get(m, "cloud") for m in models}, "engine": V.engine_identity()},
                   open(meta_path, "w"), indent=2)
 
     original = running(key)[0]
@@ -406,6 +466,9 @@ def cmd_run(args):
                 todo = [p for p in pairs if (model, p["id"]) not in done]
                 if not todo:
                     log("%s: already complete" % model)
+                    continue
+                if model.startswith("claude-"):
+                    run_cloud(model, card_path, todo, fh, log)
                     continue
                 try:
                     load_s = ensure_loaded(key, model, log, types)
