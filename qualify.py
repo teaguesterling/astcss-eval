@@ -29,6 +29,7 @@ import json
 import os
 import random
 import re
+import signal
 import statistics
 import subprocess
 import sys
@@ -196,6 +197,66 @@ def ensure_loaded(key, want, log, types):
     raise RuntimeError("%s did not come up within 15 min" % want)
 
 
+EMBED_HOST = os.environ.get("QUALIFY_EMBED_HOST", "longbottom")
+# The leading [e] keeps the pattern from matching the remote shell running pgrep.
+EMBED_MATCH = os.environ.get("QUALIFY_EMBED_MATCH", "[e]mbed_corpus.py --watch")
+PAUSE_GUARD = "~/astcss-tune/npu-pause-guard.sh"
+PAUSE_LEASE = "~/astcss-tune/npu-pause.lease"
+
+
+def _ssh(cmd, timeout=40):
+    out = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", EMBED_HOST, cmd],
+                         capture_output=True, text=True, timeout=timeout)
+    if out.returncode != 0:
+        raise RuntimeError("ssh %s exit %s: %s" % (EMBED_HOST, out.returncode, (out.stderr or out.stdout)[:200]))
+    return out.stdout.strip()
+
+
+class EmbedPause:
+    """Stop the NPU embedding job while device models run (decided 2026-09-14).
+
+    A chat request that overlapped the job's batches hung 108 s, the runtime dropped
+    the chat model and recreated the embedder, and the job got a 504 and a 500 at the
+    same moment. Pausing the job removes the overlap entirely. SIGSTOP/SIGCONT only:
+    the job's shards are written atomically and failed batches are retried or
+    re-picked. A guard on the embedding host resumes the job if this process stops
+    renewing the lease for 10 minutes, so a killed run cannot leave it stopped."""
+
+    def __init__(self, log):
+        self.log, self.pid, self.active, self.renewed = log, None, False, 0.0
+
+    def __enter__(self):
+        self.active = True
+        pid = _ssh("pgrep -f '%s' | head -1 || true" % EMBED_MATCH)
+        if not pid:
+            self.log("embed pause: no embedding job on %s; nothing to pause" % EMBED_HOST)
+            return self
+        state = _ssh("touch %s && (nohup %s %s %s >/dev/null 2>&1 < /dev/null &) && kill -STOP %s && sleep 1 "
+                     "&& awk '/^State:/{print $2}' /proc/%s/status" % (PAUSE_LEASE, PAUSE_GUARD, pid, PAUSE_LEASE, pid, pid))
+        self.pid, self.renewed = pid, time.time()
+        self.log("embed pause: SIGSTOP pid %s on %s, state %s, lease guard running" % (pid, EMBED_HOST, state))
+        return self
+
+    def renew(self):
+        if self.pid and time.time() - self.renewed > 120:
+            try:
+                _ssh("touch %s" % PAUSE_LEASE)
+                self.renewed = time.time()
+            except Exception as e:
+                self.log("embed pause: lease renewal failed (%s)" % e)
+
+    def __exit__(self, *exc):
+        if self.pid:
+            try:
+                state = _ssh("rm -f %s; kill -CONT %s; sleep 1; awk '/^State:/{print $2}' /proc/%s/status"
+                             % (PAUSE_LEASE, self.pid, self.pid))
+                self.log("embed pause: SIGCONT pid %s, state %s" % (self.pid, state))
+            except Exception as e:
+                self.log("embed pause: RESUME FAILED (%s); the guard resumes it within 10 min" % e)
+        self.active, self.pid = False, None
+        return False
+
+
 def request_body(model, thinking, card, nl):
     body = {"model": model, "stream": True, "temperature": 0,
             "messages": [{"role": "system", "content": card}, {"role": "user", "content": nl}]}
@@ -237,7 +298,13 @@ def chat(key, body, timeout=900):
                     first = first or time.time()
                     reasoning.append(delta.get("reasoning_content") or delta.get("reasoning"))
                 finish = choice.get("finish_reason") or finish
-    return {"content": "".join(content), "reasoning_chars": len("".join(reasoning)),
+    text = "".join(content)
+    if not text.strip():
+        # Stage 3: a request that straddled a runtime restart returned 200 with no content
+        # after 108 s. An empty answer is a failure to answer, never a wrong answer.
+        raise RuntimeError("empty response after %.1fs (finish_reason=%s, reasoning_chars=%d)"
+                           % (time.time() - t0, finish, len("".join(reasoning))))
+    return {"content": text, "reasoning_chars": len("".join(reasoning)),
             "latency_s": round(time.time() - t0, 2),
             "first_token_s": round(first - t0, 2) if first else None,
             "completion_tokens": usage.get("completion_tokens"), "finish_reason": finish}
@@ -269,6 +336,8 @@ def claude_chat(model, card_path, nl, cwd, timeout=300):
                     if isinstance(c, dict) and c.get("type") == "tool_use")
     if res.get("is_error") or tool_uses:
         raise RuntimeError("claude -p: %s (tool_uses=%d)" % (str(res.get("result"))[:200], tool_uses))
+    if not (res.get("result") or "").strip():
+        raise RuntimeError("claude -p: empty result")
     usage = res.get("usage") or {}
     return {"content": res.get("result") or "", "reasoning_chars": 0,
             "latency_s": round(time.time() - t0, 2), "first_token_s": None,
@@ -439,7 +508,9 @@ def cmd_run(args):
     resp_path = os.path.join(out_dir, "responses.jsonl")
     done = set()
     if os.path.exists(resp_path):
-        done = {(r["model"], r["id"]) for r in map(json.loads, open(resp_path)) if not r.get("error")}
+        # Errors and empty answers are asked again.
+        done = {(r["model"], r["id"]) for r in map(json.loads, open(resp_path))
+                if not r.get("error") and (r.get("content") or "").strip()}
     logfile = open(os.path.join(out_dir, "run.log"), "a")
 
     def log(msg):
@@ -460,6 +531,10 @@ def cmd_run(args):
 
     original = running(key)[0]
     log("run: %d models x %d pairs -> %s (device had %s)" % (len(models), len(pairs), out_dir, original))
+    # SIGTERM runs the finally below (restore models, resume embedding) instead of dying mid-run.
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
+    has_device = any(not m.startswith("claude-") for m in models)
+    pause = EmbedPause(log) if has_device and not args.no_embed_pause else None
     try:
         with open(resp_path, "a") as fh:
             for model in models:
@@ -470,7 +545,10 @@ def cmd_run(args):
                 if model.startswith("claude-"):
                     run_cloud(model, card_path, todo, fh, log)
                     continue
+                if pause and not pause.active:
+                    pause.__enter__()
                 try:
+                    yield_npu(key, model, log)
                     load_s = ensure_loaded(key, model, log, types)
                     log("%s: loaded in %.0fs, %d pairs to ask" % (model, load_s, len(todo)))
                 except Exception as e:
@@ -481,6 +559,8 @@ def cmd_run(args):
                     body, mode = request_body(model, cat[model], card, p["nl"])
                     row = {"model": model, "id": p["id"], "thinking": mode, "nl": p["nl"]}
                     try:
+                        if pause:
+                            pause.renew()
                         yield_npu(key, model, log)
                         try:
                             row.update(chat(key, body))
@@ -518,6 +598,8 @@ def cmd_run(args):
                         mgmt("models/%s/start" % extra, key, "POST", timeout=180)
             except Exception as e:
                 log("RESTORE FAILED %s: %s" % (type(e).__name__, e))
+        if pause and pause.active:
+            pause.__exit__(None, None, None)
     rescore(out_dir, {p["id"]: p for p in load_pairs()})
 
 
@@ -526,6 +608,8 @@ def main():
     ap.add_argument("command", choices=("oracle", "run", "score"))
     ap.add_argument("--models")
     ap.add_argument("--card", help="vocabulary card for the system prompt (default card.md)")
+    ap.add_argument("--no-embed-pause", action="store_true",
+                    help="don't pause the NPU embedding job during device runs")
     ap.add_argument("--per-tier", type=int, default=10)
     ap.add_argument("--seed", default="qualify-v1")
     ap.add_argument("--out")
