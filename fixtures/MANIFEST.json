@@ -1,0 +1,241 @@
+{
+  "fixtures": {
+    "py-variety": {
+      "commit": "db1b04349a6dc3b83435e97d951158bc6f121e28",
+      "files": [
+        {
+          "bytes": 279,
+          "lines": 16,
+          "path": "comments.py",
+          "sha256": "36445a56b7b64848e49cd0cf6a52cd428b20fe70b740000c065428534591fdc3",
+          "source": "test/data/python/comments.py"
+        },
+        {
+          "bytes": 930,
+          "lines": 51,
+          "path": "css_selectors_test.py",
+          "sha256": "0b607a8454fbc517f2e5d927fd3288afe82e5af50e9a16c5d5c46b2250690bf7",
+          "source": "test/data/python/css_selectors_test.py"
+        },
+        {
+          "bytes": 258,
+          "lines": 14,
+          "path": "decorators.py",
+          "sha256": "62d43a0f20c9881584e3f6f7dd895da71b8616979526708d2d6d52d8705a6a61",
+          "source": "test/data/python/decorators.py"
+        },
+        {
+          "bytes": 403,
+          "lines": 13,
+          "path": "deep_nesting.py",
+          "sha256": "b1c4a33de47252ebb3924e0537449ac10bf6e6de7fca17594db82226711db99c",
+          "source": "test/data/python/deep_nesting.py"
+        },
+        {
+          "bytes": 0,
+          "lines": 0,
+          "path": "empty.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source": "test/data/python/empty.py"
+        },
+        {
+          "bytes": 270,
+          "lines": 11,
+          "path": "import_forms.py",
+          "sha256": "18fe843a2b795e2ec172d887765fb1ffbf6983e2827ba89f8e7854e449986369",
+          "source": "test/data/python/import_forms.py"
+        },
+        {
+          "bytes": 106,
+          "lines": 5,
+          "path": "imports.py",
+          "sha256": "1ddef53be74557dad4e5510f0d21470bb67f5fcb257cb7627926bc910bed563e",
+          "source": "test/data/python/imports.py"
+        },
+        {
+          "bytes": 522,
+          "lines": 25,
+          "path": "inheritance.py",
+          "sha256": "0e0ea25c79206218735ddd1fece7d3bb1b7773eb0545d9cb96897a80c1e31e62",
+          "source": "test/data/python/inheritance.py"
+        },
+        {
+          "bytes": 482,
+          "lines": 16,
+          "path": "lambdas.py",
+          "sha256": "a9eb749cea5fb575a3077a75fe0fb5f1c1964b564de99edab49f1bb4f1317f26",
+          "source": "test/data/python/lambdas.py"
+        },
+        {
+          "bytes": 1632,
+          "lines": 51,
+          "path": "qualified_name_collisions.py",
+          "sha256": "fd1c47ef923e19f70c8dde160edfe018bd4ecdcd33b65f626e4ccd858bda3cdc",
+          "source": "test/data/python/qualified_name_collisions.py"
+        },
+        {
+          "bytes": 412,
+          "lines": 25,
+          "path": "qualified_names.py",
+          "sha256": "ebfb521f20284db44b7ad8de3ccb7bc29305475f46eb25115e35f1b6fc99a891",
+          "source": "test/data/python/qualified_names.py"
+        },
+        {
+          "bytes": 4155,
+          "lines": 163,
+          "path": "sample_app.py",
+          "sha256": "97e43d4ac3d5d666e401fca03bbc14e3d263658829a877d1a150eeaffae2e5eb",
+          "source": "test/data/python/sample_app.py"
+        },
+        {
+          "bytes": 297,
+          "lines": 17,
+          "path": "simple.py",
+          "sha256": "54d4778a82406e28321345ba2a84e57da2f624282de568a00422d78586b56998",
+          "source": "test/data/python/simple.py"
+        },
+        {
+          "bytes": 41,
+          "lines": 1,
+          "path": "syntax_error.py",
+          "sha256": "6a980bb05dea872bf24fa9e28d784499f67b8738536b9af538ba07a3f2d132cd",
+          "source": "test/data/python/syntax_error.py"
+        },
+        {
+          "bytes": 148,
+          "lines": 5,
+          "path": "test_classes.py",
+          "sha256": "0ac32c8ad9af63fef7064cd25201ade5c601f0739f6859e780250427cda0985b",
+          "source": "test/data/python/test_classes.py"
+        },
+        {
+          "bytes": 1688,
+          "lines": 59,
+          "path": "typed_example.py",
+          "sha256": "4d5d1729a7d2962e8e259a1e247352c7601b2f7ba134f7ff9ba52471ec16801d",
+          "source": "test/data/python/typed_example.py"
+        },
+        {
+          "bytes": 222,
+          "lines": 11,
+          "path": "unicode.py",
+          "sha256": "e003dd3451132bfc5a20f12644f0e5b26dd5d5554ff0788dd96dc2b7aa04aa12",
+          "source": "test/data/python/unicode.py"
+        }
+      ],
+      "repo": "teaguesterling/sitting_duck"
+    },
+    "repo-small-py": {
+      "commit": "4eeeee6dec56530e717e4833929cf22ca32accd7",
+      "files": [
+        {
+          "bytes": 7665,
+          "lines": 198,
+          "path": "add_parsing_context.py",
+          "sha256": "69eb85c64d361df73f971cb5ad1a6d485fd013f3ad784304593d04bd746b153a",
+          "source": "scripts/add_parsing_context.py"
+        },
+        {
+          "bytes": 2121,
+          "lines": 48,
+          "path": "add_parsing_context_declarations.py",
+          "sha256": "16f7871dace835579f82696798efbd8e1ec5c9c475b39b907b79e6dfc0ec2a07",
+          "source": "scripts/add_parsing_context_declarations.py"
+        },
+        {
+          "bytes": 2685,
+          "lines": 71,
+          "path": "add_parsing_function.py",
+          "sha256": "00b0e87ccf26e5aa5409210b3fb3e0ff69326e3f5f12bc99e2c4febe6af1c4cc",
+          "source": "scripts/add_parsing_function.py"
+        },
+        {
+          "bytes": 10566,
+          "lines": 274,
+          "path": "analyze_file_functions.py",
+          "sha256": "10cae1d888f0e9bbc0170cd462650c5b96063e66a47a59a10b52ccc79491a03d",
+          "source": "scripts/analyze_file_functions.py"
+        },
+        {
+          "bytes": 6013,
+          "lines": 198,
+          "path": "bootstrap-template.py",
+          "sha256": "6b03128dbd72fd41eee1d994535a5e95ade32f81be1a1841bd867f6773d3e584",
+          "source": "scripts/bootstrap-template.py"
+        },
+        {
+          "bytes": 2436,
+          "lines": 54,
+          "path": "clean_unified_backend.py",
+          "sha256": "e4a0ab3c9d5ad915c0c880e3e390a24fb5fcbafc8baa4e8d46b1af59029216f7",
+          "source": "scripts/clean_unified_backend.py"
+        },
+        {
+          "bytes": 4111,
+          "lines": 131,
+          "path": "embed_sql_macros.py",
+          "sha256": "70175ef40cb19d9d3e3ccdaf6726736c4d7e0d8f3cf9340204b93f8000e11930",
+          "source": "scripts/embed_sql_macros.py"
+        },
+        {
+          "bytes": 2548,
+          "lines": 70,
+          "path": "fix_clean_api_test.py",
+          "sha256": "1bc177b71df4158ee455d9dfe292cede0082c0c440609df882367f418ee2a28e",
+          "source": "scripts/fix_clean_api_test.py"
+        },
+        {
+          "bytes": 1085,
+          "lines": 29,
+          "path": "fix_unified_backend.py",
+          "sha256": "f1fef1cd64302abdca0771ef18061f2268f0e7ffac9ee882da6e25c9b55202e2",
+          "source": "scripts/fix_unified_backend.py"
+        },
+        {
+          "bytes": 8479,
+          "lines": 212,
+          "path": "generate_def_file.py",
+          "sha256": "090b4adcacb88a5d6428a3f0498fd8be54dd8e36683d6cf7de6760c24cc51e03",
+          "source": "scripts/generate_def_file.py"
+        },
+        {
+          "bytes": 8569,
+          "lines": 252,
+          "path": "migrate_tests_to_semantic_types.py",
+          "sha256": "fdf006ef3d4681668f309e43074d50dce078348d3400088964bec5743badf097",
+          "source": "scripts/migrate_tests_to_semantic_types.py"
+        },
+        {
+          "bytes": 14034,
+          "lines": 387,
+          "path": "parquet_index_manager.py",
+          "sha256": "562d6f19cdefe847adcda100d5b96b16fe74e1c633d1b76b66cdb3610ee7f140",
+          "source": "scripts/parquet_index_manager.py"
+        },
+        {
+          "bytes": 854,
+          "lines": 25,
+          "path": "remove_all_parsing_context.py",
+          "sha256": "c8720878c69974e3568fd2f42052ac12639f5d5a712932433af802fcb0bb92d9",
+          "source": "scripts/remove_all_parsing_context.py"
+        },
+        {
+          "bytes": 1370,
+          "lines": 37,
+          "path": "remove_parsing_context.py",
+          "sha256": "73a606fa9d9cd0a75d411279a21686523b1779da5240fbe2e3bc83a6fd41fa46",
+          "source": "scripts/remove_parsing_context.py"
+        },
+        {
+          "bytes": 2969,
+          "lines": 84,
+          "path": "update_test_names.py",
+          "sha256": "31d180dde3c7034bd0baf88ab20d9f69ae9105c3c2a2c12023b065e79def7523",
+          "source": "scripts/update_test_names.py"
+        }
+      ],
+      "repo": "teaguesterling/sitting_duck"
+    }
+  },
+  "note": "Fixture bytes pinned from git objects, not working trees. Regenerate deliberately."
+}
