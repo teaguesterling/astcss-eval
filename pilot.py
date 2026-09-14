@@ -76,8 +76,11 @@ def main(path, batch):
             continue
         for line in open(prior):
             p = json.loads(line)
-            seen[(p["fixture"], p["reference"]["sha256"])] = p["id"]
             prior_ids[p["id"]] = name
+            if name == "retired.jsonl":
+                # A retired id is never reused, but its node set is free again.
+                continue
+            seen[(p["fixture"], p["reference"]["sha256"])] = p["id"]
     for r in rows:
         v = report[r["id"]]
         reasons = static_reasons(r) + list(v["reasons"])

@@ -1,0 +1,1 @@
+{"id": "t2-p18", "retired": "2026-09-14", "css": ".call#rglob", "fixture": "repo-small-py", "nl": "recursive glob calls", "reason": "\"recursive glob\" is ambiguous between Path.rglob and glob('**/...', recursive=True); a selector can't test a ** argument while attribute filters inside :has are refused. All four stage-2 models answered .call#glob."}

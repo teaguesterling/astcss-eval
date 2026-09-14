@@ -1,13 +1,13 @@
 {
-  "accepted": 37,
+  "accepted": 36,
   "accepted_by_tier": {
     "1": 11,
-    "2": 12,
+    "2": 11,
     "3": 6,
     "4": 8
   },
   "batch": "b2",
-  "candidates": 46,
+  "candidates": 45,
   "engine": {
     "cli": "/home/teague/Projects/sitting_duck/build/release/duckdb",
     "extension": "/home/teague/Projects/sitting_duck/build/release/extension/sitting_duck/sitting_duck.duckdb_extension",
@@ -19,5 +19,5 @@
   "pending": 0,
   "rejected": 9,
   "source": "candidates/b2.jsonl",
-  "when": "2026-09-14T11:25:16-0700"
+  "when": "2026-09-14T13:50:09-0700"
 }
