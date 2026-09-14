@@ -45,6 +45,20 @@ Reasons in use: `docblock`, `captures`, `where-refusal`, `chain-3plus`,
 `attr-in-has`, `file-path`, `in-glob`, `callee-of`, `markdown-vocab`,
 `http-vocab`, `jq-dialect`, `umwelt-dialect`.
 
+A pair can also pass every gate while the engine's answer is known wrong. It is
+held the same way — `pilot.py` writes it to `pairs/pending-<batch>.jsonl` with
+its reference frozen — so the day the engine is fixed, the diff is visible:
+
+- `operator-tokens` — Python `.arith`/`.cmp`/`.logic` include decorator `@`,
+  for-loop `in`, and both the expression and its operator token
+  (sitting_duck #131)
+- `bool-includes-none` — `.bool` is `LITERAL_ATOMIC`, which includes `None`;
+  documented as "Boolean literals" (sitting_duck #132)
+
+Node sets are unique per fixture across all batches: a candidate whose node
+set or id is already frozen in an earlier batch's accepted or pending file is
+rejected, whatever its selector.
+
 ## Batches
 
 Every verification run writes `batches/<id>.json` containing
