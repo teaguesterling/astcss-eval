@@ -103,14 +103,34 @@ def running(key):
     return list(d.get("running", [])), active
 
 
+def npu_tasked(key):
+    """Models the NPU itself reports active tasks for, or None if it can't be asked."""
+    url = os.environ.get("TIINY_NPU", "http://192.168.4.144:8800/api/v1/npu/status")
+    try:
+        with http(url, key, timeout=30) as resp:
+            n = json.load(resp)
+    except Exception:
+        return None
+    return {m.get("model_name") for o in (n.get("occupants") or [])
+            for m in (o.get("activate_model") or []) if m.get("active_tasks")}
+
+
 def ensure_loaded(key, want, log):
-    """Leave exactly `want` resident; refuse to evict anything with in-flight requests."""
+    """Leave exactly `want` resident; refuse to evict anything with in-flight requests.
+
+    `active_request_count` alone lies: in stage 1 it read 3 on an idle
+    Qwen3-30B-A3B-Instruct for minutes after the last response while the NPU
+    listed no occupants (the stale-count behaviour in swap-queue-trial.py).
+    Busy therefore means the counter AND the NPU task list agree; if the NPU
+    can't be asked, the counter is trusted, which errs toward not evicting."""
     deadline = time.time() + 300
     while True:
         now, active = running(key)
         if now == [want]:
             return 0.0
-        busy = [m for m in now if m != want and active.get(m)]
+        counted = {m for m in now if m != want and active.get(m)}
+        tasked = npu_tasked(key) if counted else set()
+        busy = sorted(counted if tasked is None else counted & tasked)
         if not busy:
             break
         if time.time() > deadline:

@@ -1,0 +1,60 @@
+[
+  {
+    "model": "Qwen/Qwen3-30B-A3B-Instruct",
+    "n": 40,
+    "request_errors": 0,
+    "executes": 36,
+    "exec_match": 24,
+    "exact": 22,
+    "by_tier": {
+      "1": [
+        5,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        5,
+        10
+      ],
+      "4": [
+        7,
+        10
+      ]
+    },
+    "median_latency_s": 0.515,
+    "mean_completion_tokens": 6.225,
+    "thinking": "none"
+  },
+  {
+    "model": "Qwen/Qwen3-8B",
+    "n": 40,
+    "request_errors": 0,
+    "executes": 34,
+    "exec_match": 20,
+    "exact": 16,
+    "by_tier": {
+      "1": [
+        6,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        3,
+        10
+      ],
+      "4": [
+        5,
+        10
+      ]
+    },
+    "median_latency_s": 0.585,
+    "mean_completion_tokens": 6.2,
+    "thinking": "off"
+  }
+]

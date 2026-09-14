@@ -1,0 +1,152 @@
+{
+  "started": "2026-09-14T09:11:02-0700",
+  "models": [
+    "Qwen/Qwen3-8B",
+    "Qwen/Qwen3-30B-A3B-Instruct",
+    "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+    "Qwen/Qwen3-Coder-30B-A3B-Instruct-Turbo",
+    "zai-org/GLM-4.7-Flash",
+    "Qwen/Qwen3.5-35B-A3B",
+    "Qwen/Qwen3.6-27B",
+    "google/gemma-4-26B-A4B-it",
+    "qwen3.5-9b-uncensored",
+    "openai/gpt-oss-20b",
+    "Qwen/Qwen3-30B-A3B-Thinking"
+  ],
+  "per_tier": 10,
+  "seed": "qualify-v1",
+  "pair_ids": [
+    "t1-p02",
+    "t1-p03",
+    "t1-p04",
+    "t1-p05",
+    "t1-p16",
+    "t1-p17",
+    "t1-p20",
+    "t1-p23",
+    "t1-p24",
+    "t1-p25",
+    "t2-p01",
+    "t2-p05",
+    "t2-p08",
+    "t2-p09",
+    "t2-p11",
+    "t2-p13",
+    "t2-p16",
+    "t2-p22",
+    "t2-p24",
+    "t2-p28",
+    "t3-p04",
+    "t3-p05",
+    "t3-p11",
+    "t3-p22",
+    "t3-p29",
+    "t3-p30",
+    "t3-p31",
+    "t3-p33",
+    "t3-p36",
+    "t3-p40",
+    "t4-p08",
+    "t4-p10",
+    "t4-p12",
+    "t4-p14",
+    "t4-p20",
+    "t4-p21",
+    "t4-p27",
+    "t4-p29",
+    "t4-p31",
+    "t4-p34"
+  ],
+  "card_sha256": "3c4a83a44e4d1fc1fb23f0334a927aee0affe8ef04ae90f04f00c8d2dee309a6",
+  "catalog_thinking": {
+    "Qwen/Qwen3-8B": {
+      "supported": true,
+      "toggleable": true,
+      "enabled_by_default": true,
+      "levels": [],
+      "default_level": null
+    },
+    "Qwen/Qwen3-30B-A3B-Instruct": {
+      "supported": false,
+      "toggleable": false,
+      "enabled_by_default": false,
+      "levels": [],
+      "default_level": null
+    },
+    "Qwen/Qwen3-Coder-30B-A3B-Instruct": {
+      "supported": false,
+      "toggleable": false,
+      "enabled_by_default": false,
+      "levels": [],
+      "default_level": null
+    },
+    "Qwen/Qwen3-Coder-30B-A3B-Instruct-Turbo": {
+      "supported": false,
+      "toggleable": false,
+      "enabled_by_default": false,
+      "levels": [],
+      "default_level": null
+    },
+    "zai-org/GLM-4.7-Flash": {
+      "supported": true,
+      "toggleable": true,
+      "enabled_by_default": true,
+      "levels": [],
+      "default_level": null
+    },
+    "Qwen/Qwen3.5-35B-A3B": {
+      "supported": true,
+      "toggleable": true,
+      "enabled_by_default": true,
+      "levels": [],
+      "default_level": null
+    },
+    "Qwen/Qwen3.6-27B": {
+      "supported": true,
+      "toggleable": true,
+      "enabled_by_default": true,
+      "levels": [],
+      "default_level": null
+    },
+    "google/gemma-4-26B-A4B-it": {
+      "supported": true,
+      "toggleable": true,
+      "enabled_by_default": true,
+      "levels": [],
+      "default_level": null
+    },
+    "qwen3.5-9b-uncensored": {
+      "supported": true,
+      "toggleable": true,
+      "enabled_by_default": true,
+      "levels": [],
+      "default_level": null
+    },
+    "openai/gpt-oss-20b": {
+      "supported": true,
+      "toggleable": false,
+      "enabled_by_default": true,
+      "levels": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default_level": "medium"
+    },
+    "Qwen/Qwen3-30B-A3B-Thinking": {
+      "supported": true,
+      "toggleable": false,
+      "enabled_by_default": true,
+      "levels": [],
+      "default_level": null
+    }
+  },
+  "engine": {
+    "cli": "/home/teague/Projects/sitting_duck/build/release/duckdb",
+    "extension": "/home/teague/Projects/sitting_duck/build/release/extension/sitting_duck/sitting_duck.duckdb_extension",
+    "extension_mtime": 1789275699.8944218,
+    "sitting_duck_checkout_head": "1a10b7d3da97d6ca92ac3f1c73ac1307ce1c01f0",
+    "macros": "/home/teague/Projects/sitting_duck/trees/fix/127-combinator-steps/src/sql_macros/css_selectors.sql",
+    "macros_sha256": "28c60f39605c039b0c40f9dd44ca5bcb0aded4cab38c39dc98ef828ce2a5f3c6"
+  }
+}
