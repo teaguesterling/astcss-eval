@@ -112,6 +112,48 @@ blamed on the models:
   for "functions with no return") and **three-step / misplaced filters** —
   structure, not vocabulary.
 
+## From stages 3 and 4 (per-model cards, 108 pairs)
+
+**Card assignment.** Scored on the 98 pairs every card can be compared on
+(leaked and since-reworded pairs excluded):
+
+| model | v1 | v1 retest | v1c | v2 | v3 | card |
+|---|---|---|---|---|---|---|
+| gemma-4-26B-A4B-it | 85.7 | 86.7 | **86.7** | 76.5 | 78.6 | v1c |
+| Qwen3-Coder-30B-A3B-Instruct | 76.5 | 76.5 | **76.5** | 71.4 | 72.4 | v1c |
+| qwen3.5-9b-uncensored | — | — | **71.4** | 64.3 | 61.2 | v1c |
+| Qwen3.6-27B (stage 2) | 87.3 | — | — | **92.2** | — | v2 |
+| Haiku 4.5, control (stage 2) | **92.2** | — | — | 91.2 | — | — |
+
+On all 108 pairs with card v1c: gemma 88.0 %, Coder 77.8 %, the 9B 70.4 %.
+
+- **Run-to-run noise was measured before crediting any card.** Rerunning card
+  v1 exactly as stage 2 did: gemma gave 96/98 identical predictions and 1 match
+  flip; Coder 88/98 identical and 6 flips (score unchanged). Card changes flipped
+  14-28 pairs. gemma's and the 9B's card preferences are well outside noise;
+  Coder's 4-5 point gaps are closer to its ~6 % flip rate.
+- **Removing the leaked examples cost nothing.** v1c (v1 with its seven leaking
+  example selectors swapped for the same constructs on unused names) scores the
+  same as v1 for gemma and Coder, so v1's absolute numbers were not being carried
+  by the leaks.
+- **Each attempt to add guidance hurt the models that did well without it.**
+  v2's prominent type rules and v3's lighter version both introduced new errors
+  (guessed node types for plain classes; `.loop :has(...)` with a space;
+  `.call#json.dumps` right after the card mentioned `time.sleep`). Only
+  Qwen3.6-27B gained from v2. Card work beyond v1c is unlikely to pay; the
+  remaining errors are the target for tuning.
+
+**Device lessons folded into `qualify.py`.**
+- A chat request that overlapped the NPU embedding job's batches hung 108 s,
+  returned 200 with empty content, and the runtime dropped the chat model and
+  recreated the embedder (Tiiny beta log). The harness now pauses the embedding
+  job for device runs, with a lease guard on the embedding host, and treats an
+  empty response as an error.
+- The store's `Qwen/Qwen3.5-9B` cannot be downloaded (fails at 0 % within 12 s,
+  through three reboots) and the import toolkit catalog is `invalid`, so the
+  stock 9B cannot be put on the device either way (beta #070, #071). It was
+  removed from the device; the stock weights are on longbottom for tuning.
+
 ## Taxonomy observations (no defect claimed)
 
 - `.loop` includes comprehension `for_in_clause`, and `.if` includes `if_clause`,
