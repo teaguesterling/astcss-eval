@@ -82,6 +82,36 @@ blamed on the models:
   means `.loop:has(.call#append)` but attribute filters inside `:has` are refused
   (gemma-4-26B-A4B-it, t4-p31).
 
+## From stage 2 (4 models x 109 pairs, card v1 vs card v2)
+
+- **Card v1's examples leaked 7 pairs' exact selectors** (`.fn#main`,
+  `.call#print`, `.call#open`, `.fn[params=2]`, `.mod > .fn`, `.import ~ .class`,
+  `.fn:has(.call#open)`). All comparisons are on the 102 pairs neither card leaks.
+- **A card fix is per-model, not a universal improvement.** v1 -> v2: Qwen3.6-27B
+  +4.9 (to 92.2%, level with the Haiku 4.5 control at 91.2%), Haiku -1.0,
+  gemma-4-26B-A4B-it -8.8, Qwen3-Coder-30B-A3B-Instruct -4.9. v2 fixed what it
+  targeted for every model (t1-p23, t1-p25, t3-p35/36 decorated definitions)
+  and over-corrected gemma: its prominent "two kinds of type" section flipped
+  gemma into writing guessed node types for plain classes (`.import` ->
+  `import_statement`, `.try` -> `try`, `.loop` -> `loop`, `.catch` ->
+  `except_handler`), 18 regressions. v2's "#name is the bare name" line turned
+  prefix filters into exact names for gemma and Coder (`[name^="update_"]` ->
+  `#update`, `[name^="fetch"]` -> `#fetch`).
+- **Four more NL defects**, each missed by all four models with the same
+  reasonable answer:
+  - t2-p18 "recursive glob calls" -> everyone `.call#glob`; the call is `rglob`.
+  - t4-p18 "functions that search directories recursively" -> `os.walk` is as
+    valid an implementation as `rglob`; the NL can't pick one.
+  - t4-p30 "functions that handle exceptions" -> everyone `.fn:has(.try)`; the
+    reference is `.fn:has(.catch)`.
+  - t4-p35 "with blocks that read a file" -> everyone `:has(.call#open)`; the
+    reference is `.call#read`.
+  Like t2-p22, these should name what distinguishes the answer.
+- **Remaining model errors are mostly about which node is returned** (Coder:
+  `.loop .call#print` for "loops that contain a call to print", `.fn:has(.jump)`
+  for "functions with no return") and **three-step / misplaced filters** —
+  structure, not vocabulary.
+
 ## Taxonomy observations (no defect claimed)
 
 - `.loop` includes comprehension `for_in_clause`, and `.if` includes `if_clause`,
