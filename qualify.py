@@ -369,9 +369,14 @@ def cmd_run(args):
                         break
     finally:
         if original:
+            # Everything that was resident, not just the first: another client may
+            # have loaded a second model (stage 1 found the embedder beside 30B-Instruct).
             try:
-                log("restoring %s" % original[0])
+                log("restoring %s" % original)
                 ensure_loaded(key, original[0], log)
+                for extra in original[1:]:
+                    if extra not in running(key)[0]:
+                        mgmt("models/%s/start" % extra, key, "POST", timeout=180)
             except Exception as e:
                 log("RESTORE FAILED %s: %s" % (type(e).__name__, e))
     rescore(out_dir, {p["id"]: p for p in load_pairs()})
