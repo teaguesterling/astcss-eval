@@ -1,13 +1,11 @@
 {
-  "accepted": 50,
+  "accepted": 22,
   "accepted_by_tier": {
-    "1": 10,
-    "2": 14,
-    "3": 12,
-    "4": 14
+    "3": 13,
+    "4": 9
   },
-  "batch": "b1",
-  "candidates": 59,
+  "batch": "b3",
+  "candidates": 23,
   "engine": {
     "cli": "/home/teague/Projects/sitting_duck/build/release/duckdb",
     "extension": "/home/teague/Projects/sitting_duck/build/release/extension/sitting_duck/sitting_duck.duckdb_extension",
@@ -16,8 +14,8 @@
     "macros_sha256": "28c60f39605c039b0c40f9dd44ca5bcb0aded4cab38c39dc98ef828ce2a5f3c6",
     "sitting_duck_checkout_head": "1a10b7d3da97d6ca92ac3f1c73ac1307ce1c01f0"
   },
-  "pending": 6,
-  "rejected": 3,
-  "source": "candidates/b1.jsonl",
-  "when": "2026-09-14T09:03:11-0700"
+  "pending": 1,
+  "rejected": 0,
+  "source": "candidates/b3.jsonl",
+  "when": "2026-09-14T09:02:08-0700"
 }

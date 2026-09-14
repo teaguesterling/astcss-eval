@@ -54,6 +54,9 @@ its reference frozen — so the day the engine is fixed, the diff is visible:
   (sitting_duck #131)
 - `bool-includes-none` — `.bool` is `LITERAL_ATOMIC`, which includes `None`;
   documented as "Boolean literals" (sitting_duck #132)
+- `has-syntax-tokens` — inside `:has`/`:not(:has)` an alias also matches
+  syntax-only keyword tokens (`def`, `class`, `for`, `as`), which it excludes
+  everywhere else (sitting_duck #133)
 
 Node sets are unique per fixture across all batches: a candidate whose node
 set or id is already frozen in an earlier batch's accepted or pending file is
