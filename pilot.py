@@ -174,9 +174,13 @@ def main(path, batch, root=HERE):
     os.makedirs(os.path.join(root, "pairs"), exist_ok=True)
     os.makedirs(os.path.join(root, "batches"), exist_ok=True)
     for name, data in (("accepted", accepted), ("rejected", rejected), ("pending", held)):
-        with open(os.path.join(root, "pairs", "%s-%s.jsonl" % (name, batch)), "w") as fh:
+        # Write-then-rename: several drafting agents verify concurrently and each reads
+        # every other batch's pairs for duplicates, so no reader may see a partial file.
+        dest = os.path.join(root, "pairs", "%s-%s.jsonl" % (name, batch))
+        with open(dest + ".tmp", "w") as fh:
             for row in data:
                 fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+        os.replace(dest + ".tmp", dest)
     by_tier = {}
     for row in accepted:
         by_tier[row["tier"]] = by_tier.get(row["tier"], 0) + 1
@@ -184,8 +188,10 @@ def main(path, batch, root=HERE):
             "when": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "engine": engine,
             "candidates": len(rows), "accepted": len(accepted), "rejected": len(rejected),
             "pending": len(held), "accepted_by_tier": by_tier}
-    with open(os.path.join(root, "batches", "%s.json" % batch), "w") as fh:
+    dest = os.path.join(root, "batches", "%s.json" % batch)
+    with open(dest + ".tmp", "w") as fh:
         json.dump(meta, fh, indent=2, sort_keys=True)
+    os.replace(dest + ".tmp", dest)
 
     print("batch %s: %d candidates, %d accepted %s, %d pending, %d rejected\n"
           % (batch, len(rows), len(accepted), by_tier, len(held), len(rejected)))
