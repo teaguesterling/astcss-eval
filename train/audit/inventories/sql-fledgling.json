@@ -1,0 +1,29 @@
+{
+ "fixture": "sql-fledgling",
+ "language": "sql",
+ "files": 21,
+ "aliases": {
+  ".fn": "0 :: ",
+  ".class": "55 :: create_table=39, create_query=15, create_type=1",
+  ".call": "343 :: invocation=338, window_function=5",
+  ".loop": "0 :: ",
+  ".if": "9 :: filter_expression=9",
+  ".jump": "0 :: ",
+  ".try": "0 :: ",
+  ".catch": "0 :: ",
+  ".throw": "0 :: ",
+  ".import": "0 :: ",
+  ".str": "0 :: ",
+  ".comment": "940 :: comment=931, table_option=9",
+  ".var": "95 :: column_definition=93, create_role=2",
+  ".member": "31 :: ::=27, subscript=4",
+  ".comp": "163 :: select_expression=112, cte=26, subquery=17, window_specification=5, frame_definition=2, window_frame=1",
+  ".mod": "20 :: program=19, create_schema=1"
+ },
+ "lang": "sql=21f/16694n",
+ "fnhasfn": "0 truth / 0 engine",
+ "fn_names": "",
+ "class_names": "SELECT(23), WITH(7), _help_sections(1), _macros(1), _module_registry(1), _ordered_macros(1), _resources(1), _tools(1), file_pattern(1), fts.collections(1), fts.content(1), raw_conversations(1)",
+ "call_names": "trim(73), COALESCE(33), count(22), getvariable(16), LIST(12), read_ast(11), replace(9), regexp_extract(8), semantic_type_to_string(8), sum(7), max(6), is_function_definition(5), git_uri(4), is_definition(4), json_object(4), json_type(4), last(4), list_contains(4), mcp_publish_tool(4), resolve(4), row_number(4), tool_calls(4), ast_select(3), chr(3), is_conditional(3), is_loop(3), list(3), min(3), query(3), ON(2), avg(2), doc_outline(2), file_changes(2), find_calls(2), find_definitions(2), glob(2), is_import(2), len(2), length(2), mcp_server_start(2), read_lines(2), read_markdown_sections(2), token_usage(2), unnest(2), _is_code_file(1), age(1), any_value(1), ast_callers(1), ast_exports(1), ast_imports(1), ast_qualified_name_as_string(1), bash_commands(1), changed_function_summary(1), code_structure(1), content_blocks(1), format(1), function_callers(1), git_branches(1), git_log(1), git_tags(1)",
+ "node_types": "identifier(2563), term(1035), comment(931), field(908), object_reference(897), ERROR(699), literal(454), binary_expression(390), invocation(338), statement(128), relation(125), select_expression(112), :=(110), column_definition(93), =(91), op_other(82), order_target(47), column_definitions(43), *(42), create_table(39), /(38), order_by(29), all_fields(28), ::(27), +(27), cte(26), set_statement(24), keyword_read(23), program(19), -(19), is_not(19), !=(18), subquery(17), create_query(15), direction(14), >(14), group_by(13), parenthesized_expression(11), filter_expression(9), int(9), table_option(9), <=(9), keyword_level(6), list(6), keyword_role(5)"
+}

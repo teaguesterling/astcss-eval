@@ -1,0 +1,29 @@
+{
+ "fixture": "cpp-duckdb-mcp",
+ "language": "cpp",
+ "files": 45,
+ "aliases": {
+  ".fn": "1509 :: function_declarator=984, function_definition=430, template_function=47, template_method=18, default_method_clause=16, preproc_function_def=8",
+  ".class": "96 :: class_specifier=59, struct_specifier=34, enum_specifier=3",
+  ".call": "1913 :: call_expression=1913",
+  ".loop": "91 :: for_statement=37, for_range_loop=28, while_statement=26",
+  ".if": "1195 :: condition_clause=508, if_statement=478, else_clause=87, conditional_expression=42, ?=42, case_statement=34",
+  ".jump": "482 :: return_statement=459, break_statement=17, continue_statement=6",
+  ".try": "39 :: try_statement=39",
+  ".catch": "41 :: catch_clause=41",
+  ".throw": "164 :: throw_statement=164",
+  ".import": "303 :: preproc_include=249, system_lib_string=51, using_declaration=3",
+  ".str": "2198 :: string_literal=1027, string_content=1003, escape_sequence=75, char_literal=42, character=27, concatenated_string=10",
+  ".comment": "2685 :: comment=991, type_qualifier=842, #include=249, virtual_specifier=156, access_specifier=111, storage_class_specifier=86",
+  ".var": "2992 :: parameter_declaration=1010, field_declaration=752, declaration=707, init_declarator=454, optional_parameter_declaration=54, enumerator=14",
+  ".member": "2374 :: field_expression=1284, ::=875, ->=84, subscript_expression=76, pointer_expression=55",
+  ".comp": "0 :: ",
+  ".mod": "94 :: namespace_definition=49, translation_unit=45"
+ },
+ "lang": "cpp=45f/64903n",
+ "fnhasfn": "431 truth / 431 engine",
+ "fn_names": "lock(73), GetDescription(23), static_cast(23), GetName(19), make_uniq(16), GetConnectionInfo(15), GetValue(15), Connect(13), Disconnect(13), IsConnected(13), Ping(13), GetInputSchema(11), Read(11), Receive(11), Send(11), SendAndReceive(11), Execute(9), GetMimeType(9), IsValid(8), GetSize(7), FromValue(6), GetConnection(6), ToValue(6), FormatResult(5), ListResources(5), ListTools(5), Clear(4), Error(4), FreeDocument(4), GetBool(4), GetInt(4), GetLastError(4), GetMCPConnection(4), GetResultFormat(4), GetSqlTemplate(4), GetString(4), GetValueAsString(4), Initialize(4), IsRefreshable(4), IsRunning(4), MCPPaginationIterator(4), MCPPaginationParams(4), MCPTemplate(4), Parse(4), Refresh(4), Reset(4), Scan(4), ShouldRefresh(4), Success(4), Write(4), yyjson_arr_foreach(4), yyjson_obj_foreach(4), AllowsDirectRequests(3), Cast(3), IsValidCursor(3), ParseMCPAttachParams(3), ParseMCPConfigFile(3), ParsePaginationResponse(3), RegisterTool(3), ResourceExists(3)",
+ "class_names": "MCPConnection(7), MCPMessage(4), MCPServer(3), MCPTransport(2), ResourceProvider(2), ToolHandler(2), WebMCPTransport(2), AttachInfo(1), CallToolResult(1), DatabaseInfoToolHandler(1), DatabaseInstance(1), DescribeToolHandler(1), DocGuard(1), ExecuteToolHandler(1), ExecutionSQLToolHandler(1), ExportToolHandler(1), FdServerTransport(1), HTTPConfig(1), HTTPResponse(1), HTTPServerConfig(1), HTTPServerTransport(1), HTTPTransport(1), JSONArgumentParser(1), JSONUtils(1), ListTablesToolHandler(1), MCPCapabilities(1), MCPCatalog(1), MCPConnectionParams(1), MCPConnectionRegistry(1), MCPConnectionState(1), MCPConnectionWithPagination(1), MCPError(1), MCPFileHandle(1), MCPFileSystem(1), MCPInstanceState(1), MCPLogLevel(1), MCPLogger(1), MCPMessageType(1), MCPPaginationIterator(1), MCPPaginationParams(1)",
+ "call_names": "empty(73), emplace_back(62), Value(58), IOException(55), c_str(52), InvalidInputException(46), push_back(45), size(43), ToString(37), find(35), type(32), NotImplementedException(31), string(29), end(28), length(27), what(26), yyjson_obj_get(26), IsNull(25), close(25), STRUCT(23), load(23), GetValue(21), Contains(18), yyjson_doc_free(18), SetValue(17), move(17), yyjson_doc_get_root(17), InternalException(16), id(16), substr(16), yyjson_get_str(16), yyjson_is_obj(16), yyjson_is_str(16), CreateObject(15), GetString(15), IsConnected(14), MCP_LOG_ERROR(13), to_string(13), yyjson_mut_strcpy(13), AddObject(12), GetChildren(12), IsError(12), FreeDocument(11), Get(10), SetError(10), IsInitialized(9), MCP_LOG_DEBUG(9), Parse(9), SendRequest(9), ValueToJSON(9), set_header(9), yyjson_mut_obj_add(9), yyjson_read(9), AddString(8), CompatResultNames(8), Format(8), GetObject(8), LIST(8), at(8), free(8)",
+ "node_types": "identifier(6568), type_identifier(2538), field_identifier(2179), argument_list(2001), call_expression(1913), field_expression(1284), compound_statement(1118), parameter_list(1039), string_literal(1027), parameter_declaration(1010), string_content(1003), comment(991), function_declarator(984), namespace_identifier(924), =(922), ::(875), qualified_identifier(875), type_qualifier(842), expression_statement(815), &(806), reference_declarator(754), field_declaration(752), primitive_type(742), declaration(707), binary_expression(622), condition_clause(508), if_statement(478), <(477), return_statement(459), init_declarator(454), >(453), type_descriptor(451), function_definition(430), template_argument_list(425), assignment_expression(374), template_type(360), *(315), number_literal(297), pointer_declarator(281), #include(249), preproc_include(249), !(229), unary_expression(229), placeholder_type_specifier(177), auto(177)"
+}

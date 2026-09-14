@@ -1,0 +1,29 @@
+{
+ "fixture": "rs-rosetta",
+ "language": "rust",
+ "files": 18,
+ "aliases": {
+  ".fn": "43 :: function_item=30, closure_expression=11, function_signature_item=2",
+  ".class": "8 :: impl_item=4, struct_item=2, type_item=1, trait_item=1",
+  ".call": "102 :: call_expression=70, macro_invocation=32",
+  ".loop": "13 :: for_expression=11, while_expression=2",
+  ".if": "29 :: match_arm=18, match_expression=6, if_expression=5",
+  ".jump": "0 :: ",
+  ".try": "0 :: ",
+  ".catch": "0 :: ",
+  ".throw": "0 :: ",
+  ".import": "7 :: use_declaration=6, extern_crate_declaration=1",
+  ".str": "57 :: string_literal=57",
+  ".comment": "26 :: mutable_specifier=18, line_comment=3, attribute_item=3, inner_attribute_item=2",
+  ".var": "32 :: let_declaration=17, parameter=10, field_declaration=3, const_item=1, static_item=1",
+  ".member": "157 :: field_expression=61, .=61, ::=21, ->=12, index_expression=2",
+  ".comp": "0 :: ",
+  ".mod": "18 :: source_file=18"
+ },
+ "lang": "rust=18f/2836n",
+ "fnhasfn": "9 truth / 33 engine",
+ "fn_names": "main(15), bottles_of_beer(2), on_the_wall(2), area(1), eh_personality(1), factorial_iterative(1), factorial_recursive(1), fib_tail_iter(1), fib_tail_recursive(1), fibonacci(1), fibonacci_sequence(1), fizzbuzz(1), new(1), next(1), panic_fmt(1), start(1)",
+ "class_names": "Bottles(2), Fib(2), Item(1), Iterator(1), Shape(1), Square(1)",
+ "call_names": "println(26), map(7), expect(4), new(4), bottles_of_beer(3), checked_add(3), into(3), print(3), enumerate(2), fib_tail_iter(2), fibonacci(2), len(2), on_the_wall(2), powi(2), read_line(2), rev(2), split_whitespace(2), stdin(2), swap(2), unwrap(2), asm(1), binary_search(1), chain(1), collect(1), factorial_recursive(1), fibonacci_sequence(1), filter(1), fold(1), for_each(1), from(1), into_iter(1), is_ok(1), is_square(1), iter(1), iter_mut(1), last(1), product(1), sqrt(1), sum(1), to_string(1), vec(1), write(1)",
+ "node_types": "identifier(274), string_content(152), \"(114), escape_sequence(112), integer_literal(75), arguments(70), call_expression(70), field_identifier(66), .(61), field_expression(61), block(60), expression_statement(59), string_literal(57), token_tree(41), !(36), binary_expression(33), parameters(32), macro_invocation(32), function_item(30), primitive_type(30), =(30), type_identifier(22), |(22), ::(21), match_arm(18), mutable_specifier(18), source_file(18), match_pattern(18), scoped_identifier(17), let_declaration(17), &(15), parenthesized_expression(14), range_expression(14), ->(12), closure_parameters(11), *(11), +(11), closure_expression(11), for_expression(11), ..(10), parameter(10), tuple_pattern(9), unary_expression(8), type_arguments(7), <(7)"
+}

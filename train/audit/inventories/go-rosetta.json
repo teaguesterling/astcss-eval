@@ -1,0 +1,29 @@
+{
+ "fixture": "go-rosetta",
+ "language": "go",
+ "files": 16,
+ "aliases": {
+  ".fn": "38 :: function_declaration=27, method_declaration=6, method_elem=3, func_literal=2",
+  ".class": "4 :: struct_type=2, interface_type=2",
+  ".call": "107 :: call_expression=106, type_conversion_expression=1",
+  ".loop": "33 :: for_statement=17, for_clause=15, range_clause=1",
+  ".if": "22 :: if_statement=9, expression_case=8, expression_switch_statement=3, default_case=2",
+  ".jump": "26 :: return_statement=26",
+  ".try": "0 :: ",
+  ".catch": "0 :: ",
+  ".throw": "0 :: ",
+  ".import": "37 :: import_spec=23, import_declaration=14",
+  ".str": "210 :: interpreted_string_literal=100, interpreted_string_literal_content=98, escape_sequence=12",
+  ".comment": "10 :: comment=10",
+  ".var": "74 :: short_var_declaration=35, parameter_declaration=21, var_spec=7, var_declaration=7, field_declaration=4",
+  ".member": "83 :: selector_expression=68, index_expression=12, slice_expression=3",
+  ".comp": "0 :: ",
+  ".mod": "29 :: source_file=16, package_clause=13"
+ },
+ "lang": "go=16f/3179n",
+ "fnhasfn": "2 truth / 35 engine",
+ "fn_names": "main(14), factorial(4), Cry(3), Kind(3), Name(3), fib(2), bprint(1), fibNumber(1), fibSequence(1), lfactorial(1), numberName(1), pluralizeFirst(1), slur(1)",
+ "class_names": "",
+ "call_names": "Println(15), Printf(12), slur(12), factorial(7), Print(6), NewInt(4), bottles(3), len(3), numberName(3), pluralizeFirst(3), Fields(2), Intn(2), Join(2), bprint(2), int64(2), Add(1), Cry(1), Exp2(1), Gamma(1), Kind(1), Lgamma(1), Mod(1), Modf(1), Mul(1), MulRange(1), Name(1), NewFloat(1), Now(1), Scan(1), Seed(1), SetInt64(1), SetMantExp(1), Sprintf(1), Sqrt(1), UnixNano(1), f(1), fib(1), fibNumber(1), float64(1), int(1), lfactorial(1), make(1), string(1)",
+ "node_types": "identifier(372), expression_list(129), call_expression(106), argument_list(106), interpreted_string_literal(100), interpreted_string_literal_content(98), int_literal(84), field_identifier(81), statement_list(74), selector_expression(68), block(65), type_identifier(63), binary_expression(58), literal_element(46), parameter_list(45), expression_statement(39), :=(36), short_var_declaration(35), function_declaration(27), return_statement(26), import_spec(23), parameter_declaration(21), package_identifier(19), for_statement(17), source_file(16), for_clause(15), import_declaration(14), package_clause(13), escape_sequence(12), index_expression(12), ++(11), inc_statement(11), assignment_statement(10), =(10), +(10), comment(10), if_statement(9), ==(9), expression_case(8), literal_value(8), <(8), <=(8), -(7), var_declaration(7), var_spec(7)"
+}

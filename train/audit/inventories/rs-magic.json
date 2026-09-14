@@ -1,0 +1,29 @@
+{
+ "fixture": "rs-magic",
+ "language": "rust",
+ "files": 16,
+ "aliases": {
+  ".fn": "285 :: function_item=212, closure_expression=73",
+  ".class": "23 :: struct_item=9, impl_item=9, enum_item=4, type_item=1",
+  ".call": "1609 :: call_expression=1235, macro_invocation=374",
+  ".loop": "32 :: for_expression=27, while_expression=3, loop_expression=2",
+  ".if": "387 :: if_expression=150, ?=133, match_arm=73, match_expression=31",
+  ".jump": "57 :: return_expression=40, continue_expression=11, break_expression=6",
+  ".try": "0 :: ",
+  ".catch": "0 :: ",
+  ".throw": "0 :: ",
+  ".import": "103 :: use_declaration=91, use_wildcard=12",
+  ".str": "779 :: string_literal=699, char_literal=46, raw_string_literal=34",
+  ".comment": "889 :: line_comment=559, visibility_modifier=141, attribute_item=140, mutable_specifier=48, block_comment=1",
+  ".var": "549 :: let_declaration=366, parameter=127, field_declaration=28, enum_variant=18, const_item=10",
+  ".member": "3102 :: .=1319, field_expression=931, ::=716, ->=110, index_expression=26",
+  ".comp": "0 :: ",
+  ".mod": "40 :: mod_item=24, source_file=16"
+ },
+ "lang": "rust=16f/36642n",
+ "fnhasfn": "35 truth / 215 engine",
+ "fn_names": "new(4), is_pid_alive(2), set_mode(2), should_exclude(2), _setup_store_v5(1), _setup_store_v5_duckdb(1), add(1), aliases(1), attempt_count(1), bash_hook_functions(1), blobs_dir(1), clear(1), collect(1), collect_ci_context(1), collect_git_context(1), complete(1), complete_entry(1), complete_invocation(1), default_format(1), default_priority(1), delete_entry(1), detect(1), ensure_secure_root(1), ensure_session(1), errors_log_path(1), execute_step(1), find_current_project(1), find_project(1), generate(1), get(1), get_by_id(1), get_by_position(1), get_pending_attempts(1), glob_to_like(1), harden_dir(1), harden_file(1), harden_tree(1), header(1), hints(1), hook_functions(1), ignore_patterns(1), inactive_message(1), inactive_on_off_functions(1), init(1), into_map(1), is_empty(1), is_enabled(1), is_in_project(1), is_initialized(1), is_runner_alive(1), kill_invocation(1), lesson_capturing_commands(1), lesson_getting_started(1), lesson_query_syntax(1), lesson_shell_integration(1), lesson_viewing_output(1), lesson_working_with_errors(1), lessons(1), list_entries(1), list_lessons(1)",
+ "class_names": "Store(3), Buffer(2), BufferMeta(2), ContextMetadata(2), FormatHint(2), FormatHints(2), ProjectInfo(2), BufferEntry(1), Error(1), Lesson(1), Mode(1), RecoveryStats(1), Result(1), Shell(1), Step(1)",
+ "call_names": "assert_eq(144), assert(124), to_string(72), unwrap(69), new(60), Ok(51), parse_query(44), format(42), get(35), push_str(35), insert(32), json(30), var(26), execute(25), join(24), len(24), is_empty(20), iter(16), map(16), unwrap_or(16), path(14), push(14), starts_with(14), Some(13), contains(13), map_err(13), Err(12), and_then(12), collect(12), exists(12), Io(11), into(11), connection(9), create_dir_all(9), redact_command(9), parse(8), println(8), replace(8), vec(8), Config(7), Object(7), find(7), from_mode(7), open(7), set_permissions(7), write(7), SetForegroundColor(6), buffer_output_path(6), cmp(6), current_dir(6), disable_raw_mode(6), ok(6), output(6), params(6), set_mode(6), with_priority(6), with_root(6), add(5), any(5), args(5)",
+ "node_types": "identifier(5016), \"(1398), .(1319), arguments(1235), call_expression(1235), field_identifier(1011), field_expression(931), token_tree(843), string_content(788), expression_statement(765), ::(716), string_literal(699), //(559), line_comment(559), !(546), scoped_identifier(543), block(462), =(452), macro_invocation(374), let_declaration(366), doc_comment(352), &(344), type_identifier(342), /(256), outer_doc_comment_marker(256), function_item(212), parameters(212), escape_sequence(176), reference_expression(169), integer_literal(169), |(151), if_expression(150), visibility_modifier(141), attribute(140), #(140), attribute_item(140), try_expression(133), ?(133), parameter(127), primitive_type(125), >(115), <(112), ->(110), type_arguments(108), generic_type(101)"
+}

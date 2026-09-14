@@ -1,0 +1,29 @@
+{
+ "fixture": "sh-mixed",
+ "language": "bash",
+ "files": 6,
+ "aliases": {
+  ".fn": "8 :: function_definition=8",
+  ".class": "0 :: ",
+  ".call": "15 :: command_substitution=15",
+  ".loop": "1 :: for_statement=1",
+  ".if": "21 :: if_statement=13, else_clause=4, case_item=2, elif_clause=1, case_statement=1",
+  ".jump": "0 :: ",
+  ".try": "0 :: ",
+  ".catch": "0 :: ",
+  ".throw": "0 :: ",
+  ".import": "0 :: ",
+  ".str": "140 :: string=132, raw_string=7, concatenation=1",
+  ".comment": "84 :: comment=84",
+  ".var": "56 :: variable_assignment=45, declaration_command=11",
+  ".member": "145 :: simple_expansion=125, expansion=20",
+  ".comp": "0 :: ",
+  ".mod": "6 :: program=6"
+ },
+ "lang": "bash=6f/1951n",
+ "fnhasfn": "0 truth / 0 engine",
+ "fn_names": "capture_licenses(1), copy_if_exists(1), download_if_missing(1), extract_tar_bz2(1), require_cmd(1), reset_dir(1), run_compiler(1), run_test(1)",
+ "class_names": "",
+ "call_names": "",
+ "node_types": "\"(264), word(201), variable_name(190), string(132), simple_expansion(125), command(102), command_name(102), comment(84), string_content(83), =(46), variable_assignment(45), expansion(20), ${(20), command_substitution(15), redirected_statement(14), if_statement(13), file_redirect(12), number(12), declaration_command(11), `(10), $((10), >(9), compound_statement(9), test_command(9), test_operator(8), list(8), function_definition(8), raw_string(7), unary_expression(7), &&(7), <<(6), heredoc_body(6), heredoc_start(6), heredoc_redirect(6), heredoc_end(6), program(6), ]](5), [[(5), subscript(4), else_clause(4), >&(3), file_descriptor(3), extglob_pattern(2), binary_expression(2), pipeline(2)"
+}

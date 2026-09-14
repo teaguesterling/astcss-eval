@@ -64,11 +64,63 @@ def static_reasons(p):
     return reasons
 
 
+HAS_RE = re.compile(r"^(?P<outer>.+?)(?P<neg>:not\(:has\(|:has\()(?P<inner>[^()]+)\)\)?$")
+
+
+def has_truth_mismatches(rows):
+    """Training gate: a :has / :not(:has) selector must select exactly the outer nodes
+    that do (not) contain a node its inner selector matches on its own.
+
+    Inside :has the engine also counts syntax-only keyword tokens (sitting_duck #133):
+    every Python function "contains a function" through its own `def`, and the
+    training-fixture audit showed the same leak in Rust, JavaScript and Go. A pair
+    verified against that node set would pass gates it shouldn't."""
+    checks = []
+    for r in rows:
+        m = HAS_RE.match(r.get("css", ""))
+        if m and r.get("fixture") in V.FIXTURES:
+            checks.append((r["id"], r["fixture"], m.group("outer"), m.group("neg").startswith(":not"),
+                           m.group("inner"), r["css"]))
+    if not checks:
+        return {}
+    lines = []
+    for fx in sorted({c[1] for c in checks}):
+        lines.append("CREATE TABLE %s AS SELECT * FROM read_ast('%s');"
+                     % (V._table(fx), V._q(os.path.join(V.HERE, V.FIXTURES[fx]))))
+    for pid, fx, outer, neg, inner, css in checks:
+        t = V._table(fx)
+        lines.append("SELECT '@@BEGIN %s';" % pid)
+        lines.append(
+            "WITH o AS (SELECT s.file_path, s.node_id, x.descendant_count FROM ast_select_from('{t}', '{o}') s "
+            "JOIN {t} x ON x.file_path = s.file_path AND x.node_id = s.node_id), "
+            "i AS (SELECT file_path, node_id FROM ast_select_from('{t}', '{i}')), "
+            "truth AS (SELECT o.file_path, o.node_id FROM o WHERE {neg} EXISTS (SELECT 1 FROM i "
+            "WHERE i.file_path = o.file_path AND i.node_id > o.node_id AND i.node_id <= o.node_id + o.descendant_count)), "
+            "eng AS (SELECT file_path, node_id FROM ast_select_from('{t}', '{s}')) "
+            "SELECT '@@ROWS ' || (SELECT count(*) FROM truth) || ',' || (SELECT count(*) FROM eng) || ',' || "
+            "(SELECT count(*) FROM (SELECT * FROM truth EXCEPT SELECT * FROM eng)) || ',' || "
+            "(SELECT count(*) FROM (SELECT * FROM eng EXCEPT SELECT * FROM truth));"
+            .format(t=t, o=V._q(outer), i=V._q(inner), s=V._q(css), neg="NOT" if neg else ""))
+    got = V._collect(V._run_script(lines), "@@ROWS")
+    bad = {}
+    for pid, *_ in checks:
+        g = got.get(pid, {})
+        if "error" in g or "payload" not in g:
+            continue  # verify() reports execution errors itself
+        truth, eng, missing, extra = (int(x) for x in g["payload"].split(","))
+        if missing or extra:
+            bad[pid] = ("the engine's :has result disagrees with ground truth (%d truth, %d engine: "
+                        "keyword-token leak, sitting_duck #133)" % (truth, eng))
+    return bad
+
+
 def main(path, batch, root=HERE):
     rows = [json.loads(line) for line in open(path) if line.strip()]
     for r in rows:
         r["selector"] = r["css"]
     report = V.verify(rows)
+    # Training batches only: the eval's pairs were audited by hand (FINDINGS.md).
+    has_bad = has_truth_mismatches(rows) if os.path.abspath(root) != HERE else {}
     engine = V.engine_identity()
 
     accepted, rejected, held, seen, prior_ids = [], [], [], {}, {}
@@ -87,6 +139,8 @@ def main(path, batch, root=HERE):
     for r in rows:
         v = report[r["id"]]
         reasons = static_reasons(r) + list(v["reasons"])
+        if r["id"] in has_bad:
+            reasons.append(has_bad[r["id"]])
         if r["id"] in prior_ids:
             reasons.append("id already frozen in %s" % prior_ids[r["id"]])
         ref = v.get("reference")

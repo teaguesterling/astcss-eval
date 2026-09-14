@@ -1,0 +1,29 @@
+{
+ "fixture": "py-blq",
+ "language": "python",
+ "files": 35,
+ "aliases": {
+  ".fn": "183 :: function_definition=181, lambda=2",
+  ".class": "28 :: class_definition=28",
+  ".call": "1807 :: call=1807",
+  ".loop": "105 :: for_statement=61, for_in_clause=39, while_statement=5",
+  ".if": "659 :: if_statement=496, conditional_expression=63, else_clause=60, elif_clause=30, if_clause=10",
+  ".jump": "291 :: return_statement=247, continue_statement=32, break_statement=12",
+  ".try": "69 :: try_statement=69",
+  ".catch": "70 :: except_clause=70",
+  ".throw": "30 :: raise_statement=26, assert_statement=4",
+  ".import": "306 :: import_from_statement=135, import_statement=96, __future__=33, future_import_statement=33, aliased_import=9",
+  ".str": "4412 :: string_content=2060, string=1914, interpolation=380, escape_sequence=23, concatenated_string=19, format_specifier=16",
+  ".comment": "541 :: comment=505, decorated_definition=32, global_statement=3, nonlocal_statement=1",
+  ".var": "1335 :: assignment=1075, typed_parameter=220, typed_default_parameter=36, named_expression=4",
+  ".member": "2112 :: attribute=1826, subscript=258, slice=28",
+  ".comp": "39 :: list_comprehension=19, generator_expression=12, dictionary_comprehension=4, set_comprehension=4",
+  ".mod": "35 :: module=35"
+ },
+ "lang": "python=35f/51607n",
+ "fnhasfn": "7 truth / 182 engine",
+ "fn_names": "__init__(7), collector(3), to_dict(3), wrap(3), annotate(2), execute(2), prepare(2), should_annotate(2), store(2), validate(2), __post_init__(1), _auto_init(1), _clean_data(1), _clean_full(1), _clean_orphans(1), _clean_prune(1), _clean_schema(1), _cleanup(1), _cmd_get(1), _cmd_set(1), _cmd_show(1), _cmd_unset(1), _collect_report_data(1), _edit_config(1), _execute_run(1), _extract_tag_from_command(1), _find_baseline_run(1), _find_c_style_definition(1), _find_python_definition(1), _fire_callback(1), _flags_are_write(1), _fmt_duration(1), _fmt_memory(1), _format_location(1), _format_value(1), _generate_markdown_report(1), _generate_template(1), _get_default(1), _is_default(1), _is_pid_alive(1), _is_system(1), _load_outcome(1), _match_template(1), _matches_pattern(1), _migrate_parquet_to_bird(1), _normalize_cmd(1), _output_suggestion(1), _parse_bool(1), _parse_defaults(1), _parse_int(1), _parse_list(1), _parse_timestamp(1), _parse_value(1), _reader(1), _request(1), _run_loop(1), _should_include(1), _show_suppress_list(1), _validate_one(1), acquire_lock(1)",
+ "class_names": "Annotation(1), Annotator(1), BlqRuntimeConfig(1), BwrapEngine(1), Collector(1), CommandLock(1), CommandSpec(1), DebounceHandler(1), Definition(1), ExecutionResult(1), Executor(1), Extension(1), GitHubClient(1), GitHubError(1), LocalExecutor(1), LockHeldError(1), LogEngine(1), ParsedRef(1), ReportData(1), RunContext(1), SandboxEngine(1), SandboxExtension(1), SandboxViolation(1), SourceContextAnnotator(1), StraceProfile(1), UserConfig(1), WatchController(1), WatchSession(1)",
+ "call_names": "print(276), get(106), append(97), getattr(68), len(57), exit(52), int(43), str(37), isinstance(35), join(30), execute(26), items(23), dumps(21), exists(21), group(19), sorted(19), ValueError(18), compile(17), field(17), split(16), ensure(15), fetchone(15), strip(15), open(14), bool(13), to_dict(13), Path(12), startswith(12), add(11), close(11), set(11), write(11), ParsedRef(10), load(10), mkdir(10), warning(10), getLogger(9), now(9), search(9), df(8), max(8), flush(7), format_duration(7), read_text(7), add_argument(6), config_path(6), debug(6), decode(6), fnmatch(6), head(6), isoformat(6), lower(6), lstrip(6), _normalize_cmd(5), cls(5), find(5), isdigit(5), killpg(5), loads(5), replace(5)",
+ "node_types": "identifier(9929), string_content(2060), expression_statement(1928), string(1914), attribute(1826), call(1807), argument_list(1803), =(1588), assignment(1075), block(1021), type(820), keyword_argument(520), comment(505), if_statement(496), dotted_name(480), none(422), interpolation(380), integer(364), comparison_operator(310), pair(260), subscript(258), return_statement(247), typed_parameter(220), function_definition(181), parameters(181), not(179), ->(175), in(171), binary_operator(168), import_from_statement(135), type_parameter(134), generic_type(134), is(116), boolean_operator(114), false(107), not_operator(104), import_statement(96), list(93), |(90), dictionary(82), except_clause(70), try_statement(69), conditional_expression(63), or(63), true(61)"
+}

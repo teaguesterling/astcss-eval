@@ -1,0 +1,29 @@
+{
+ "fixture": "py-umwelt",
+ "language": "python",
+ "files": 40,
+ "aliases": {
+  ".fn": "274 :: function_definition=268, lambda=6",
+  ".class": "69 :: class_definition=69",
+  ".call": "1891 :: call=1891",
+  ".loop": "244 :: for_statement=186, for_in_clause=51, while_statement=7",
+  ".if": "515 :: if_statement=394, conditional_expression=48, else_clause=32, elif_clause=31, if_clause=10",
+  ".jump": "433 :: return_statement=373, continue_statement=53, break_statement=7",
+  ".try": "46 :: try_statement=46",
+  ".catch": "55 :: except_clause=55",
+  ".throw": "42 :: raise_statement=42",
+  ".import": "311 :: import_from_statement=191, __future__=40, future_import_statement=40, import_statement=36, aliased_import=4",
+  ".str": "4441 :: string_content=2097, string=1976, interpolation=300, concatenated_string=34, escape_sequence=31, escape_interpolation=2",
+  ".comment": "276 :: comment=215, decorated_definition=61",
+  ".var": "1511 :: assignment=1040, typed_parameter=408, typed_default_parameter=63",
+  ".member": "1605 :: attribute=1398, subscript=200, slice=7",
+  ".comp": "51 :: generator_expression=20, list_comprehension=19, dictionary_comprehension=9, set_comprehension=3",
+  ".mod": "40 :: module=40"
+ },
+ "lang": "python=40f/59584n",
+ "fnhasfn": "6 truth / 271 engine",
+ "fn_names": "__init__(4), children(4), condition_met(4), get_attribute(4), get_id(4), match_type(4), array_literal(3), compile(3), format_specificity(3), json_attr(3), json_attr_list_contains(3), list_contains(3), map_literal(3), materialize(3), _hash_file(2), _is_literal(2), _span(2), reconcile(2), validate(2), _apply_excludes(1), _build_rule_block(1), _build_unknown_at_rule(1), _canonical_axis(1), _cmd_audit(1), _cmd_check(1), _cmd_compile(1), _cmd_compile_sql(1), _cmd_diff(1), _cmd_dry_run(1), _cmd_inspect(1), _cmd_materialize(1), _cmd_parse(1), _cmd_run(1), _collect_env(1), _collect_exec(1), _collect_file(1), _collect_from_raw_rules(1), _collect_mount(1), _collect_network(1), _collect_resource(1), _collect_source_declarations(1), _compile_attr_filter(1), _compile_context_qualifier(1), _compile_pseudo(1), _compile_simple(1), _compile_structural_ancestor(1), _create_resolved_entities_view(1), _create_typed_view(1), _current_state(1), _decls_equal(1), _describe_entity(1), _desugar_after_change(1), _desugar_audit(1), _desugar_budget(1), _desugar_env(1), _desugar_network(1), _desugar_source(1), _desugar_tools(1), _detect_ceiling_conflict(1), _detect_ceiling_ineffective(1)",
+ "class_names": "ActorMatcher(1), Applied(1), AttrFilter(1), AttrSchema(1), AuditMatcher(1), AuditReport(1), BudgetEntity(1), BwrapCompilation(1), BwrapCompiler(1), BwrapResult(1), CapabilityMatcher(1), CapabilityValidator(1), Compiler(1), ComplexSelector(1), CompoundPart(1), Conflict(1), Declaration(1), Dialect(1), DirEntity(1), DuckDBDialect(1), EntityAudit(1), EntitySchema(1), EnvEntity(1), ExecEntity(1), ExecutorEntity(1), FileEntity(1), HookEntity(1), InferencerEntity(1), JobEntity(1), KitEntity(1), LackpyNamespaceCompiler(1), LintConfig(1), ManifestEntity(1), MaterializationStrategy(1), ModeEntity(1), MountEntity(1), NetworkEntity(1), NoOp(1), NsjailResult(1), ObservationEntity(1)",
+ "call_names": "append(157), getattr(141), execute(60), get(53), register_property(51), str(48), print(44), dataclass(42), list(42), AttrSchema(41), int(38), len(37), extend(33), fetchall(32), isinstance(31), replace(31), items(29), join(29), tuple(26), add_argument(24), field(22), Path(20), _current_state(20), register_entity(20), ViewParseError(19), _span(19), set(18), _is_literal(17), strip(14), LintWarning(12), add(12), fetchone(11), setdefault(11), sorted(10), split(10), Declaration(9), RuleBlock(9), _entity_name(9), _load_default_vocabulary(9), add_parser(9), dict(9), dumps(9), parse(9), serialize(9), set_defaults(9), _parse_sel(8), lower(8), resolve(8), suppress(8), DeclaredEntity(7), RegistryError(7), WorldWarning(7), enumerate(7), parse_declaration_list(7), register_matcher(7), register_sugar(7), resolve_taxon(7), _register_matchers(6), chr(6), commit(6)",
+ "node_types": "identifier(12130), =(2182), string_content(2097), string(1976), call(1891), argument_list(1877), expression_statement(1791), type(1672), attribute(1398), keyword_argument(1182), block(1103), assignment(1040), dotted_name(541), none(490), generic_type(409), type_parameter(409), typed_parameter(408), if_statement(394), return_statement(373), comparison_operator(367), integer(320), in(304), interpolation(300), function_definition(268), parameters(268), ->(264), list(216), comment(215), subscript(200), import_from_statement(191), for_statement(186), boolean_operator(170), binary_operator(167), ==(154), tuple(153), |(149), not(121), pair(103), or(97), true(96), pattern_list(84), is(83), dictionary(80), and(73), class_definition(69)"
+}

@@ -1,0 +1,29 @@
+{
+ "fixture": "sh-homelab",
+ "language": "bash",
+ "files": 19,
+ "aliases": {
+  ".fn": "12 :: function_definition=12",
+  ".class": "0 :: ",
+  ".call": "78 :: command_substitution=69, process_substitution=9",
+  ".loop": "21 :: for_statement=18, while_statement=3",
+  ".if": "94 :: if_statement=54, else_clause=26, case_item=8, case_statement=4, elif_clause=2",
+  ".jump": "0 :: ",
+  ".try": "0 :: ",
+  ".catch": "0 :: ",
+  ".throw": "0 :: ",
+  ".import": "0 :: ",
+  ".str": "601 :: string=554, raw_string=39, concatenation=8",
+  ".comment": "460 :: comment=460",
+  ".var": "146 :: variable_assignment=130, declaration_command=15, unset_command=1",
+  ".member": "475 :: simple_expansion=430, expansion=45",
+  ".comp": "0 :: ",
+  ".mod": "19 :: program=19"
+ },
+ "lang": "bash=19f/9297n",
+ "fnhasfn": "0 truth / 0 engine",
+ "fn_names": "in_list(2), add(1), add_bind(1), banner(1), del(1), do_rm(1), fmt_uuid(1), gather(1), is_inboth(1), recon(1), run_user(1)",
+ "class_names": "",
+ "call_names": "",
+ "node_types": "word(1132), \"(1108), variable_name(634), command(592), command_name(592), string(554), comment(460), simple_expansion(430), string_content(358), number(187), =(148), variable_assignment(130), file_redirect(130), redirected_statement(117), list(93), test_command(77), command_substitution(69), $((69), ||(59), test_operator(56), >(55), >&(54), if_statement(54), compound_statement(46), binary_expression(46), expansion(45), ${(45), unary_expression(45), file_descriptor(43), raw_string(39), &&(34), else_clause(26), :-(22), do_group(21), program(19), pipeline(19), for_statement(18), subscript(16), declaration_command(15), >>(13), !(13), heredoc_content(13), function_definition(12), process_substitution(9), special_variable_name(9)"
+}

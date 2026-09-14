@@ -1,0 +1,29 @@
+{
+ "fixture": "cpp-duckdb-yaml",
+ "language": "cpp",
+ "files": 15,
+ "aliases": {
+  ".fn": "299 :: function_declarator=148, function_definition=72, template_function=52, lambda_expression=15, template_method=10, delete_method_clause=2",
+  ".class": "19 :: struct_specifier=11, enum_specifier=4, class_specifier=4",
+  ".call": "930 :: call_expression=930",
+  ".loop": "46 :: for_statement=22, while_statement=14, for_range_loop=10",
+  ".if": "574 :: condition_clause=236, if_statement=220, else_clause=88, conditional_expression=10, ?=10, case_statement=8",
+  ".jump": "163 :: return_statement=149, continue_statement=11, break_statement=3",
+  ".try": "30 :: try_statement=30",
+  ".catch": "35 :: catch_clause=35",
+  ".throw": "40 :: throw_statement=40",
+  ".import": "124 :: preproc_include=110, system_lib_string=13, using_declaration=1",
+  ".str": "838 :: string_literal=369, string_content=357, char_literal=52, character=31, escape_sequence=29",
+  ".comment": "1057 :: comment=681, type_qualifier=121, #include=110, storage_class_specifier=80, access_specifier=17, preproc_call=6",
+  ".var": "1027 :: declaration=330, parameter_declaration=310, init_declarator=270, field_declaration=98, enumerator=11, optional_parameter_declaration=8",
+  ".member": "1543 :: field_expression=703, ::=633, subscript_expression=134, ->=55, pointer_expression=18",
+  ".comp": "0 :: ",
+  ".mod": "33 :: namespace_definition=18, translation_unit=15"
+ },
+ "lang": "cpp=15f/26698n",
+ "fnhasfn": "78 truth / 79 engine",
+ "fn_names": "make_uniq(23), Cast(9), Execute(9), static_cast(9), MakeLimitGetter(5), MakeLimitSetter(5), Copy(4), Equals(4), YAMLTraversalBudget(4), ApplyDocumentSeparator(3), ApplySequenceLayout(3), FormatValueWithLayout(3), PostProcessForLayout(3), Register(3), YAMLBudgetScope(3), BindColumnTypes(2), ClaimNextFile(2), CopyFormatYAMLFunction(2), CopyToYAMLPlan(2), DUCKDB_CPP_EXTENSION_ENTRY(2), DetectJaggedYAMLType(2), DetectYAMLType(2), DetectYAMLTypeImpl(2), ExtractFrontmatter(2), ExtractRowNodes(2), FormatYAMLBind(2), FormatYAMLFunction(2), FromYAMLBind(2), FromYAMLFunction(2), GetData(2), GetFiles(2), GetGlobFiles(2), GetYAMLCopyFunction(2), HasKey(2), IsYAMLType(2), JSONToYAMLCast(2), LoadInternal(2), MaxThreads(2), NavigateToPath(2), ParseMultiDocumentYAML(2), ReadFileContent(2), ReadYAMLFile(2), ReadYAMLReplacement(2), RecoverPartialYAMLDocuments(2), RegisterFromYAMLFunction(2), RegisterFunction(2), RegisterLimitFunctions(2), RegisterStyleFunctions(2), RegisterValidationFunction(2), RegisterYAMLCopyFunctions(2), RegisterYAMLFrontmatterFunction(2), RegisterYAMLTypeFunctions(2), ResetFileResources(2), StripDocumentSuffixes(2), ThrowYAMLCopyParameterException(2), ValueToYAMLFunction(2), VarcharToYAMLCast(2), YAMLFrontmatterBind(2), YAMLFrontmatterFunction(2), YAMLFrontmatterInit(2)",
+ "class_names": "FormatYAMLBindData(1), FromYAMLBindData(1), MultiDocumentMode(1), ReplacementScanData(1), TableRef(1), YAMLBudgetScope(1), YAMLFormat(1), YAMLFrontmatterBindData(1), YAMLFrontmatterLocalState(1), YAMLFrontmatterOptions(1), YAMLFunctions(1), YAMLLayout(1), YAMLReadGlobalState(1), YAMLReadLocalState(1), YAMLReadOptions(1), YAMLReader(1), YAMLSettings(1), YAMLStringStyle(1), YAMLTraversalBudget(1)",
+ "call_names": "size(71), id(51), Value(41), push_back(30), empty(29), RegisterFunction(24), move(24), c_str(21), find(21), SetValue(19), length(19), BinderException(18), end(16), ToString(15), InvalidInputException(14), begin(14), emplace_back(14), GetValue(13), ScalarFunction(12), Lower(11), substr(11), Cast(9), Execute(9), CompatSetFallible(8), GetAlias(8), string_t(8), AddString(7), GetString(7), HasAlias(7), IOException(7), IsMap(7), Load(7), what(7), CompatExprReturnType(6), Get(6), GetSize(6), IsNumeric(6), YAMLNodeToJSON(6), insert(6), type(6), CompatIdentifierName(5), GetFileSystem(5), IsNull(5), LIST(5), ParseYAML(5), Scalar(5), YAMLType(5), stoll(5), CheckInputSize(4), CompatSetScalarNullHandling(4), DOUBLE(4), DetectYAMLTypeImpl(4), MergeStructTypes(4), Register(4), RegisterCastFunction(4), ThrowYAMLCopyParameterException(4), ValueToYAMLString(4), back(4), clear(4), transform(4)",
+ "node_types": "identifier(2980), argument_list(943), call_expression(930), field_identifier(811), type_identifier(762), field_expression(703), comment(681), namespace_identifier(642), qualified_identifier(633), ::(633), binary_expression(514), compound_statement(459), =(437), string_literal(369), string_content(357), expression_statement(343), declaration(330), parameter_declaration(310), &(298), reference_declarator(276), init_declarator(270), condition_clause(236), if_statement(220), parameter_list(198), <(193), ==(188), number_literal(177), type_descriptor(170), >(159), return_statement(149), function_declarator(148), template_argument_list(147), assignment_expression(147), primitive_type(137), subscript_argument_list(134), subscript_expression(134), placeholder_type_specifier(121), auto(121), type_qualifier(121), preproc_include(110), #include(110), field_declaration(98), else_clause(88), template_type(85), storage_class_specifier(80)"
+}

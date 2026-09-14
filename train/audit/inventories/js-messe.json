@@ -1,0 +1,29 @@
+{
+ "fixture": "js-messe",
+ "language": "javascript",
+ "files": 24,
+ "aliases": {
+  ".fn": "182 :: arrow_function=74, function_declaration=68, method_definition=40",
+  ".class": "5 :: class_declaration=5",
+  ".call": "880 :: call_expression=823, new_expression=57",
+  ".loop": "50 :: for_in_statement=46, do_statement=2, for_statement=1, while_statement=1",
+  ".if": "303 :: if_statement=216, else_clause=31, ternary_expression=26, switch_case=22, switch_statement=5, switch_default=3",
+  ".jump": "215 :: return_statement=196, break_statement=14, continue_statement=5",
+  ".try": "28 :: try_statement=28",
+  ".catch": "28 :: catch_clause=28",
+  ".throw": "21 :: throw_statement=21",
+  ".import": "131 :: import_specifier=38, import_statement=36, import_clause=36, named_imports=20, namespace_import=1",
+  ".str": "1941 :: string_fragment=855, string=662, template_substitution=205, template_string=144, escape_sequence=34, regex=17",
+  ".comment": "278 :: comment=276, hash_bang_line=2",
+  ".var": "854 :: variable_declarator=428, lexical_declaration=426",
+  ".member": "1703 :: member_expression=1618, subscript_expression=46, optional_chain=39",
+  ".comp": "0 :: ",
+  ".mod": "24 :: program=24"
+ },
+ "lang": "javascript=24f/29426n",
+ "fnhasfn": "37 truth / 85 engine",
+ "fn_names": "send(8), constructor(5), delete(5), get(5), list(5), put(5), generateRef(2), main(2), _createThread(1), _findThread(1), _getEvent(1), _listEvents(1), _putEvent(1), _updateThread(1), authenticate(1), cmdCancel(1), cmdClaim(1), cmdComplete(1), cmdCreate(1), cmdExport(1), cmdImport(1), cmdList(1), cmdShow(1), cmdUpdate(1), copy(1), createBaseStorage(1), createBlobStoreFromEnv(1), createR2Storage(1), createStorageFromEnv(1), detectFormat(1), ensureDirs(1), error(1), eventsToMesseAf(1), exists(1), expandTemplate(1), exportThread(1), extractAttachments(1), extractClientId(1), fetch(1), findNewRequestFiles(1), findThread(1), generateEventId(1), generateFilename(1), generateMessageRef(1), getAttachmentType(1), getClient(1), getExtensionFromMime(1), getFolderForStatus(1), getGoogleAccessToken(1), getMessageType(1), getMetadata(1), getStorageDescription(1), getThreadEvents(1), getThreads(1), httpRequest(1), importThread(1), json(1), listThreads(1), loadExecutors(1), messeAfToEvents(1)",
+ "class_names": "BlobStore(1), FilesystemStorage(1), MesseAfStorage(1), R2Storage(1), S3Storage(1)",
+ "call_names": "json(48), log(48), push(41), error(40), join(37), status(32), stringify(19), startsWith(18), get(17), put(17), Error(15), exit(15), slice(14), split(14), toString(14), map(13), match(11), then(10), Date(9), endsWith(9), from(9), httpRequest(9), replace(9), filter(8), list(8), includes(7), padStart(7), readFile(7), addEventListener(6), delete(6), getFolderForStatus(6), parseInt(6), readdir(6), send(6), serializeThread(6), waitUntil(6), writeFile(6), find(5), generateEventId(5), on(5), parse(5), parseThread(5), parseThreadV1(5), toUpperCase(5), trim(5), BlobStore(4), _findThread(4), cmdUpdate(4), cwd(4), getClient(4), isDirectory(4), mkdir(4), serializeThreadV1(4), toISOString(4), use(4), R2Storage(3), Set(3), URL(3), URLSearchParams(3), byteLength(3)",
+ "node_types": "identifier(3157), property_identifier(2179), member_expression(1618), arguments(880), string_fragment(855), call_expression(823), string(662), pair(565), =(504), statement_block(455), variable_declarator(428), lexical_declaration(426), expression_statement(354), binary_expression(287), comment(276), object(255), parenthesized_expression(243), if_statement(216), template_substitution(205), return_statement(196), number(157), formal_parameters(152), await_expression(145), template_string(144), ||(111), array(96), arrow_function(74), =>(74), unary_expression(72), function_declaration(68), ===(63), assignment_expression(61), !(58), new_expression(57), export_statement(51), subscript_expression(46), for_in_statement(46), shorthand_property_identifier(41), method_definition(40), optional_chain(39), import_specifier(38), /(37), import_clause(36), import_statement(36), &&(35)"
+}
