@@ -536,6 +536,67 @@ class Tree:
             return {k for k in s if n[k]["signature_type"]}
         raise ValueError("unknown pseudo-class %r" % kind)
 
+    # -- node -> selector (DevTools "Copy selector")
+    def classes_of(self, k):
+        return [s for s in CLASSES if k in self.atoms.get(s, ())]
+
+    def anchor_steps(self, k):
+        """One-step selectors that match k, most readable first: class or type, with the
+        node's name, and the attributes it carries."""
+        n = self.node[k]
+        sels = self.classes_of(k) + [n["type"]]
+        out = []
+        for sel in sels:
+            base = S(sel)
+            out.append(base)
+            if n["name"] and re.match(r"^[A-Za-z_][\w]*$", n["name"]):
+                out.append(S(sel, n["name"]))
+            rv = self.receiver(k)
+            if rv and re.match(r"^[A-Za-z_][\w]*$", rv):
+                out.append(S(sel, n["name"] if n["name"] and re.match(r"^[A-Za-z_][\w]*$", n["name"]) else None,
+                             [["receiver", "=", rv]]))
+            if n["sem"] == FN:
+                out.append(S(sel, n["name"] if n["name"] and re.match(r"^[A-Za-z_][\w]*$", n["name"]) else None,
+                             [["params", "=", n["nparams"]]]))
+                if n["signature_type"] and re.match(r"^[A-Za-z_][\w.]*$", n["signature_type"]):
+                    out.append(S(sel, n["name"] if n["name"] else None, [["signature", "=", n["signature_type"]]]))
+        return out
+
+    def selector_for(self, k, limit=5):
+        """Selectors for one node, ranked like DevTools' "Copy selector": exactly this node
+        first, then fewest extra matches, then shortest. Two steps at most (the engine's
+        limit, #127) and no file filter, so identical code in two files can stay ambiguous;
+        each result carries its match count. Semantics are the documented ones (Tree.select)."""
+        n = self.node[k]
+        cands = [C(st) for st in self.anchor_steps(k)]
+        # Scope anchors: the nearest named function and class around the node, and its
+        # named parent, joined with ' ' (anywhere inside) or '>' (direct child).
+        anchors = []
+        for sem in (FN, CLS):
+            a = self.nearest(k, sem)
+            if a is not None and self.node[a]["name"] and re.match(r"^[A-Za-z_][\w]*$", self.node[a]["name"]):
+                anchors.append((a, " "))
+        p = self.parent(k)
+        if p is not None and self.node[p]["name"] and re.match(r"^[A-Za-z_][\w]*$", self.node[p]["name"]):
+            anchors.append((p, ">"))
+        targets = self.anchor_steps(k)
+        for a, op in anchors:
+            for ast in [s for s in self.anchor_steps(a) if s.get("name") and not s.get("attrs")][:2]:
+                for tst in targets:
+                    cands.append(C(ast, tst, op=op))
+        seen, ranked = set(), []
+        for c in cands:
+            css = render(c)
+            if css in seen or parse(css) != c:
+                continue
+            seen.add(css)
+            got = self.select(c)
+            if k not in got:
+                continue
+            ranked.append((len(got) != 1, len(got), len(css), css, c))
+        ranked.sort(key=lambda r: r[:3])
+        return [{"selector": css, "matches": cnt, "unique": not amb} for amb, cnt, _, css, _ in ranked[:limit]]
+
     def select(self, c):
         steps = c["steps"]
         if len(steps) == 1:
