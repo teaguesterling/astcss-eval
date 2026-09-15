@@ -99,6 +99,12 @@ specific node type instead (no leading dot).
 - `.class` is `struct_type`, `interface_type`; `.loop` includes `for_clause` and
   `range_clause` inside a `for_statement`; `.if` includes switch
   `expression_case` / `default_case`. Small fixture (16 files): keep batches small.
+- **Names don't bind on `.class` or `.member`**: a struct's or interface's identifier is on the
+  enclosing `type_spec`, not on `struct_type`/`interface_type`, so `.class#X` and
+  `.class[name...]` match nothing; `#name` works on `.fn` and `.call`.
+- **`>` into a body matches nothing**: Go always puts a `block` between a loop, `if` or
+  function and its statements (`.loop > .if`, `.if > .call`: 0). Use descendant steps.
+  (Both found by the Go drafting agent.)
 
 ## Bash — fixtures sh-homelab, sh-mixed
 
