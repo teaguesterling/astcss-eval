@@ -128,6 +128,17 @@ def main(argv):
         for p, path in load("workspace/suite1/pairs/kept-suite1.jsonl"):
             pairs.append(record(p, "suite1", path))
 
+    # Claude's own review (review/claude-review-*.json, later files win per pair): shown read-only
+    # beside the viewer's annotations. Pairs a file lists as reviewed but doesn't annotate are "ok".
+    for path in sorted(glob.glob(os.path.join(HERE, "review", "claude-review-*.json"))):
+        rv = json.load(open(path))
+        notes = rv.get("pairs", {})
+        reviewed = set(rv.get("reviewed", [])) | set(notes)
+        for r in pairs:
+            if r["set"] == "retired" or r["id"] not in reviewed:
+                continue
+            r["claude"] = dict(notes.get(r["id"]) or {"verdict": "ok"}, source=os.path.basename(path))
+
     present = {r["set"] for r in pairs}
     payload = {
         "schema": "astcss-review-data/1",

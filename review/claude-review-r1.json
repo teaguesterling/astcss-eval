@@ -1,0 +1,1693 @@
+{
+ "_about": "Claude's own review (2026-09-15) of every training, validation and eval pair, read pair by pair against what the selector selects (review/review_packet.py: node types and names from the oracle, with fixture source checked where a claim was doubtful). Verdicts: ok, wording (a request misdescribes the selector), selector (the selector is wrong for the request), ambiguous, drop. Pairs listed under 'reviewed' but not under 'pairs' were read and judged ok. Notes marked '#151' concern the verified node set, not the pair: sitting_duck's bare type selector is a prefix match, so the reference counts extra nodes while the selector string is right.",
+ "reviewer": "Claude (Opus 5)",
+ "date": "2026-09-15",
+ "pairs": {
+  "tr-bash-t1-0014": {
+   "verdict": "wording",
+   "note": "declaration_command also matches export/declare/readonly: HA, TOKEN, BU and BP are top-level exports in blink.sh and eero.sh, not locals inside a routine.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "declarations made with local, export or declare"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "where does a script declare or export a variable?"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "find declaration commands such as local and export"
+    }
+   }
+  },
+  "tr-bash-t3-0011": {
+   "verdict": "wording",
+   "note": "The selector returns plain variable_assignment nodes as well as declaration_command, so 'scoped names' and 'local binding' are too narrow.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "variables assigned or declared somewhere inside a routine"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "where does a function set or declare a variable?"
+    }
+   }
+  },
+  "tr-bash-t4-0010": {
+   "verdict": "wording",
+   "note": "Text 0 describes one routine feeding into sort; the selector returns every function that contains a pipeline (3).",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "functions that contain a pipeline"
+    }
+   }
+  },
+  "tr-bash-t3-0001-a1": {
+   "verdict": "ok",
+   "note": "#151: bare `command` also matches command_name, so the reference counts each command twice (7 vs 3); the selector is right."
+  },
+  "tr-bash-t3-0002": {
+   "verdict": "ok",
+   "note": "#151: bare `command` also matches command_name (reference 6 vs 3 commands); the selector is right."
+  },
+  "tr-bash-t3-0003-a1": {
+   "verdict": "ok",
+   "note": "#151: bare `command` also matches command_name (reference 8 vs 4 commands); the selector is right."
+  },
+  "tr-bash-t3-0014-a1": {
+   "verdict": "ok",
+   "note": "#151: bare `command` also matches command_name (reference 12 vs 6 commands); the selector is right."
+  },
+  "tr-bash-t3-0015-a1": {
+   "verdict": "ok",
+   "note": "#151: bare `command` also matches command_name (reference 6 vs 3 commands); the selector is right."
+  },
+  "tr-bash-t3-0016-a1": {
+   "verdict": "ok",
+   "note": "#151: bare `command` also matches command_name (reference 4 vs 2 commands); the selector is right."
+  },
+  "tr-c-t1-0012": {
+   "verdict": "ok",
+   "note": "#151: the engine's preproc_if also matches preproc_ifdef (42 = 17 + 25), so the verified node set contains this pair's own near miss; the selector is right."
+  },
+  "tr-c-t1-0019": {
+   "verdict": "wording",
+   "note": "preproc_arg also covers function-like macro bodies (SET(n), if((X)) ...), so 'object like macros' is too narrow.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "the replacement text of macro definitions"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "what a define expands to"
+    }
+   }
+  },
+  "tr-c-t2-0030": {
+   "verdict": "wording",
+   "note": "No text names sam_close; all three describe the htslib call by role.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "calls to sam_close"
+    }
+   }
+  },
+  "tr-c-t2-0031-a1": {
+   "verdict": "wording",
+   "note": "Includes stderr parameters, so my rewording 'local names ... error code' is wrong.",
+   "texts": {
+    "1": {
+     "verdict": "reword",
+     "fix_text": "which variable names contain err?"
+    }
+   }
+  },
+  "tr-c-t4-0011": {
+   "verdict": "drop",
+   "note": "In C, .class matches struct/enum type references (open_nextdir's `struct hts_path_itr *itr` parameter), so most of these 27 functions use a struct type rather than define one. No tier 1-4 selector says 'defines a local type'."
+  },
+  "tr-c-t4-0014": {
+   "verdict": "drop",
+   "note": ".class:not(:has(.var)) returns struct references with no body (addrinfo x4, epoll_event x4, stat x3, dirent) rather than empty type definitions."
+  },
+  "tr-c-t4-0022": {
+   "verdict": "drop",
+   "note": "enum_specifier matches type references: seq_read_bind's `enum htsExactFormat fmt = ...` is a use, not a nested enum definition."
+  },
+  "tr-c-t4-0028": {
+   "verdict": "wording",
+   "note": "Texts 1 and 2 describe the error helper (defined in htsfile.c) only by role.",
+   "texts": {
+    "1": {
+     "verdict": "reword",
+     "fix_text": "which routines call error when something fails?"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "find every definition that invokes error"
+    }
+   }
+  },
+  "tr-cpp-t1-0101": {
+   "verdict": "wording",
+   "note": "template_function is a templated name with explicit arguments at a use site (make_uniq<T> x22, static_cast x5), not a template definition.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "templated function names with explicit type arguments in duck hunt"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "where does duck hunt call make_uniq or static_cast with a type argument?"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "list make_uniq style calls that spell out a template argument"
+    }
+   }
+  },
+  "tr-cpp-t1-0107": {
+   "verdict": "wording",
+   "note": "template_function is a templated name at a use site (static_cast x23, make_uniq x16), not a reusable template definition.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "templated function names with explicit type arguments in the mcp extension"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "where does the mcp code call static_cast or make_uniq with a type argument?"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "list calls that spell out a template argument in the connection layer"
+    }
+   }
+  },
+  "tr-cpp-t1-0104": {
+   "verdict": "wording",
+   "note": "`using namespace duckdb_yyjson` brings a namespace into scope; it doesn't alias a type.",
+   "texts": {
+    "2": {
+     "verdict": "reword",
+     "fix_text": "find every using declaration that brings a namespace into scope"
+    }
+   }
+  },
+  "tr-cpp-t1-0110": {
+   "verdict": "wording",
+   "note": "The using declarations are `using namespace duckdb_yyjson`, not type aliases.",
+   "texts": {
+    "2": {
+     "verdict": "reword",
+     "fix_text": "find using declarations in the connection layer"
+    }
+   }
+  },
+  "tr-cpp-t4-0029": {
+   "verdict": "wording",
+   "note": "Text 2 ('rely only on lower level errors') doesn't say what the selector checks.",
+   "texts": {
+    "2": {
+     "verdict": "reword",
+     "fix_text": "find attempts in the connection logic with no throw statement inside"
+    }
+   }
+  },
+  "tr-cpp-t4-0031": {
+   "verdict": "wording",
+   "note": "The result includes structs and enums (RailsRequest, WorkflowLogFormat), not only parser classes.",
+   "texts": {
+    "2": {
+     "verdict": "reword",
+     "fix_text": "list the types that contain no throw statement"
+    }
+   }
+  },
+  "tr-go-t1-0008": {
+   "verdict": "ok",
+   "note": "#151: import_spec also matches import_spec_list (reference 30 vs 23 specs); the selector is right."
+  },
+  "tr-go-t3-0035": {
+   "verdict": "wording",
+   "note": "Most of these short declarations sit in for-clause headers (i := 0), not in the loop body.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "variables declared inside a loop"
+    }
+   }
+  },
+  "tr-java-t2-0020": {
+   "verdict": "drop",
+   "note": "[name*=\"out\"] matches only BorderLayout (Border-L-ay-out); the System.out accesses the request means are not matched."
+  },
+  "tr-javascript-t1-0010": {
+   "verdict": "wording",
+   "note": "All 46 are `for (x of xs)` loops over values; js-messe has no for-in loop. tree-sitter names both for_in_statement.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "for of loops over a collection"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "where does the code iterate with a for of loop?"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "spots looping over each value with for of"
+    }
+   }
+  },
+  "tr-javascript-t1-0011": {
+   "verdict": "wording",
+   "note": "Both loops are `for (... of ...)` (100-doors-8.js, 100-doors-11.js), not walks over object keys.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "loops written with for of"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "any for of style iteration here?"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "where does it loop over values with for of?"
+    }
+   }
+  },
+  "tr-javascript-t3-0104": {
+   "verdict": "wording",
+   "note": "Text 0 names the classes, but `.class .try` returns the try blocks: the A B vs A:has(B) confusion.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "try blocks inside class methods"
+    }
+   }
+  },
+  "tr-javascript-t3-0105": {
+   "verdict": "wording",
+   "note": "Text 0 names the classes, but `.class .catch` returns the catch clauses.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "catch clauses inside class methods"
+    }
+   }
+  },
+  "tr-javascript-t3-0106": {
+   "verdict": "wording",
+   "note": "Text 0 names the classes, but `.class .loop` returns the loops.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "loops inside class methods"
+    }
+   }
+  },
+  "tr-javascript-t3-0107": {
+   "verdict": "wording",
+   "note": "Text 0 names the conditionals, but `.if .throw` returns the throw statements.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "throw statements inside a conditional"
+    }
+   }
+  },
+  "tr-javascript-t3-0108": {
+   "verdict": "wording",
+   "note": "Text 0 names the loops, but `.loop .throw` returns the throw statements.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "throw statements inside a loop"
+    }
+   }
+  },
+  "tr-javascript-t3-0163": {
+   "verdict": "wording",
+   "note": "Text 0 names the classes, but `.class .throw` returns the throw statements.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "throw statements inside class methods"
+    }
+   }
+  },
+  "tr-javascript-t3-0160": {
+   "verdict": "wording",
+   "note": "A throw inside a try body is not a rethrow.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "throw statements nested inside a try block"
+    }
+   }
+  },
+  "tr-python-t1-0010": {
+   "verdict": "wording",
+   "note": ".comp covers list, dict and set comprehensions and generator expressions; texts 1 and 2 each name one kind, which are node types of their own (list_comprehension, generator_expression).",
+   "texts": {
+    "1": {
+     "verdict": "reword",
+     "fix_text": "is there a comprehension or generator expression anywhere?"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "spot comprehensions of every kind"
+    }
+   }
+  },
+  "tr-python-t1-0011": {
+   "verdict": "wording",
+   "note": ".comp covers every comprehension kind; texts 1 and 2 each name one kind.",
+   "texts": {
+    "1": {
+     "verdict": "reword",
+     "fix_text": "is there a comprehension or generator expression anywhere?"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "spot comprehensions of every kind"
+    }
+   }
+  },
+  "tr-python-t1-0019": {
+   "verdict": "ok",
+   "note": "#151: lambda also matches lambda_parameters (reference 40 vs 30 lambdas); the selector is right."
+  },
+  "tr-python-t1-0020": {
+   "verdict": "ok",
+   "note": "#151: lambda also matches lambda_parameters (reference 7 vs 6); the selector is right."
+  },
+  "tr-python-t2-0015": {
+   "verdict": "wording",
+   "note": "Texts 0 and 1 say 'esc helper' for `_esc`: the underscore defect in reverse (the gate accepts the spoken form for #name).",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "calls to the internal _esc helper"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "where does the code invoke the _esc helper?"
+    }
+   }
+  },
+  "tr-python-t4-0038": {
+   "verdict": "wording",
+   "note": "A raise in a try body is not a re-raise; the selector counts any raise inside the try statement.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "try blocks that contain a raise"
+    }
+   }
+  },
+  "tr-python-t4-0039": {
+   "verdict": "wording",
+   "note": "A raise in a try body is not a re-raise.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "try blocks that contain a raise"
+    }
+   }
+  },
+  "tr-python-t4-0040": {
+   "verdict": "wording",
+   "note": "A raise in a try body is not a re-raise.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "try blocks that contain a raise"
+    }
+   }
+  },
+  "tr-python-t4-0048": {
+   "verdict": "wording",
+   "note": "A raise in a try body is not a re-raise.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "try blocks that contain a raise"
+    }
+   }
+  },
+  "tr-rust-t1-0007": {
+   "verdict": "wording",
+   "note": "function_item includes methods inside impl blocks (next, area), not only top-level fns.",
+   "texts": {
+    "1": {
+     "verdict": "reword",
+     "fix_text": "fn items, excluding closures"
+    }
+   }
+  },
+  "tr-rust-t2-0016": {
+   "verdict": "wording",
+   "note": "Only the three `impl Store` blocks match; 'where is Store declared' points at a declaration the selector doesn't return.",
+   "texts": {
+    "2": {
+     "verdict": "reword",
+     "fix_text": "where are the Store impl blocks"
+    }
+   }
+  },
+  "tr-rust-t4-0008": {
+   "verdict": "wording",
+   "note": "Rust methods live in separate impl blocks, so a struct item never contains a fn: struct BufferMeta and FormatHints are listed although both have a new method. The selector means 'no fn inside this item's own body'.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "type items whose own body contains no function"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "struct, enum or impl items with no fn inside them"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "which type items contain no function definition directly in their body"
+    }
+   }
+  },
+  "tr-rust-t4-0010": {
+   "verdict": "wording",
+   "note": "Same as tr-rust-t4-0008: struct Fib has `new` in its impl block but is listed.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "type items whose own body contains no function"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "struct, enum or impl items with no fn inside them"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "which type items contain no function definition directly in their body"
+    }
+   }
+  },
+  "tr-rust-t4-0047": {
+   "verdict": "wording",
+   "note": "struct FormatHints is listed although `impl FormatHints` defines new; the selector checks the item's own body.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "type items with no new function in their own body"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "which struct, enum or impl items contain no fn named new?"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "type items whose body defines no new function"
+    }
+   }
+  },
+  "tr-sql-t1-0015": {
+   "verdict": "drop",
+   "note": "sql-fledgling has no CREATE ROLE statement; the create_role nodes named BY and sm are grammar misparses."
+  },
+  "tr-sql-t1-0016": {
+   "verdict": "drop",
+   "note": "sql-duckdb-mcp has no CREATE ROLE statement; the create_role nodes named o and BY are grammar misparses."
+  },
+  "tr-sql-t1-0020": {
+   "verdict": "wording",
+   "note": "One of the two nodes is an unnamed create_query, so 'carries an explicit name' is wrong.",
+   "texts": {
+    "1": {
+     "verdict": "reword",
+     "fix_text": "which views or queries are declared here?"
+    }
+   }
+  },
+  "tr-sql-t3-0003": {
+   "verdict": "selector",
+   "fix_css": "create_table column_definition",
+   "note": "Columns sit inside a column_definitions list, so `create_table > column_definition` selects nothing under documented semantics; the engine's 24 are column_definitions list nodes reached through the #151 prefix match.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "columns declared inside a table"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "what fields does a CREATE TABLE list?"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "surface the column list of a table"
+    }
+   }
+  },
+  "tr-sql-t3-0010": {
+   "verdict": "selector",
+   "fix_css": "create_table column_definition",
+   "note": "Same as tr-sql-t3-0003: `>` reaches only the column_definitions list, via #151.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "columns declared inside a table"
+    },
+    "1": {
+     "verdict": "reword",
+     "fix_text": "what fields does a CREATE TABLE list?"
+    },
+    "2": {
+     "verdict": "reword",
+     "fix_text": "surface the column list of a table"
+    }
+   }
+  },
+  "tr-sql-t3-0013b-a1": {
+   "verdict": "ok",
+   "note": "#151: column_definition also matches the column_definitions list (reference 7 vs 6 columns); the selector is right."
+  },
+  "tr-sql-t3-0026": {
+   "verdict": "ok",
+   "note": "#151: column_definition also matches the column_definitions list (reference 9 vs 8 columns); the selector is right."
+  },
+  "tr-sql-t3-0023": {
+   "verdict": "wording",
+   "note": "'right behind' says immediately; `~` is any later sibling.",
+   "texts": {
+    "1": {
+     "verdict": "reword",
+     "fix_text": "which fields come somewhere after an id field?"
+    }
+   }
+  },
+  "tr-sql-t4-0002": {
+   "verdict": "ambiguous",
+   "note": "22 of the 24 tables parse with the name SELECT; verify these column_definition nodes are real column lists and not a misparse of CREATE TABLE ... AS SELECT."
+  },
+  "t1-p19": {
+   "verdict": "wording",
+   "note": "Eval, asked text: 'list comprehensions' but 14 of the 20 nodes are generator expressions; answering with the list_comprehension type is reasonable and scores wrong.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "comprehensions and generator expressions"
+    }
+   }
+  },
+  "t3-p10": {
+   "verdict": "ambiguous",
+   "note": "Eval, asked text: 'follow another import' reads as any later import (~) as naturally as the immediate one (+), and the two select different nodes.",
+   "texts": {
+    "0": {
+     "verdict": "reword",
+     "fix_text": "imports that come right after another import"
+    }
+   }
+  },
+  "t2-p24": {
+   "verdict": "ok",
+   "note": "Eval: 'the update functions' could mean #update or ^=\"update_\"; under return-both the union is this node set (no function is named update), so the pair stands."
+  }
+ },
+ "reviewed": [
+  "t1-p01",
+  "t1-p02",
+  "t1-p03",
+  "t1-p04",
+  "t1-p05",
+  "t1-p06",
+  "t1-p07",
+  "t1-p08",
+  "t1-p09",
+  "t1-p10",
+  "t1-p11",
+  "t1-p12",
+  "t1-p13",
+  "t1-p14",
+  "t1-p15",
+  "t1-p16",
+  "t1-p17",
+  "t1-p18",
+  "t1-p19",
+  "t1-p20",
+  "t1-p21",
+  "t1-p22",
+  "t1-p23",
+  "t1-p24",
+  "t1-p25",
+  "t2-p01",
+  "t2-p02",
+  "t2-p04",
+  "t2-p05",
+  "t2-p06",
+  "t2-p07",
+  "t2-p08",
+  "t2-p09",
+  "t2-p10",
+  "t2-p11",
+  "t2-p12",
+  "t2-p13",
+  "t2-p14",
+  "t2-p16",
+  "t2-p17",
+  "t2-p19",
+  "t2-p20",
+  "t2-p21",
+  "t2-p22",
+  "t2-p23",
+  "t2-p24",
+  "t2-p25",
+  "t2-p26",
+  "t2-p27",
+  "t2-p28",
+  "t3-p01",
+  "t3-p02",
+  "t3-p03",
+  "t3-p04",
+  "t3-p05",
+  "t3-p07",
+  "t3-p09",
+  "t3-p10",
+  "t3-p11",
+  "t3-p12",
+  "t3-p13",
+  "t3-p14",
+  "t3-p15",
+  "t3-p16",
+  "t3-p17",
+  "t3-p19",
+  "t3-p22",
+  "t3-p25",
+  "t3-p27",
+  "t3-p28",
+  "t3-p29",
+  "t3-p30",
+  "t3-p31",
+  "t3-p32",
+  "t3-p33",
+  "t3-p34",
+  "t3-p35",
+  "t3-p36",
+  "t3-p37",
+  "t3-p38",
+  "t3-p39",
+  "t3-p40",
+  "t3-p41",
+  "t4-p01",
+  "t4-p02",
+  "t4-p03",
+  "t4-p04",
+  "t4-p05",
+  "t4-p06",
+  "t4-p07",
+  "t4-p08",
+  "t4-p09",
+  "t4-p10",
+  "t4-p11",
+  "t4-p12",
+  "t4-p13",
+  "t4-p14",
+  "t4-p17",
+  "t4-p18",
+  "t4-p19",
+  "t4-p20",
+  "t4-p21",
+  "t4-p22",
+  "t4-p23",
+  "t4-p24",
+  "t4-p26",
+  "t4-p27",
+  "t4-p28",
+  "t4-p29",
+  "t4-p30",
+  "t4-p31",
+  "t4-p32",
+  "t4-p33",
+  "t4-p34",
+  "t4-p35",
+  "t5-p01",
+  "t5-p02",
+  "t5-p03",
+  "t5-p04",
+  "t5-p05",
+  "t5-p06",
+  "t5-p07",
+  "t5-p08",
+  "t5-p09",
+  "t5-p10",
+  "t5-p11",
+  "t5-p12",
+  "t5-p13",
+  "t5-p14",
+  "t5-p15",
+  "t5-p16",
+  "t5-p17",
+  "t5-p18",
+  "t5-p19",
+  "t5-p20",
+  "t5-p21",
+  "t5-p22",
+  "t5-p23",
+  "t5-p24",
+  "t5-p25",
+  "t5-p26",
+  "t5-p27",
+  "t5-p28",
+  "t5-p29",
+  "t5-p30",
+  "t5-p31",
+  "t5-p32",
+  "t5-p33",
+  "t5-p34",
+  "t5-p35",
+  "t5-p36",
+  "t5-p37",
+  "t5-p38",
+  "t5-p39",
+  "t5-p40",
+  "t5-p41",
+  "t5-p42",
+  "t5-p43",
+  "t5-p44",
+  "t5-p45",
+  "t5-p46",
+  "t5-p47",
+  "t5-p48",
+  "t5-p49",
+  "t5-p50",
+  "t5-p51",
+  "t5-p52",
+  "t5-p53",
+  "t5-p54",
+  "t5-p55",
+  "tr-bash-t1-0001",
+  "tr-bash-t1-0002",
+  "tr-bash-t1-0003",
+  "tr-bash-t1-0004",
+  "tr-bash-t1-0005",
+  "tr-bash-t1-0006",
+  "tr-bash-t1-0007",
+  "tr-bash-t1-0008",
+  "tr-bash-t1-0009",
+  "tr-bash-t1-0010",
+  "tr-bash-t1-0011",
+  "tr-bash-t1-0012",
+  "tr-bash-t1-0013",
+  "tr-bash-t1-0014",
+  "tr-bash-t1-0015",
+  "tr-bash-t1-0016",
+  "tr-bash-t1-0017-r1",
+  "tr-bash-t1-0018",
+  "tr-bash-t1-0019",
+  "tr-bash-t1-0020",
+  "tr-bash-t2-0001",
+  "tr-bash-t2-0002-a1",
+  "tr-bash-t2-0003-a1",
+  "tr-bash-t2-0004-a1",
+  "tr-bash-t2-0005-a1",
+  "tr-bash-t2-0006-a1",
+  "tr-bash-t2-0007-a1",
+  "tr-bash-t2-0008-a1",
+  "tr-bash-t2-0009-a1",
+  "tr-bash-t2-0010-a1",
+  "tr-bash-t2-0011-a1",
+  "tr-bash-t2-0012-a1",
+  "tr-bash-t2-0013-a1",
+  "tr-bash-t2-0014-a1",
+  "tr-bash-t2-0015-a1",
+  "tr-bash-t2-0016-a1",
+  "tr-bash-t2-0017-a1",
+  "tr-bash-t2-0018-a1",
+  "tr-bash-t2-0019-a1",
+  "tr-bash-t2-0020",
+  "tr-bash-t2-0022",
+  "tr-bash-t3-0001-a1",
+  "tr-bash-t3-0002",
+  "tr-bash-t3-0003-a1",
+  "tr-bash-t3-0005-r1",
+  "tr-bash-t3-0006",
+  "tr-bash-t3-0007",
+  "tr-bash-t3-0008",
+  "tr-bash-t3-0009-r1",
+  "tr-bash-t3-0010",
+  "tr-bash-t3-0011",
+  "tr-bash-t3-0012",
+  "tr-bash-t3-0013",
+  "tr-bash-t3-0014-a1",
+  "tr-bash-t3-0015-a1",
+  "tr-bash-t3-0016-a1",
+  "tr-bash-t4-0001",
+  "tr-bash-t4-0002",
+  "tr-bash-t4-0003",
+  "tr-bash-t4-0004",
+  "tr-bash-t4-0005",
+  "tr-bash-t4-0006",
+  "tr-bash-t4-0007",
+  "tr-bash-t4-0008",
+  "tr-bash-t4-0010",
+  "tr-bash-t4-0012",
+  "tr-bash-t4-0013",
+  "tr-bash-t4-0014",
+  "tr-bash-t4-0015",
+  "tr-bash-t4-0017",
+  "tr-bash-t4-0018",
+  "tr-c-t1-0001",
+  "tr-c-t1-0002",
+  "tr-c-t1-0003",
+  "tr-c-t1-0004",
+  "tr-c-t1-0005",
+  "tr-c-t1-0006",
+  "tr-c-t1-0007",
+  "tr-c-t1-0008",
+  "tr-c-t1-0010",
+  "tr-c-t1-0011",
+  "tr-c-t1-0012",
+  "tr-c-t1-0013",
+  "tr-c-t1-0014",
+  "tr-c-t1-0015",
+  "tr-c-t1-0016",
+  "tr-c-t1-0017",
+  "tr-c-t1-0018",
+  "tr-c-t1-0019",
+  "tr-c-t1-0020",
+  "tr-c-t1-0021",
+  "tr-c-t1-0022",
+  "tr-c-t2-0005-a1",
+  "tr-c-t2-0006-a1",
+  "tr-c-t2-0008-a1",
+  "tr-c-t2-0009-a1",
+  "tr-c-t2-0010-a1",
+  "tr-c-t2-0011-a1",
+  "tr-c-t2-0012-a1",
+  "tr-c-t2-0013-a1",
+  "tr-c-t2-0014",
+  "tr-c-t2-0015-a1",
+  "tr-c-t2-0016-a1",
+  "tr-c-t2-0017-a1",
+  "tr-c-t2-0018-a1",
+  "tr-c-t2-0019",
+  "tr-c-t2-0021",
+  "tr-c-t2-0022-a1",
+  "tr-c-t2-0025-a1",
+  "tr-c-t2-0026-a1",
+  "tr-c-t2-0027-a1",
+  "tr-c-t2-0028-a1",
+  "tr-c-t2-0029-a1",
+  "tr-c-t2-0030",
+  "tr-c-t2-0031-a1",
+  "tr-c-t2-0032-a1",
+  "tr-c-t3-0001-a1",
+  "tr-c-t3-0002-a1",
+  "tr-c-t3-0003-a1",
+  "tr-c-t3-0004",
+  "tr-c-t3-0005",
+  "tr-c-t3-0006",
+  "tr-c-t3-0007",
+  "tr-c-t3-0008",
+  "tr-c-t3-0009",
+  "tr-c-t3-0010",
+  "tr-c-t3-0011",
+  "tr-c-t3-0013",
+  "tr-c-t3-0014",
+  "tr-c-t3-0015",
+  "tr-c-t3-0016",
+  "tr-c-t3-0017-a1",
+  "tr-c-t3-0018",
+  "tr-c-t3-0019-a1",
+  "tr-c-t3-0020-a1",
+  "tr-c-t3-0021-a1",
+  "tr-c-t3-0022-a1",
+  "tr-c-t3-0023-a1",
+  "tr-c-t3-0024",
+  "tr-c-t3-0025",
+  "tr-c-t3-0026-a1",
+  "tr-c-t3-0027-a1",
+  "tr-c-t4-0001",
+  "tr-c-t4-0002",
+  "tr-c-t4-0003",
+  "tr-c-t4-0004",
+  "tr-c-t4-0005",
+  "tr-c-t4-0006",
+  "tr-c-t4-0007",
+  "tr-c-t4-0008",
+  "tr-c-t4-0009",
+  "tr-c-t4-0010",
+  "tr-c-t4-0011",
+  "tr-c-t4-0012",
+  "tr-c-t4-0014",
+  "tr-c-t4-0015",
+  "tr-c-t4-0016",
+  "tr-c-t4-0017",
+  "tr-c-t4-0018-a1",
+  "tr-c-t4-0020",
+  "tr-c-t4-0021",
+  "tr-c-t4-0022",
+  "tr-c-t4-0023",
+  "tr-c-t4-0024",
+  "tr-c-t4-0025",
+  "tr-c-t4-0026",
+  "tr-c-t4-0027",
+  "tr-c-t4-0028",
+  "tr-cpp-t1-0001",
+  "tr-cpp-t1-0004",
+  "tr-cpp-t1-0005",
+  "tr-cpp-t1-0006",
+  "tr-cpp-t1-0007",
+  "tr-cpp-t1-0009",
+  "tr-cpp-t1-0012",
+  "tr-cpp-t1-0021",
+  "tr-cpp-t1-0022",
+  "tr-cpp-t1-0023",
+  "tr-cpp-t1-0024",
+  "tr-cpp-t1-0025",
+  "tr-cpp-t1-0101",
+  "tr-cpp-t1-0102",
+  "tr-cpp-t1-0103",
+  "tr-cpp-t1-0104",
+  "tr-cpp-t1-0105",
+  "tr-cpp-t1-0106",
+  "tr-cpp-t1-0107",
+  "tr-cpp-t1-0108",
+  "tr-cpp-t1-0109",
+  "tr-cpp-t1-0110",
+  "tr-cpp-t1-0111",
+  "tr-cpp-t1-0112",
+  "tr-cpp-t1-0113",
+  "tr-cpp-t1-0114",
+  "tr-cpp-t1-0115",
+  "tr-cpp-t1-0116",
+  "tr-cpp-t2-0001",
+  "tr-cpp-t2-0002",
+  "tr-cpp-t2-0003",
+  "tr-cpp-t2-0004",
+  "tr-cpp-t2-0005",
+  "tr-cpp-t2-0006",
+  "tr-cpp-t2-0007",
+  "tr-cpp-t2-0008-a1",
+  "tr-cpp-t2-0009",
+  "tr-cpp-t2-0010",
+  "tr-cpp-t2-0011",
+  "tr-cpp-t2-0012",
+  "tr-cpp-t2-0013",
+  "tr-cpp-t2-0014",
+  "tr-cpp-t2-0015",
+  "tr-cpp-t2-0016",
+  "tr-cpp-t2-0017",
+  "tr-cpp-t2-0018",
+  "tr-cpp-t2-0020",
+  "tr-cpp-t2-0021",
+  "tr-cpp-t2-0101",
+  "tr-cpp-t2-0102",
+  "tr-cpp-t2-0103",
+  "tr-cpp-t2-0104",
+  "tr-cpp-t2-0105",
+  "tr-cpp-t2-0106",
+  "tr-cpp-t2-0107",
+  "tr-cpp-t2-0108",
+  "tr-cpp-t2-0109",
+  "tr-cpp-t2-0110",
+  "tr-cpp-t2-0111",
+  "tr-cpp-t2-0112",
+  "tr-cpp-t2-0113",
+  "tr-cpp-t3-0001",
+  "tr-cpp-t3-0003",
+  "tr-cpp-t3-0004",
+  "tr-cpp-t3-0005",
+  "tr-cpp-t3-0006",
+  "tr-cpp-t3-0007",
+  "tr-cpp-t3-0008",
+  "tr-cpp-t3-0009",
+  "tr-cpp-t3-0010",
+  "tr-cpp-t3-0012",
+  "tr-cpp-t3-0021",
+  "tr-cpp-t3-0022",
+  "tr-cpp-t3-0024",
+  "tr-cpp-t3-0025",
+  "tr-cpp-t3-0101",
+  "tr-cpp-t3-0102",
+  "tr-cpp-t3-0103",
+  "tr-cpp-t3-0104",
+  "tr-cpp-t3-0105",
+  "tr-cpp-t3-0106",
+  "tr-cpp-t3-0107",
+  "tr-cpp-t3-0108",
+  "tr-cpp-t3-0109",
+  "tr-cpp-t3-0110",
+  "tr-cpp-t3-0112",
+  "tr-cpp-t3-0113",
+  "tr-cpp-t3-0114",
+  "tr-cpp-t3-0115",
+  "tr-cpp-t3-0116",
+  "tr-cpp-t3-0117",
+  "tr-cpp-t4-0002",
+  "tr-cpp-t4-0008",
+  "tr-cpp-t4-0012",
+  "tr-cpp-t4-0013",
+  "tr-cpp-t4-0021",
+  "tr-cpp-t4-0022",
+  "tr-cpp-t4-0023",
+  "tr-cpp-t4-0024",
+  "tr-cpp-t4-0025",
+  "tr-cpp-t4-0026",
+  "tr-cpp-t4-0027",
+  "tr-cpp-t4-0028",
+  "tr-cpp-t4-0029",
+  "tr-cpp-t4-0031",
+  "tr-cpp-t4-0101",
+  "tr-cpp-t4-0102",
+  "tr-cpp-t4-0103",
+  "tr-cpp-t4-0104",
+  "tr-cpp-t4-0105",
+  "tr-cpp-t4-0106",
+  "tr-cpp-t4-0107",
+  "tr-cpp-t4-0108",
+  "tr-cpp-t4-0109",
+  "tr-cpp-t4-0110",
+  "tr-cpp-t4-0111",
+  "tr-cpp-t4-0112",
+  "tr-cpp-t4-0113",
+  "tr-cpp-t4-0114",
+  "tr-cpp-t4-0115",
+  "tr-go-t1-0001",
+  "tr-go-t1-0002",
+  "tr-go-t1-0003",
+  "tr-go-t1-0004",
+  "tr-go-t1-0005",
+  "tr-go-t1-0006",
+  "tr-go-t1-0007",
+  "tr-go-t1-0008",
+  "tr-go-t1-0009",
+  "tr-go-t1-0010",
+  "tr-go-t1-0011",
+  "tr-go-t1-0012",
+  "tr-go-t2-0013",
+  "tr-go-t2-0014",
+  "tr-go-t2-0015",
+  "tr-go-t2-0016",
+  "tr-go-t2-0017",
+  "tr-go-t2-0018-a1",
+  "tr-go-t2-0019",
+  "tr-go-t2-0020",
+  "tr-go-t2-0021",
+  "tr-go-t2-0022",
+  "tr-go-t2-0023",
+  "tr-go-t2-0025-a1",
+  "tr-go-t2-0026",
+  "tr-go-t2-0027",
+  "tr-go-t2-0053-a1",
+  "tr-go-t3-0029",
+  "tr-go-t3-0030",
+  "tr-go-t3-0031",
+  "tr-go-t3-0032",
+  "tr-go-t3-0033",
+  "tr-go-t3-0035",
+  "tr-go-t3-0036",
+  "tr-go-t3-0037",
+  "tr-go-t3-0038",
+  "tr-go-t3-0039",
+  "tr-go-t3-0054",
+  "tr-go-t3-0055",
+  "tr-go-t3-0056",
+  "tr-go-t3-0057",
+  "tr-go-t4-0040",
+  "tr-go-t4-0041",
+  "tr-go-t4-0042",
+  "tr-go-t4-0043",
+  "tr-go-t4-0044",
+  "tr-go-t4-0045",
+  "tr-go-t4-0048",
+  "tr-go-t4-0050",
+  "tr-go-t4-0052",
+  "tr-go-t4-0058",
+  "tr-go-t4-0059",
+  "tr-go-t4-0060",
+  "tr-go-t4-0061",
+  "tr-go-t4-0062",
+  "tr-go-t4-0063",
+  "tr-java-t1-0001",
+  "tr-java-t1-0002",
+  "tr-java-t1-0003",
+  "tr-java-t1-0004",
+  "tr-java-t1-0005",
+  "tr-java-t1-0006",
+  "tr-java-t1-0007",
+  "tr-java-t1-0008",
+  "tr-java-t1-0009",
+  "tr-java-t1-0010",
+  "tr-java-t1-0011",
+  "tr-java-t1-0012",
+  "tr-java-t1-0013",
+  "tr-java-t1-0014",
+  "tr-java-t1-0015",
+  "tr-java-t1-0016",
+  "tr-java-t1-0017",
+  "tr-java-t1-0018",
+  "tr-java-t2-0001",
+  "tr-java-t2-0002",
+  "tr-java-t2-0003",
+  "tr-java-t2-0004",
+  "tr-java-t2-0005",
+  "tr-java-t2-0006",
+  "tr-java-t2-0007",
+  "tr-java-t2-0008",
+  "tr-java-t2-0009",
+  "tr-java-t2-0010",
+  "tr-java-t2-0011",
+  "tr-java-t2-0012",
+  "tr-java-t2-0013",
+  "tr-java-t2-0014",
+  "tr-java-t2-0015",
+  "tr-java-t2-0016",
+  "tr-java-t2-0017",
+  "tr-java-t2-0018",
+  "tr-java-t2-0019",
+  "tr-java-t2-0020",
+  "tr-java-t3-0001",
+  "tr-java-t3-0002",
+  "tr-java-t3-0003",
+  "tr-java-t3-0004",
+  "tr-java-t3-0005",
+  "tr-java-t3-0006",
+  "tr-java-t3-0008",
+  "tr-java-t3-0009",
+  "tr-java-t3-0010",
+  "tr-java-t3-0011",
+  "tr-java-t3-0012",
+  "tr-java-t3-0013",
+  "tr-java-t3-0014",
+  "tr-java-t3-0015",
+  "tr-java-t3-0016",
+  "tr-java-t3-0017",
+  "tr-java-t3-0019",
+  "tr-java-t3-0020",
+  "tr-java-t3-0021",
+  "tr-java-t4-0001",
+  "tr-java-t4-0002",
+  "tr-java-t4-0003",
+  "tr-java-t4-0004",
+  "tr-java-t4-0005",
+  "tr-java-t4-0006",
+  "tr-java-t4-0007",
+  "tr-java-t4-0008",
+  "tr-java-t4-0009",
+  "tr-java-t4-0010",
+  "tr-java-t4-0011",
+  "tr-java-t4-0013",
+  "tr-java-t4-0014",
+  "tr-java-t4-0015",
+  "tr-java-t4-0016",
+  "tr-java-t4-0018",
+  "tr-java-t4-0019",
+  "tr-java-t4-0020",
+  "tr-java-t4-0021",
+  "tr-javascript-t1-0001",
+  "tr-javascript-t1-0002",
+  "tr-javascript-t1-0003",
+  "tr-javascript-t1-0004",
+  "tr-javascript-t1-0005",
+  "tr-javascript-t1-0006",
+  "tr-javascript-t1-0007",
+  "tr-javascript-t1-0008",
+  "tr-javascript-t1-0009",
+  "tr-javascript-t1-0010",
+  "tr-javascript-t1-0011",
+  "tr-javascript-t1-0013",
+  "tr-javascript-t1-0014",
+  "tr-javascript-t1-0015",
+  "tr-javascript-t1-0017",
+  "tr-javascript-t1-0018",
+  "tr-javascript-t1-0020",
+  "tr-javascript-t1-0021",
+  "tr-javascript-t1-0022",
+  "tr-javascript-t1-0140",
+  "tr-javascript-t1-0141",
+  "tr-javascript-t1-0142",
+  "tr-javascript-t2-0023",
+  "tr-javascript-t2-0024",
+  "tr-javascript-t2-0025",
+  "tr-javascript-t2-0026",
+  "tr-javascript-t2-0027",
+  "tr-javascript-t2-0028",
+  "tr-javascript-t2-0029",
+  "tr-javascript-t2-0030",
+  "tr-javascript-t2-0031",
+  "tr-javascript-t2-0032",
+  "tr-javascript-t2-0033",
+  "tr-javascript-t2-0035",
+  "tr-javascript-t2-0036",
+  "tr-javascript-t2-0037",
+  "tr-javascript-t2-0039",
+  "tr-javascript-t2-0040",
+  "tr-javascript-t2-0041",
+  "tr-javascript-t2-0042",
+  "tr-javascript-t2-0043",
+  "tr-javascript-t2-0044",
+  "tr-javascript-t2-0048",
+  "tr-javascript-t2-0049-a1",
+  "tr-javascript-t2-0050",
+  "tr-javascript-t2-0051",
+  "tr-javascript-t2-0052",
+  "tr-javascript-t2-0053-a1",
+  "tr-javascript-t2-0054",
+  "tr-javascript-t2-0056-a1",
+  "tr-javascript-t2-0057",
+  "tr-javascript-t2-0058",
+  "tr-javascript-t2-0059",
+  "tr-javascript-t2-0060",
+  "tr-javascript-t2-0061",
+  "tr-javascript-t2-0062",
+  "tr-javascript-t2-0064",
+  "tr-javascript-t2-0066",
+  "tr-javascript-t2-0067",
+  "tr-javascript-t2-0068",
+  "tr-javascript-t2-0070",
+  "tr-javascript-t2-0076",
+  "tr-javascript-t2-0077",
+  "tr-javascript-t2-0078",
+  "tr-javascript-t2-0079",
+  "tr-javascript-t2-0080",
+  "tr-javascript-t2-0143",
+  "tr-javascript-t2-0144",
+  "tr-javascript-t2-0146",
+  "tr-javascript-t2-0147",
+  "tr-javascript-t2-0148",
+  "tr-javascript-t2-0149",
+  "tr-javascript-t2-0150",
+  "tr-javascript-t2-0151",
+  "tr-javascript-t2-0152-a1",
+  "tr-javascript-t2-0153",
+  "tr-javascript-t2-0154",
+  "tr-javascript-t2-0155",
+  "tr-javascript-t2-0156",
+  "tr-javascript-t3-0083",
+  "tr-javascript-t3-0085",
+  "tr-javascript-t3-0086",
+  "tr-javascript-t3-0090",
+  "tr-javascript-t3-0091",
+  "tr-javascript-t3-0092",
+  "tr-javascript-t3-0093",
+  "tr-javascript-t3-0094",
+  "tr-javascript-t3-0097",
+  "tr-javascript-t3-0099",
+  "tr-javascript-t3-0100",
+  "tr-javascript-t3-0101",
+  "tr-javascript-t3-0102",
+  "tr-javascript-t3-0104",
+  "tr-javascript-t3-0105",
+  "tr-javascript-t3-0106",
+  "tr-javascript-t3-0107",
+  "tr-javascript-t3-0108",
+  "tr-javascript-t3-0109",
+  "tr-javascript-t3-0110",
+  "tr-javascript-t3-0111",
+  "tr-javascript-t3-0112",
+  "tr-javascript-t3-0113",
+  "tr-javascript-t3-0114",
+  "tr-javascript-t3-0115",
+  "tr-javascript-t3-0117",
+  "tr-javascript-t3-0157",
+  "tr-javascript-t3-0158",
+  "tr-javascript-t3-0159-a1",
+  "tr-javascript-t3-0160",
+  "tr-javascript-t3-0161",
+  "tr-javascript-t3-0162",
+  "tr-javascript-t3-0163",
+  "tr-javascript-t4-0120",
+  "tr-javascript-t4-0121",
+  "tr-javascript-t4-0122",
+  "tr-javascript-t4-0124",
+  "tr-javascript-t4-0125",
+  "tr-javascript-t4-0126",
+  "tr-javascript-t4-0127",
+  "tr-javascript-t4-0128",
+  "tr-javascript-t4-0132",
+  "tr-javascript-t4-0133",
+  "tr-javascript-t4-0134",
+  "tr-javascript-t4-0135",
+  "tr-javascript-t4-0136",
+  "tr-javascript-t4-0137",
+  "tr-javascript-t4-0138",
+  "tr-javascript-t4-0139",
+  "tr-javascript-t4-0164",
+  "tr-javascript-t4-0165",
+  "tr-javascript-t4-0166",
+  "tr-javascript-t4-0168",
+  "tr-javascript-t4-0169",
+  "tr-javascript-t4-0170",
+  "tr-javascript-t4-0171",
+  "tr-javascript-t4-0172",
+  "tr-javascript-t4-0173",
+  "tr-python-t1-0001",
+  "tr-python-t1-0002",
+  "tr-python-t1-0003",
+  "tr-python-t1-0004",
+  "tr-python-t1-0006",
+  "tr-python-t1-0007",
+  "tr-python-t1-0008",
+  "tr-python-t1-0009",
+  "tr-python-t1-0010",
+  "tr-python-t1-0011",
+  "tr-python-t1-0012",
+  "tr-python-t1-0013",
+  "tr-python-t1-0014",
+  "tr-python-t1-0015",
+  "tr-python-t1-0016",
+  "tr-python-t1-0017",
+  "tr-python-t1-0018",
+  "tr-python-t1-0019",
+  "tr-python-t1-0020",
+  "tr-python-t1-0021",
+  "tr-python-t1-0022",
+  "tr-python-t1-0023",
+  "tr-python-t1-0024",
+  "tr-python-t1-0026",
+  "tr-python-t1-0027",
+  "tr-python-t1-0028",
+  "tr-python-t1-0029",
+  "tr-python-t1-0030",
+  "tr-python-t1-0033",
+  "tr-python-t1-0036",
+  "tr-python-t1-0037",
+  "tr-python-t1-0038",
+  "tr-python-t1-0039",
+  "tr-python-t1-0040",
+  "tr-python-t1-0041",
+  "tr-python-t2-0002",
+  "tr-python-t2-0003",
+  "tr-python-t2-0004",
+  "tr-python-t2-0005",
+  "tr-python-t2-0007",
+  "tr-python-t2-0008",
+  "tr-python-t2-0009",
+  "tr-python-t2-0011",
+  "tr-python-t2-0012",
+  "tr-python-t2-0013",
+  "tr-python-t2-0014",
+  "tr-python-t2-0015",
+  "tr-python-t2-0016",
+  "tr-python-t2-0017",
+  "tr-python-t2-0018",
+  "tr-python-t2-0019",
+  "tr-python-t2-0021-a1",
+  "tr-python-t2-0022-a1",
+  "tr-python-t2-0023-a1",
+  "tr-python-t2-0024-a1",
+  "tr-python-t2-0025-a1",
+  "tr-python-t2-0026-a1",
+  "tr-python-t2-0027",
+  "tr-python-t2-0029",
+  "tr-python-t2-0030",
+  "tr-python-t2-0031",
+  "tr-python-t2-0032",
+  "tr-python-t2-0033",
+  "tr-python-t2-0034",
+  "tr-python-t2-0035",
+  "tr-python-t2-0036",
+  "tr-python-t2-0037",
+  "tr-python-t2-0038",
+  "tr-python-t3-0002",
+  "tr-python-t3-0003",
+  "tr-python-t3-0004",
+  "tr-python-t3-0006",
+  "tr-python-t3-0009",
+  "tr-python-t3-0010",
+  "tr-python-t3-0011",
+  "tr-python-t3-0014",
+  "tr-python-t3-0015",
+  "tr-python-t3-0021",
+  "tr-python-t3-0022",
+  "tr-python-t3-0024",
+  "tr-python-t3-0026",
+  "tr-python-t3-0028",
+  "tr-python-t3-0029",
+  "tr-python-t3-0030",
+  "tr-python-t3-0031",
+  "tr-python-t3-0034",
+  "tr-python-t3-0036",
+  "tr-python-t3-0037",
+  "tr-python-t3-0038",
+  "tr-python-t3-0039",
+  "tr-python-t3-0041",
+  "tr-python-t3-0042",
+  "tr-python-t3-0043",
+  "tr-python-t3-0046",
+  "tr-python-t3-0047",
+  "tr-python-t3-0048",
+  "tr-python-t3-0049",
+  "tr-python-t3-0050",
+  "tr-python-t3-0054",
+  "tr-python-t4-0007",
+  "tr-python-t4-0014",
+  "tr-python-t4-0016",
+  "tr-python-t4-0017",
+  "tr-python-t4-0018",
+  "tr-python-t4-0019",
+  "tr-python-t4-0020",
+  "tr-python-t4-0021",
+  "tr-python-t4-0022",
+  "tr-python-t4-0023",
+  "tr-python-t4-0024",
+  "tr-python-t4-0025",
+  "tr-python-t4-0027",
+  "tr-python-t4-0028",
+  "tr-python-t4-0030",
+  "tr-python-t4-0032",
+  "tr-python-t4-0033",
+  "tr-python-t4-0034",
+  "tr-python-t4-0038",
+  "tr-python-t4-0039",
+  "tr-python-t4-0040",
+  "tr-python-t4-0045-a1",
+  "tr-python-t4-0046-a1",
+  "tr-python-t4-0048",
+  "tr-python-t4-0049-a1",
+  "tr-python-t4-0050",
+  "tr-python-t4-0051",
+  "tr-python-t4-0052",
+  "tr-python-t4-0053",
+  "tr-python-t4-0054",
+  "tr-python-t4-0055-a1",
+  "tr-python-t4-0056",
+  "tr-python-t4-0057",
+  "tr-python-t4-0058",
+  "tr-python-t4-0060",
+  "tr-python-t4-0061-a1",
+  "tr-python-t4-0062",
+  "tr-python-t4-0063",
+  "tr-python-t4-0064",
+  "tr-python-t4-0066",
+  "tr-python-t4-0067",
+  "tr-python-t4-0068",
+  "tr-rust-t1-0002",
+  "tr-rust-t1-0003",
+  "tr-rust-t1-0004",
+  "tr-rust-t1-0005",
+  "tr-rust-t1-0007",
+  "tr-rust-t1-0008",
+  "tr-rust-t1-0009",
+  "tr-rust-t1-0010",
+  "tr-rust-t1-0011",
+  "tr-rust-t1-0012",
+  "tr-rust-t1-0013",
+  "tr-rust-t1-0014",
+  "tr-rust-t1-0015",
+  "tr-rust-t1-0016",
+  "tr-rust-t1-0017",
+  "tr-rust-t1-0018",
+  "tr-rust-t1-0019",
+  "tr-rust-t1-0020",
+  "tr-rust-t1-0023",
+  "tr-rust-t1-0024",
+  "tr-rust-t1-0025",
+  "tr-rust-t1-0027",
+  "tr-rust-t1-0028",
+  "tr-rust-t1-0029",
+  "tr-rust-t1-0030",
+  "tr-rust-t1-0031",
+  "tr-rust-t1-0032",
+  "tr-rust-t1-0033",
+  "tr-rust-t1-0034",
+  "tr-rust-t2-0001",
+  "tr-rust-t2-0002",
+  "tr-rust-t2-0003",
+  "tr-rust-t2-0004",
+  "tr-rust-t2-0005",
+  "tr-rust-t2-0007",
+  "tr-rust-t2-0009",
+  "tr-rust-t2-0011",
+  "tr-rust-t2-0012",
+  "tr-rust-t2-0013",
+  "tr-rust-t2-0014",
+  "tr-rust-t2-0015",
+  "tr-rust-t2-0016",
+  "tr-rust-t2-0017",
+  "tr-rust-t2-0018",
+  "tr-rust-t2-0019",
+  "tr-rust-t2-0020",
+  "tr-rust-t2-0021",
+  "tr-rust-t2-0022",
+  "tr-rust-t2-0023",
+  "tr-rust-t2-0024",
+  "tr-rust-t2-0025",
+  "tr-rust-t2-0026",
+  "tr-rust-t2-0027",
+  "tr-rust-t2-0029",
+  "tr-rust-t2-0030",
+  "tr-rust-t2-0032",
+  "tr-rust-t2-0034",
+  "tr-rust-t2-0035",
+  "tr-rust-t2-0036",
+  "tr-rust-t2-0037",
+  "tr-rust-t2-0038",
+  "tr-rust-t2-0039",
+  "tr-rust-t3-0001",
+  "tr-rust-t3-0002",
+  "tr-rust-t3-0004",
+  "tr-rust-t3-0006",
+  "tr-rust-t3-0007",
+  "tr-rust-t3-0008",
+  "tr-rust-t3-0009",
+  "tr-rust-t3-0010",
+  "tr-rust-t3-0011",
+  "tr-rust-t3-0014",
+  "tr-rust-t3-0015",
+  "tr-rust-t3-0016",
+  "tr-rust-t3-0017",
+  "tr-rust-t3-0018",
+  "tr-rust-t3-0021",
+  "tr-rust-t3-0024",
+  "tr-rust-t3-0025",
+  "tr-rust-t3-0027",
+  "tr-rust-t3-0028",
+  "tr-rust-t3-0029",
+  "tr-rust-t3-0030",
+  "tr-rust-t3-0032",
+  "tr-rust-t3-0034",
+  "tr-rust-t3-0035",
+  "tr-rust-t3-0036",
+  "tr-rust-t4-0001",
+  "tr-rust-t4-0002",
+  "tr-rust-t4-0005",
+  "tr-rust-t4-0006",
+  "tr-rust-t4-0007",
+  "tr-rust-t4-0008",
+  "tr-rust-t4-0010",
+  "tr-rust-t4-0011",
+  "tr-rust-t4-0012",
+  "tr-rust-t4-0017",
+  "tr-rust-t4-0018",
+  "tr-rust-t4-0019",
+  "tr-rust-t4-0020",
+  "tr-rust-t4-0021",
+  "tr-rust-t4-0022",
+  "tr-rust-t4-0023",
+  "tr-rust-t4-0024",
+  "tr-rust-t4-0025",
+  "tr-rust-t4-0028",
+  "tr-rust-t4-0029",
+  "tr-rust-t4-0031",
+  "tr-rust-t4-0033",
+  "tr-rust-t4-0034",
+  "tr-rust-t4-0035",
+  "tr-rust-t4-0036",
+  "tr-rust-t4-0037",
+  "tr-rust-t4-0038",
+  "tr-rust-t4-0039",
+  "tr-rust-t4-0040",
+  "tr-rust-t4-0041",
+  "tr-rust-t4-0042",
+  "tr-rust-t4-0043",
+  "tr-rust-t4-0044",
+  "tr-rust-t4-0045",
+  "tr-rust-t4-0046",
+  "tr-rust-t4-0047",
+  "tr-rust-t4-0048",
+  "tr-rust-t4-0049",
+  "tr-rust-t4-0050",
+  "tr-rust-t4-0051",
+  "tr-rust-t4-0052",
+  "tr-sql-t1-0001",
+  "tr-sql-t1-0002",
+  "tr-sql-t1-0003",
+  "tr-sql-t1-0004",
+  "tr-sql-t1-0005",
+  "tr-sql-t1-0006",
+  "tr-sql-t1-0007",
+  "tr-sql-t1-0008",
+  "tr-sql-t1-0009",
+  "tr-sql-t1-0010",
+  "tr-sql-t1-0011",
+  "tr-sql-t1-0012",
+  "tr-sql-t1-0013b",
+  "tr-sql-t1-0014",
+  "tr-sql-t1-0015",
+  "tr-sql-t1-0016",
+  "tr-sql-t1-0017",
+  "tr-sql-t1-0018",
+  "tr-sql-t1-0019",
+  "tr-sql-t1-0020",
+  "tr-sql-t1-0021",
+  "tr-sql-t1-0022",
+  "tr-sql-t2-0001",
+  "tr-sql-t2-0002",
+  "tr-sql-t2-0003",
+  "tr-sql-t2-0004",
+  "tr-sql-t2-0005",
+  "tr-sql-t2-0006-a1",
+  "tr-sql-t2-0007-a1",
+  "tr-sql-t2-0008-a1",
+  "tr-sql-t2-0009b-a1",
+  "tr-sql-t2-0010-a1",
+  "tr-sql-t2-0011",
+  "tr-sql-t2-0012",
+  "tr-sql-t2-0013",
+  "tr-sql-t2-0014-a1",
+  "tr-sql-t2-0015-a1",
+  "tr-sql-t2-0016b-a1",
+  "tr-sql-t2-0017-a1",
+  "tr-sql-t2-0018-a1",
+  "tr-sql-t2-0019",
+  "tr-sql-t2-0020-a1",
+  "tr-sql-t2-0021",
+  "tr-sql-t2-0022",
+  "tr-sql-t2-0023",
+  "tr-sql-t2-0024",
+  "tr-sql-t2-0025",
+  "tr-sql-t2-0026",
+  "tr-sql-t2-0027",
+  "tr-sql-t2-0028",
+  "tr-sql-t2-0029",
+  "tr-sql-t2-0030-a1",
+  "tr-sql-t3-0002",
+  "tr-sql-t3-0003",
+  "tr-sql-t3-0004",
+  "tr-sql-t3-0005",
+  "tr-sql-t3-0006",
+  "tr-sql-t3-0007",
+  "tr-sql-t3-0010",
+  "tr-sql-t3-0011b",
+  "tr-sql-t3-0012",
+  "tr-sql-t3-0013b-a1",
+  "tr-sql-t3-0014",
+  "tr-sql-t3-0017",
+  "tr-sql-t3-0018",
+  "tr-sql-t3-0019-a1",
+  "tr-sql-t3-0023",
+  "tr-sql-t3-0024",
+  "tr-sql-t3-0025-a1",
+  "tr-sql-t3-0026",
+  "tr-sql-t3-0027",
+  "tr-sql-t4-0001",
+  "tr-sql-t4-0002",
+  "tr-sql-t4-0003",
+  "tr-sql-t4-0004",
+  "tr-sql-t4-0005",
+  "tr-sql-t4-0006",
+  "tr-sql-t4-0007",
+  "tr-sql-t4-0008",
+  "tr-sql-t4-0009",
+  "tr-sql-t4-0010",
+  "tr-sql-t4-0011",
+  "tr-sql-t4-0012",
+  "tr-sql-t4-0013",
+  "tr-sql-t4-0014",
+  "tr-sql-t4-0015",
+  "tr-sql-t4-0016",
+  "tr-sql-t4-0018",
+  "tr-sql-t4-0019c",
+  "tr-sql-t4-0020",
+  "tr-sql-t4-0021",
+  "tr-sql-t4-0022"
+ ]
+}

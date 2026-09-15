@@ -110,6 +110,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .chip.v-bad { background: var(--bad-soft); color: var(--bad); }
 .chip.v-mid { background: var(--warn-soft); color: var(--warn); }
 .chip.set { border-color: var(--rule); color: var(--muted); }
+.chip.claude { background: var(--accent-soft); color: var(--accent); }
+.claude-box { border-color: var(--accent); }
+.c-note { margin: 8px 0 4px; }
+.flag.claude { background: var(--accent-soft); color: var(--accent); }
 .empty { padding: 32px 16px; color: var(--muted); }
 
 .detail { overflow: auto; padding: 16px max(16px, env(safe-area-inset-right, 0px)) 48px 20px; }
@@ -201,6 +205,12 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
         <option value="done">Reviewed</option>
         <option value="problem">Marked a problem</option>
       </select>
+      <select id="f-claude" aria-label="Claude's review">
+        <option value="">Claude: any</option>
+        <option value="flagged">Claude flagged</option>
+        <option value="ok">Claude: looks right</option>
+        <option value="none">Not reviewed by Claude</option>
+      </select>
       <span class="meta" id="count"></span>
     </div>
   </header>
@@ -247,6 +257,8 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
     { v: "drop", label: "Drop text", tone: "bad" },
   ];
   const TONE = Object.fromEntries(PAIR_VERDICTS.map(x => [x.v, x.tone]));
+  const verdictLabel = v => (PAIR_VERDICTS.find(x => x.v === v) || { label: v }).label;
+  const TEXT_LABEL = Object.fromEntries(TEXT_VERDICTS.map(x => [x.v, x.label]));
 
   // ---- annotation state: key "<set>/<id>" -> body --------------------------------------
   let A = {};
@@ -254,7 +266,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
   const docId = key => key.replace("/", "~");          // store doc ids can't contain "/"
   const keyOf = p => p.set + "/" + p.id;
 
-  const state = { set: DATA.sets[0] ? DATA.sets[0].key : "train", sel: null, search: "", lang: "", tier: "", flag: "", status: "" };
+  const state = { set: DATA.sets[0] ? DATA.sets[0].key : "train", sel: null, search: "", lang: "", tier: "", flag: "", status: "", claude: "" };
 
   // ---- store sync (Artifact db) with a local fallback ----------------------------------
   let db = null;
@@ -380,6 +392,9 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
       if (state.status === "todo" && b) return false;
       if (state.status === "done" && !b) return false;
       if (state.status === "problem" && !isProblem(b)) return false;
+      if (state.claude === "flagged" && !(p.claude && p.claude.verdict !== "ok")) return false;
+      if (state.claude === "ok" && !(p.claude && p.claude.verdict === "ok")) return false;
+      if (state.claude === "none" && p.claude) return false;
       if (q && !(p.id.toLowerCase().includes(q) || p.css.toLowerCase().includes(q) || p.texts.some(t => t.toLowerCase().includes(q)))) return false;
       return true;
     });
@@ -400,7 +415,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
     current = visible();
     const el = document.getElementById("list");
     document.getElementById("count").textContent = current.length + " shown";
-    const active = ["search", "lang", "tier", "flag", "status"].filter(k => state[k]).length;
+    const active = ["search", "lang", "tier", "flag", "status", "claude"].filter(k => state[k]).length;
     document.getElementById("summary").textContent = ((DATA.sets.find(s => s.key === state.set) || {}).label || state.set) +
       " · " + current.length + " shown" + (active ? " · " + active + " filter" + (active > 1 ? "s" : "") : "");
     if (!current.length) { el.innerHTML = '<div class="empty">No pairs match these filters.</div>'; return; }
@@ -410,6 +425,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
       let chips = "";
       if (g) chips += '<span class="chip gate">' + g + " gate</span>";
       if (h) chips += '<span class="chip hint">' + h + " hint</span>";
+      if (p.claude && p.claude.verdict && p.claude.verdict !== "ok") chips += '<span class="chip claude">Claude: ' + esc(verdictLabel(p.claude.verdict)) + "</span>";
       if (b) chips += b.verdict ? '<span class="chip v-' + (TONE[b.verdict] === "ok" ? "ok" : TONE[b.verdict] === "bad" ? "bad" : "mid") + '">' + esc(PAIR_VERDICTS.find(x => x.v === b.verdict).label) + "</span>"
         : '<span class="chip ' + (isProblem(b) ? "v-mid" : "v-ok") + '">' + (isProblem(b) ? "text notes" : "noted") + "</span>";
       return '<div class="row" role="option" data-key="' + esc(keyOf(p)) + '" aria-selected="' + (keyOf(p) === state.sel) + '">' +
@@ -461,6 +477,15 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
         '<button type="button" class="vbtn" data-pv="' + x.v + '" data-tone="' + x.tone + '" aria-pressed="' + (b.verdict === x.v) + '">' + esc(x.label) + "<kbd>" + x.key + "</kbd></button>").join("") + "</div>" +
       '<div class="field"><label for="fix-css">Corrected selector (if the selector is wrong)</label><input id="fix-css" class="mono" type="text" value="' + esc(b.fix_css || "") + '" placeholder="' + esc(p.css) + '"></div>' +
       '<div class="field"><label for="pair-note">Note</label><textarea id="pair-note" placeholder="What is wrong, or why it is fine">' + esc(b.note || "") + "</textarea></div></div>";
+    if (p.claude) {
+      const c = p.claude;
+      html += '<div class="card claude-box"><p class="label">Claude\'s review</p>' +
+        '<div class="d-head"><span class="chip ' + (c.verdict === "ok" ? "v-ok" : TONE[c.verdict] === "bad" ? "v-bad" : "v-mid") + '">' + esc(verdictLabel(c.verdict)) + "</span>" +
+        (c.verdict !== "ok" || c.texts ? '<button type="button" class="btn" data-adopt="1">Use as my annotation</button>' : "") + "</div>" +
+        (c.note ? '<p class="c-note">' + esc(c.note) + "</p>" : "") +
+        (c.fix_css ? '<div class="sub">suggested selector</div><div class="selector">' + highlightSelector(c.fix_css) + "</div>" : "") +
+        "</div>";
+    }
 
     html += '<p class="label">Requests' + (asked ? " — text 0 is the one the eval asks" : " — every text is a training row") + '</p><div class="texts">';
     p.texts.forEach((t, i) => {
@@ -472,6 +497,8 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
           '<button type="button" class="vbtn" data-tv="' + x.v + '" data-ti="' + i + '" data-tone="' + x.tone + '" aria-pressed="' + (tb.verdict === x.v) + '">' + esc(x.label) + "</button>").join("") + "</span></div>" +
         '<div class="t-body">' + markLiterals(t, p.lits) + "</div>" +
         flags.map(f => '<div class="flag ' + f[1] + '">' + (f[1] === "gate" ? "gate: " : "hint: ") + esc(f[2]) + "</div>").join("") +
+        (p.claude && p.claude.texts && p.claude.texts[i] ? '<div class="flag claude">Claude: ' + esc(TEXT_LABEL[p.claude.texts[i].verdict] || p.claude.texts[i].verdict || "note") +
+          (p.claude.texts[i].fix_text ? " \u2192 \u201c" + esc(p.claude.texts[i].fix_text) + "\u201d" : "") + (p.claude.texts[i].note ? " \u2014 " + esc(p.claude.texts[i].note) : "") + "</div>" : "") +
         '<div class="field"><label for="fix-t' + i + '">Better wording</label><input id="fix-t' + i + '" data-fix="' + i + '" type="text" value="' + esc(tb.fix_text || "") + '"></div>' +
         "</div>";
     });
@@ -496,7 +523,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
     renderDetail();
   });
   const bindFilter = (id, field, ev) => document.getElementById(id).addEventListener(ev || "change", e => { state[field] = e.target.value; state.sel = null; renderList(); renderDetail(); });
-  bindFilter("f-search", "search", "input"); bindFilter("f-lang", "lang"); bindFilter("f-tier", "tier"); bindFilter("f-flag", "flag"); bindFilter("f-status", "status");
+  bindFilter("f-search", "search", "input"); bindFilter("f-lang", "lang"); bindFilter("f-tier", "tier"); bindFilter("f-flag", "flag"); bindFilter("f-status", "status"); bindFilter("f-claude", "claude");
 
   function refreshRow(p) {
     const keep = state.sel;
@@ -506,6 +533,19 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
   document.getElementById("detail").addEventListener("click", e => {
     const nav = e.target.closest("[data-nav]");
     if (nav) { go(Number(nav.dataset.nav)); return; }
+    if (e.target.closest("[data-adopt]")) {
+      const p0 = selected(); if (!p0 || !p0.claude) return;
+      const b = ann(p0, true), c = p0.claude;
+      b.verdict = c.verdict || null;
+      if (c.fix_css) b.fix_css = c.fix_css;
+      if (c.note && !b.note) b.note = "Claude: " + c.note;
+      Object.entries(c.texts || {}).forEach(([i, t]) => {
+        const cur = b.texts[i] || { text: p0.texts[Number(i)] };
+        b.texts[i] = Object.assign(cur, { verdict: t.verdict || cur.verdict || null, fix_text: t.fix_text || cur.fix_text || "" });
+      });
+      touch(p0); refreshRow(p0); renderDetail();
+      return;
+    }
     const p = selected(); if (!p) return;
     const pv = e.target.closest("[data-pv]"), tv = e.target.closest("[data-tv]");
     if (pv) {
@@ -562,7 +602,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
         .sort((x, y) => x.index - y.index);
       return {
         id: b.id, set: b.set, css: p ? p.css : b.css, fixture: p ? p.fixture : null, file: p ? p.file : null,
-        in_current_data: !!p, verdict: b.verdict || null, fix_css: b.fix_css || null, note: b.note || null,
+        in_current_data: !!p, claude_verdict: p && p.claude ? p.claude.verdict : null, verdict: b.verdict || null, fix_css: b.fix_css || null, note: b.note || null,
         texts, updated_at: b.updated_at, data_version: b.data_version,
       };
     }).sort((x, y) => (x.set + x.id).localeCompare(y.set + y.id));
