@@ -22,6 +22,20 @@ def prompt_text_slow(tok, system, request):
     return tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=False)
 
 
+_trims = {}
+
+
+def _template_trims(tok):
+    """Does this tokenizer's chat template trim message content? Measured, not assumed:
+    Qwen3.5's template applies `content|trim` (card_v1c.md's trailing newline never reaches
+    the prompt); Qwen3-4B-Instruct-2507's keeps content as given."""
+    key = id(tok)
+    if key not in _trims:
+        padded = prompt_text_slow(tok, None, " \n" + _REQ + " \n")
+        _trims[key] = (" \n" + _REQ + " \n") not in padded
+    return _trims[key]
+
+
 def prompt_text(tok, system, request):
     key = (id(tok), bool(system))
     if key not in _shapes:
@@ -31,10 +45,9 @@ def prompt_text(tok, system, request):
     shape = _shapes[key]
     if shape is None or _SYS in (system or "") or _REQ in request:
         return prompt_text_slow(tok, system, request)
-    # The Qwen template trims each message's content (`content|trim`): card_v1c.md's
-    # trailing newline and any padding on a request never reach the rendered prompt.
-    out = shape.replace(_REQ, request.strip())
-    return out.replace(_SYS, system.strip()) if system else out
+    trim = _template_trims(tok)
+    out = shape.replace(_REQ, request.strip() if trim else request)
+    return out.replace(_SYS, (system.strip() if trim else system)) if system else out
 
 
 def check(tok, pairs):
