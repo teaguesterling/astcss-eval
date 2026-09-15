@@ -424,6 +424,47 @@ The store download to the device fails (above), so it ran on the 2080 Ti: card v
 55.6, static 10 examples 66.7 (+15 -3), retrieval 8 66.7 (+16 -4); examples take T3
 from 9 to 15-16/31. Below Qwen3.5-4B trained (89.8) by 23 points.
 
+## From the generation pilot (device models write training pairs from source files)
+
+gemma-4-26B-A4B-it was given one training-fixture file at a time (10 Python, 10 Rust, 10
+JavaScript; 2-12 KB each) with the language card, the brief's rules, the fixture's name
+inventory and a tier mix weighted to T3/T4, and asked for 8 candidates per file.
+Wording failures went back to it twice with the exact shared words. Survivors went
+through pilot.py's training gates, then Qwen3-Coder-30B-Turbo translated each request
+back to a selector from the card alone. Scripts: workspace/gen_pilot.py (gitignored).
+
+| stage | candidates left | share |
+|---|---|---|
+| generated | 238 | 100 % |
+| pass the wording gates as generated | 50 | 21 % |
+| ... after two repair rounds | 103 | 43 % |
+| pass the engine gates | 30 | 13 % |
+| Coder reproduces the node set from the request or a paraphrase | 26 | 11 % |
+
+By tier: T2 18/77, T3 7/50, **T4 5/111**. Device time 2,590 s (generation 1,257,
+repair 1,333) plus 1,128 s of verification: ~2.5 min per surviving pair.
+
+- **Below the 30 % bar set for scaling, and the survivors are the easy shapes.** 16 of
+  the 30 are `.fn#name` or `.call#name`; 12 distinct shapes in all, 4 of them new to
+  the training set (`.fn#_ .var`, `.fn .call#_`, `.if:has(.call#_)`, `.fn#_ .member`).
+  The candidates had 77 shapes; the hard ones are what the gates removed.
+- **Wording is the largest loss.** 188 of 238 as generated reuse the name and the noun
+  in all three texts ("the Hole class" / "find the Hole class"); repair with the
+  shared words listed recovers 53, and 135 still fail.
+- **The model cannot see match counts.** Bounds rejected 36: common names across the
+  whole fixture (`.call#get` 106, `.call#getattr` 141), generic T4s
+  (`.fn:not(:has(.try))` 139), and selectors that match nothing (`.if:has(.assignment)`,
+  `.fn#copy .call#copy`). Generic T4s also collide with the eval: 11 candidates were
+  exactly an eval answer (`.fn:has(.try)`, `.fn:has(.call#print)`, `.fn:has(.loop)`),
+  and 17 duplicated node sets already in training.
+- **Back-translation is a real semantic check.** It flagged `.call#parse_query` asked as
+  "the parse_query function" -- a request/selector mismatch no execution gate can see --
+  along with three that read correctly (`.fn .call#json`, "functions that call json").
+- Implication: generate the selector deterministically from the engine (names and
+  shapes with 1-50 matches, load-bearing steps and no eval or training collision checked
+  before any model call) and ask the model only for the wording. That removes every
+  engine-stage loss above and lets the shape mix be chosen instead of hoped for.
+
 ## Taxonomy observations (no defect claimed)
 
 - `.loop` includes comprehension `for_in_clause`, and `.if` includes `if_clause`,
