@@ -2,15 +2,15 @@
 
 usage: ~/.venvs/astcss-tune/bin/python tune/local_generate.py --base PATH --out runs/DIR --name LABEL
            [--adapter DIR] [--card card_v1c.md | --card none] [--retrieve K [--retrieve-portable]]
-           [--per-tier 0] [--seed qualify-v1] [--batch 8]
+           [--per-tier 0] [--seed qualify-v1] [--batch 8] [--embed-cpu]
 
 Writes DIR/responses.jsonl and DIR/meta.json in qualify.py's format, so
 `python3 qualify.py score --out DIR` and tune/compare_arms.py work unchanged.
 
 The prompt is built by tune/prompting.py, the same function the trainer uses, so a model
 is always asked in exactly the format it was trained on. Greedy decoding, thinking off.
-The 2080 Ti has no bfloat16, so compute is float16; the 248k-vocab embedding table stays
-on the CPU (see tune/smoke_qlora.py for the memory accounting).
+The 2080 Ti has no bfloat16, so compute is float16. The embedding table is on the GPU by
+default; --embed-cpu saves ~1.9 GiB at ~3x the per-forward cost (see train_qlora.py).
 """
 import argparse
 import hashlib
@@ -39,10 +39,12 @@ def main():
     ap.add_argument("--seed", default="qualify-v1")
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--max-new-tokens", type=int, default=48)
+    ap.add_argument("--embed-cpu", action="store_true")
     args = ap.parse_args()
 
     import torch
-    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+    from transformers import AutoTokenizer
+    from train_qlora import load_model
 
     card = None if args.card == "none" else open(os.path.join(HERE, args.card)).read()
     pairs = qualify.sample(qualify.load_pairs(), args.per_tier, args.seed)
@@ -67,15 +69,12 @@ def main():
                    "pair_ids": [p["id"] for p in pairs], "card": args.card,
                    "card_sha256": hashlib.sha256(card.encode()).hexdigest() if card else None,
                    "retrieve": args.retrieve, "retrieve_portable": args.retrieve_portable,
-                   "leaked_ids": leaks, "prompt_format": prompting.FORMAT_VERSION},
+                   "leaked_ids": leaks, "prompt_format": prompting.FORMAT_VERSION, "embed_cpu": args.embed_cpu},
                   open(meta_path, "w"), indent=2)
 
     tok = AutoTokenizer.from_pretrained(args.base)
     tok.padding_side = "left"
-    bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.float16,
-                             bnb_4bit_use_double_quant=True, llm_int8_enable_fp32_cpu_offload=True)
-    model = AutoModelForCausalLM.from_pretrained(args.base, quantization_config=bnb, dtype=torch.float16,
-                                                 device_map={"model.embed_tokens": "cpu", "": 0})
+    model, dev = load_model(args.base, args.embed_cpu)
     if args.adapter:
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, args.adapter)
@@ -83,22 +82,22 @@ def main():
 
     todo = [p for p in pairs if p["id"] not in done]
     print("%s: %d of %d pairs to ask" % (args.name, len(todo), len(pairs)), flush=True)
+    pad = tok.pad_token_id if tok.pad_token_id is not None else tok.eos_token_id
     with open(resp_path, "a") as fh:
         for i in range(0, len(todo), args.batch):
             chunk = todo[i:i + args.batch]
             texts = [prompting.prompt_text(tok, contexts[p["id"]][0], p["nl"]) for p in chunk]
-            enc = tok(texts, return_tensors="pt", padding=True, add_special_tokens=False)
+            enc = tok(texts, return_tensors="pt", padding=True, add_special_tokens=False).to(dev)
             t0 = time.time()
             with torch.no_grad():
-                out = model.generate(**enc, max_new_tokens=args.max_new_tokens, do_sample=False,
-                                     pad_token_id=tok.pad_token_id or tok.eos_token_id)
+                out = model.generate(**enc, max_new_tokens=args.max_new_tokens, do_sample=False, pad_token_id=pad)
             dt = (time.time() - t0) / len(chunk)
             for p, seq in zip(chunk, out):
                 gen = seq[enc["input_ids"].shape[1]:]
                 content = tok.decode(gen, skip_special_tokens=True)
                 row = {"model": args.name, "id": p["id"], "thinking": "off", "nl": p["nl"], "content": content,
                        "prediction": qualify.extract(content), "latency_s": round(dt, 2),
-                       "completion_tokens": int((gen != (tok.pad_token_id or -1)).sum())}
+                       "completion_tokens": int((gen != pad).sum())}
                 if contexts[p["id"]][1]:
                     row["context_ids"] = contexts[p["id"]][1]
                 fh.write(json.dumps(row, ensure_ascii=False) + "\n")
