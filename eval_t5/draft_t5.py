@@ -135,11 +135,44 @@ ENTRIES = [
 ]
 
 
-def build_rows():
+# Batch t5-b2 (2026-09-15, Teague: "show me all the functions that call X", "what are all the
+# functions called by Y"): the ::callers / ::callees pseudo-elements, which t5-b1 has none of.
+# Selectors from `gen_pairs.py enumerate --families callgraph` on the eval fixtures; names that
+# collide with common method calls (load, get, replace) left out.
+ENTRIES_B2 = [
+    (("py-variety", ".fn#validate_email::callers"), "show me all the functions that call validate_email",
+     ["which routines invoke validate_email?", "callers of validate_email"],
+     [".fn#process_animals::callers", ".fn::callers"]),
+    (("repo-small-py", ".fn#create_index::callers"), "functions that call create_index",
+     ["who invokes create_index?", "list every caller of create_index"],
+     [".fn#create_index::callees", ".fn#analyze_functions::callers"]),
+    (("repo-small-py", ".fn#to_camel_case::callers"), "show me all the functions that call to_camel_case",
+     ["where is to_camel_case invoked from?", "callers of to_camel_case"],
+     [".fn#to_camel_case::callees", ".fn#replace::callers"]),
+    (("repo-small-py", ".fn#escape_raw_string_delimiter::callers"), "what calls escape_raw_string_delimiter",
+     ["functions invoking escape_raw_string_delimiter", "who uses escape_raw_string_delimiter?"],
+     [".fn#escape_raw_string_delimiter::callees", ".fn#analyze_grammar_js::callers"]),
+    (("py-variety", ".fn#create_user::callees"), "what does create_user call",
+     ["calls made inside create_user", "show me everything create_user invokes"],
+     [".fn#create_user::callers", ".fn::callees"]),
+    (("py-variety", ".fn#validate_email::callees"), "what are all the functions called by validate_email",
+     ["calls inside validate_email", "which invocations does validate_email make?"],
+     [".fn#calculate_sum::callees", ".fn#validate_email"]),
+    (("py-variety", ".fn#make_animal::callees"), "calls made by make_animal",
+     ["what does make_animal invoke?", "list the call sites in make_animal"],
+     [".fn#make_animal::callers", ".fn#make_animal"]),
+    (("py-variety", ".fn#level2::callees"), "every call made inside level2, nested functions included",
+     ["what does level2 invoke, counting its inner functions?", "calls anywhere in the body of level2"],
+     [".fn#generator::callees", ".fn::callees"]),
+]
+
+
+def build_rows(entries=None, first_id=1):
+    entries = ENTRIES if entries is None else entries
     cands = {c["id"]: c for c in map(json.loads, open(os.path.join(ROOT, "candidates", "selectors.jsonl")))}
     shapes, taken, eval_css = G.taken_node_sets()
     trees, rows, problems = {}, [], []
-    for i, (src, nl, paras, extra) in enumerate(ENTRIES, 1):
+    for i, (src, nl, paras, extra) in enumerate(entries, first_id):
         if isinstance(src, str):
             c = cands[src]
             fx, struct = c["fixture"], c["struct"]
@@ -170,7 +203,12 @@ def build_rows():
 
 
 def main():
-    rows, trees, problems = build_rows()
+    global BATCH
+    if "--batch" in sys.argv and sys.argv[sys.argv.index("--batch") + 1] == "b2":
+        BATCH = "t5-b2"
+        rows, trees, problems = build_rows(ENTRIES_B2, first_id=len(ENTRIES) + 1)
+    else:
+        rows, trees, problems = build_rows()
     for r in rows:
         t = trees[r["fixture"]]
         ref = t.select(r["struct"])
