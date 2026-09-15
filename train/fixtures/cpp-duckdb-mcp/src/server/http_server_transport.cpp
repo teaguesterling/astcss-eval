@@ -1,0 +1,373 @@
+#include "server/http_server_transport.hpp"
+
+// Include httplib from DuckDB's third_party
+// Note: This must be included before other headers that might conflict
+#include "httplib.hpp"
+
+#include <iostream>
+#include <sstream>
+
+namespace duckdb {
+
+// Constant-time string comparison to prevent timing attacks on auth tokens.
+//
+// Uses a fixed-size comparison buffer so the iteration count is independent
+// of both input lengths.  Earlier versions iterated max(a,b) times which
+// still let an attacker probe for the expected token length by sending
+// increasingly long inputs and observing the timing transition.
+//
+// 256 bytes is sufficient for "Bearer " (7 bytes) + any reasonable token.
+static bool ConstantTimeEquals(const string &a, const string &b) {
+	static constexpr size_t kCompareSize = 256;
+
+	// Strings longer than the buffer cannot be valid tokens;
+	// return false without constant-time guarantees since the
+	// attacker already knows their own input length.
+	if (a.size() > kCompareSize || b.size() > kCompareSize) {
+		return false;
+	}
+
+	// Copy into fixed-size volatile buffers so the compiler cannot
+	// reason about their contents or eliminate the comparison loop.
+	// Byte-by-byte copy is required because memcpy cannot target volatile.
+	volatile unsigned char buf_a[kCompareSize] = {};
+	volatile unsigned char buf_b[kCompareSize] = {};
+	for (size_t i = 0; i < a.size(); i++) {
+		buf_a[i] = static_cast<unsigned char>(a[i]);
+	}
+	for (size_t i = 0; i < b.size(); i++) {
+		buf_b[i] = static_cast<unsigned char>(b[i]);
+	}
+
+	// Length mismatch feeds into the result but does not short-circuit.
+	volatile unsigned char result = (a.size() != b.size()) ? 1 : 0;
+
+	// Fixed iteration count -- no timing correlation with either string.
+	for (size_t i = 0; i < kCompareSize; i++) {
+		result |= buf_a[i] ^ buf_b[i];
+	}
+	return result == 0;
+}
+
+// Helper: determine the CORS origin header value for a given request.
+// Returns empty string if CORS is disabled or the origin is not allowed.
+static string GetCorsOriginHeader(const HTTPServerConfig &config, const string &request_origin) {
+	if (config.cors_origins.empty()) {
+		return ""; // CORS disabled
+	}
+	if (config.cors_origins == "*") {
+		return "*"; // Wildcard
+	}
+	// Check if request origin matches any configured origin
+	// Parse comma-separated origin list
+	std::istringstream stream(config.cors_origins);
+	string origin;
+	while (std::getline(stream, origin, ',')) {
+		// Trim whitespace
+		size_t start = origin.find_first_not_of(" \t");
+		size_t end = origin.find_last_not_of(" \t");
+		if (start != string::npos && end != string::npos) {
+			origin = origin.substr(start, end - start + 1);
+		}
+		if (origin == request_origin) {
+			return request_origin; // Return specific origin (not wildcard)
+		}
+	}
+	return ""; // Origin not allowed
+}
+
+// Helper to set up common routes on a server (works with both Server and SSLServer)
+template <typename ServerType>
+void SetupRoutes(ServerType &server, const HTTPServerConfig &config,
+                 HTTPServerTransport::RequestHandler &request_handler) {
+	// Configure CORS preflight if enabled
+	if (!config.cors_origins.empty()) {
+		server.Options(".*", [&config](const CPPHTTPLIB_NAMESPACE::Request &req, CPPHTTPLIB_NAMESPACE::Response &res) {
+			string origin = req.get_header_value("Origin");
+			string cors_value = GetCorsOriginHeader(config, origin);
+			if (!cors_value.empty()) {
+				res.set_header("Access-Control-Allow-Origin", cors_value);
+				res.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+				res.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+				res.set_header("Access-Control-Max-Age", "86400");
+				if (cors_value != "*") {
+					res.set_header("Vary", "Origin");
+				}
+			}
+			res.status = 204;
+		});
+	}
+
+	// Handler for MCP requests
+	auto mcp_handler = [&config, &request_handler](const CPPHTTPLIB_NAMESPACE::Request &req,
+	                                               CPPHTTPLIB_NAMESPACE::Response &res) {
+		// Check authentication if configured
+		if (!config.auth_token.empty()) {
+			auto auth_header = req.get_header_value("Authorization");
+			if (auth_header.empty()) {
+				// No credentials provided
+				res.status = 401;
+				res.set_header("WWW-Authenticate", "Bearer");
+				res.set_content(
+				    R"({"jsonrpc":"2.0","error":{"code":-32001,"message":"Unauthorized: authentication required"},"id":null})",
+				    "application/json");
+				return;
+			}
+			string expected = "Bearer " + config.auth_token;
+			if (!ConstantTimeEquals(auth_header, expected)) {
+				// Invalid credentials provided
+				res.status = 403;
+				res.set_content(
+				    R"({"jsonrpc":"2.0","error":{"code":-32003,"message":"Forbidden: invalid credentials"},"id":null})",
+				    "application/json");
+				return;
+			}
+		}
+
+		// Set CORS headers on response
+		if (!config.cors_origins.empty()) {
+			string origin = req.get_header_value("Origin");
+			string cors_value = GetCorsOriginHeader(config, origin);
+			if (!cors_value.empty()) {
+				res.set_header("Access-Control-Allow-Origin", cors_value);
+				if (cors_value != "*") {
+					res.set_header("Vary", "Origin");
+				}
+			}
+		}
+
+		// Process the MCP request
+		try {
+			string response = request_handler(req.body);
+			res.set_content(response, "application/json");
+		} catch (const std::exception &e) {
+			// Log full error internally but return a generic message to the client
+			// to avoid leaking internal details (stack traces, file paths, etc.)
+			(void)e; // Suppress unused variable warning; in production, log e.what() here
+			res.status = 500;
+			res.set_content(R"({"jsonrpc":"2.0","error":{"code":-32603,"message":"Internal server error"},"id":null})",
+			                "application/json");
+		}
+	};
+
+	// Main MCP endpoint
+	server.Post("/", mcp_handler);
+
+	// Alternative MCP endpoint
+	server.Post("/mcp", mcp_handler);
+
+	// Health check endpoint (conditionally enabled, optionally auth-protected)
+	if (config.enable_health_endpoint) {
+		server.Get("/health", [&config](const CPPHTTPLIB_NAMESPACE::Request &req, CPPHTTPLIB_NAMESPACE::Response &res) {
+			// Check authentication if required for health endpoint
+			if (config.auth_health_endpoint && !config.auth_token.empty()) {
+				auto auth_header = req.get_header_value("Authorization");
+				if (auth_header.empty()) {
+					res.status = 401;
+					res.set_header("WWW-Authenticate", "Bearer");
+					res.set_content(R"({"error":"Unauthorized"})", "application/json");
+					return;
+				}
+				string expected = "Bearer " + config.auth_token;
+				if (!ConstantTimeEquals(auth_header, expected)) {
+					res.status = 403;
+					res.set_content(R"({"error":"Forbidden"})", "application/json");
+					return;
+				}
+			}
+			res.set_content(R"({"status":"ok"})", "application/json");
+		});
+	}
+}
+
+HTTPServerTransport::HTTPServerTransport(const HTTPServerConfig &config)
+    : config(config), running(false), stop_requested(false), actual_port(0), server_ptr(nullptr) {
+}
+
+HTTPServerTransport::~HTTPServerTransport() {
+	Stop();
+}
+
+bool HTTPServerTransport::Start(RequestHandler handler) {
+	if (running.load()) {
+		return true; // Already running
+	}
+
+	request_handler = std::move(handler);
+	stop_requested = false; // Reset stop flag for potential restart
+	running = true;
+
+	{
+		std::lock_guard<std::mutex> lock(startup_mutex);
+		startup_complete = false;
+	}
+
+	// Start server in background thread
+	server_thread = make_uniq<std::thread>(&HTTPServerTransport::ServerLoop, this);
+
+	// Wait for ServerLoop to signal bind success/failure
+	{
+		std::unique_lock<std::mutex> lock(startup_mutex);
+		startup_cv.wait(lock, [this] { return startup_complete; });
+	}
+
+	return running.load();
+}
+
+bool HTTPServerTransport::Run(RequestHandler handler) {
+	if (running.load()) {
+		return false; // Already running
+	}
+
+	request_handler = std::move(handler);
+	stop_requested = false;
+	running = true;
+
+	// Run server in calling thread (blocks until Stop() is called)
+	ServerLoop();
+
+	return true;
+}
+
+void HTTPServerTransport::Stop() {
+	stop_requested = true;
+	running = false;
+
+	// Stop the httplib server if it's running
+	{
+		std::lock_guard<std::mutex> lock(server_mutex);
+		if (server_ptr) {
+			// Cast and stop the server - this will cause listen_after_bind to return
+			static_cast<CPPHTTPLIB_NAMESPACE::Server *>(server_ptr)->stop();
+		}
+	}
+
+	if (server_thread && server_thread->joinable()) {
+		server_thread->join();
+	}
+	server_thread.reset();
+}
+
+bool HTTPServerTransport::IsRunning() const {
+	return running.load();
+}
+
+int HTTPServerTransport::GetPort() const {
+	return actual_port.load();
+}
+
+string HTTPServerTransport::GetConnectionInfo() const {
+	return "HTTP MCP Server at http://" + config.host + ":" + std::to_string(actual_port.load());
+}
+
+void HTTPServerTransport::ServerLoop() {
+	// Helper to signal startup complete (success or failure)
+	auto signal_startup = [this]() {
+		std::lock_guard<std::mutex> lock(startup_mutex);
+		startup_complete = true;
+		startup_cv.notify_one();
+	};
+
+#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
+	if (config.use_ssl) {
+		// HTTPS server with SSL
+		if (config.cert_path.empty() || config.key_path.empty()) {
+			running = false;
+			signal_startup();
+			return;
+		}
+
+		CPPHTTPLIB_NAMESPACE::SSLServer server(config.cert_path.c_str(), config.key_path.c_str());
+
+		if (!server.is_valid()) {
+			running = false;
+			signal_startup();
+			return;
+		}
+
+		SetupRoutes(server, config, request_handler);
+
+		// Bind and listen
+		int port = config.port;
+		if (!server.bind_to_port(config.host.c_str(), port)) {
+			running = false;
+			signal_startup();
+			return;
+		}
+
+		actual_port = port;
+
+		// Store server pointer so Stop() can call stop() on it
+		// Note: SSLServer inherits from Server, so the base class pointer works for stop()
+		{
+			std::lock_guard<std::mutex> lock(server_mutex);
+			server_ptr = static_cast<CPPHTTPLIB_NAMESPACE::Server *>(&server);
+		}
+
+		// Check if stop was requested before we started listening
+		if (stop_requested.load()) {
+			std::lock_guard<std::mutex> lock(server_mutex);
+			server_ptr = nullptr;
+			running = false;
+			signal_startup();
+			return;
+		}
+
+		signal_startup();
+		server.listen_after_bind();
+
+		// Clear pointer after server stops
+		{
+			std::lock_guard<std::mutex> lock(server_mutex);
+			server_ptr = nullptr;
+		}
+		running = false;
+		return;
+	}
+#endif
+
+	// HTTP server (no SSL)
+	CPPHTTPLIB_NAMESPACE::Server server;
+
+	SetupRoutes(server, config, request_handler);
+
+	// Bind and listen
+	int port = config.port;
+	if (!server.bind_to_port(config.host.c_str(), port)) {
+		running = false;
+		signal_startup();
+		return;
+	}
+
+	actual_port = port;
+
+	// Store server pointer so Stop() can call stop() on it
+	{
+		std::lock_guard<std::mutex> lock(server_mutex);
+		server_ptr = &server;
+	}
+
+	// Check if stop was requested before we started listening
+	if (stop_requested.load()) {
+		std::lock_guard<std::mutex> lock(server_mutex);
+		server_ptr = nullptr;
+		running = false;
+		signal_startup();
+		return;
+	}
+
+	// Signal that bind succeeded and server is ready
+	signal_startup();
+
+	// Run the server (this blocks until server.stop() is called)
+	server.listen_after_bind();
+
+	// Clear pointer after server stops
+	{
+		std::lock_guard<std::mutex> lock(server_mutex);
+		server_ptr = nullptr;
+	}
+	running = false;
+}
+
+} // namespace duckdb

@@ -1,0 +1,29 @@
+{
+ "fixture": "py-pluckit",
+ "language": "python",
+ "files": 30,
+ "aliases": {
+  ".fn": "247 :: function_definition=193, lambda=54",
+  ".class": "28 :: class_definition=28",
+  ".call": "1171 :: call=1171",
+  ".loop": "114 :: for_statement=64, for_in_clause=41, while_statement=9",
+  ".if": "335 :: if_statement=275, elif_clause=23, else_clause=18, conditional_expression=15, if_clause=4",
+  ".jump": "293 :: return_statement=254, continue_statement=32, break_statement=7",
+  ".try": "61 :: try_statement=61",
+  ".catch": "52 :: except_clause=52",
+  ".throw": "41 :: raise_statement=40, assert_statement=1",
+  ".import": "259 :: import_from_statement=128, import_statement=60, __future__=29, future_import_statement=29, aliased_import=13",
+  ".str": "7478 :: string_content=3453, string=3136, interpolation=506, escape_sequence=329, concatenated_string=43, escape_interpolation=10",
+  ".comment": "498 :: comment=469, decorated_definition=29",
+  ".var": "959 :: assignment=725, typed_parameter=170, typed_default_parameter=64",
+  ".member": "1460 :: attribute=1216, subscript=221, slice=23",
+  ".comp": "41 :: list_comprehension=24, generator_expression=12, dictionary_comprehension=3, set_comprehension=2",
+  ".mod": "30 :: module=30"
+ },
+ "lang": "python=30f/49476n",
+ "fnhasfn": "31 truth / 220 engine",
+ "fn_names": "__init__(9), main(6), from_dict(4), from_json(4), to_dict(4), to_json(4), __getattr__(3), __repr__(3), _distinct_files(3), find(3), search(3), __dir__(2), _build_parser(2), _empty_like(2), _find_root_selector(2), _open_output(2), from_argv(2), pluckins(2), source(2), to_argv(2), view(2), __enter__(1), __exit__(1), __len__(1), _assert_fts_index(1), _call_graph_query(1), _check_plausibility(1), _check_selector_plausibility(1), _cmd_init(1), _dedent_and_reindent(1), _ensure(1), _ensure_extensions(1), _ensure_index(1), _ensure_markdown_extension(1), _esc(1), _esc_like(1), _extract_lines(1), _extract_selector_node_type(1), _find_matching_paren(1), _find_stale_files(1), _flatten_composition_ops(1), _fledgling_connection(1), _format_op_line(1), _get_mutation_ops(1), _git_log_file(1), _git_read_file(1), _group_operations(1), _hash_pattern(1), _is_garbled_intent(1), _materialize(1), _new(1), _new_connection_with_fledgling(1), _node_text_at_rev(1), _output_type_from_signature(1), _package_version(1), _parse_args(1), _parse_composition(1), _parse_example_chains(1), _parse_operation(1), _parse_operations(1)",
+ "class_names": "ASTCache(1), Calls(1), ChainOp(1), ChainValidationResult(1), Commit(1), DiffResult(1), DocSelection(1), FnAccessor(1), History(1), InterfaceInfo(1), Isolated(1), MutationEngine(1), NodeInfo(1), Operation(1), Plucker(1), PluckerError(1), Pluckin(1), PluckinRegistry(1), PluckitConfig(1), Scope(1), Search(1), Selector(1), Selectors(1), Source(1), Spec(1), TypeInfo(1), _Context(1), _ModuleFnAccessor(1)",
+ "call_names": "append(72), get(62), print(59), sql(55), join(50), add_argument(44), choice(42), _esc(31), PluckerError(30), len(25), strip(21), int(19), replace(19), dumps(16), fetchall(15), Path(13), _new(13), fetchone(12), open(11), str(11), count(10), list(10), write(10), ChainValidationResult(9), cls(9), isinstance(9), set(9), split(9), dict(8), extend(8), getattr(8), items(8), splitlines(8), _register(7), _unregister(7), field(7), sorted(7), startswith(7), ArgumentParser(6), connect(6), loads(6), main(6), parse_args(6), _empty_like(5), add(5), dataclass(5), from_pretrained(5), getcwd(5), materialize(5), to_dict(5), values(5), AttributeError(4), Selection(4), _assert_fts_index(4), _distinct_files(4), _fledgling_connection(4), close(4), endswith(4), from_dict(4), generate(4)",
+ "node_types": "identifier(7565), string_content(3453), string(3136), attribute(1216), expression_statement(1207), call(1171), argument_list(1165), =(1147), pair(781), type(760), block(742), assignment(725), interpolation(506), comment(469), keyword_argument(412), dotted_name(380), escape_sequence(329), if_statement(275), return_statement(254), dictionary(241), none(230), subscript(221), integer(196), function_definition(193), parameters(193), comparison_operator(191), in(171), ->(171), typed_parameter(170), list(156), type_parameter(149), generic_type(149), import_from_statement(128), binary_operator(116), not(107), |(80), tuple(69), not_operator(65), typed_default_parameter(64), for_statement(64), try_statement(61), import_statement(60), boolean_operator(58), lambda(54), true(54)"
+}

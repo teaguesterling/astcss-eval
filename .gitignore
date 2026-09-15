@@ -3,3 +3,6 @@ __pycache__/
 runs/*/run.log
 .kibitzer/
 trees/
+engine/
+tune/logs/
+workspace/

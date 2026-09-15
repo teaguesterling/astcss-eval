@@ -1,0 +1,29 @@
+{
+ "fixture": "cpp-duck-hunt",
+ "language": "cpp",
+ "files": 45,
+ "aliases": {
+  ".fn": "540 :: function_declarator=293, function_definition=212, template_function=29, default_method_clause=3, template_method=2, lambda_expression=1",
+  ".class": "25 :: class_specifier=15, struct_specifier=9, enum_specifier=1",
+  ".call": "1702 :: call_expression=1702",
+  ".loop": "65 :: for_range_loop=30, while_statement=29, for_statement=6",
+  ".if": "1385 :: condition_clause=581, if_statement=551, else_clause=141, conditional_expression=54, ?=54, case_statement=3",
+  ".jump": "409 :: return_statement=336, continue_statement=63, break_statement=10",
+  ".try": "11 :: try_statement=11",
+  ".catch": "11 :: catch_clause=11",
+  ".throw": "11 :: throw_statement=11",
+  ".import": "251 :: preproc_include=184, system_lib_string=60, using_declaration=7",
+  ".str": "3764 :: string_literal=1569, string_content=1567, escape_sequence=305, raw_string_content=124, raw_string_literal=124, char_literal=42",
+  ".comment": "1677 :: comment=664, type_qualifier=479, #include=184, storage_class_specifier=155, virtual_specifier=100, access_specifier=42",
+  ".var": "1813 :: declaration=833, init_declarator=569, parameter_declaration=325, field_declaration=75, enumerator=8, alias_declaration=3",
+  ".member": "4925 :: field_expression=2515, ::=2070, subscript_expression=295, ->=43, pointer_expression=2",
+  ".comp": "0 :: ",
+  ".mod": "96 :: namespace_definition=51, translation_unit=45"
+ },
+ "lang": "cpp=45f/67753n",
+ "fnhasfn": "212 truth / 212 engine",
+ "fn_names": "canParse(35), parse(35), getCategory(26), getFormatName(26), getName(26), getPriority(26), make_uniq(22), yyjson_arr_foreach(22), getCommandPatterns(20), stream(16), getDescription(10), iss(5), static_cast(5), MapLevelToStatus(4), parseJUnitTextImpl(3), reader(3), CalculateMessageSimilarity(2), Cast(2), CategorySupportsWorkflow(2), ClangTidyParser(2), CreateEventFromRequest(2), DetectFormat(2), DetectRootCauseCategory(2), DuckHuntFormatsBind(2), DuckHuntFormatsBindData(2), DuckHuntFormatsFunction(2), DuckHuntFormatsGlobalState(2), DuckHuntFormatsInitGlobal(2), EditDistance(2), ExtractConfigPath(2), ExtractIntField(2), ExtractJSONString(2), ExtractNestedJSONString(2), ExtractStringField(2), FormatValidationError(2), GenerateErrorFingerprint(2), GetDuckHuntFormatsFunction(2), HasRootElement(2), HasXmlDeclaration(2), IsConfigFilePath(2), IsExceptionLine(2), IsStackTraceLine(2), IsValidFormat(2), LooksLikeXml(2), MapEventNameToSeverity(2), MapJavaLevel(2), MapLevelToSeverity(2), MapStatusCodeToSeverity(2), MapStatusCodeToStatus(2), NeedsNormalization(2), NormalizeErrorMessage(2), ParseCloudTrailRecord(2), ParseContent(2), ParseContentAuto(2), ParseContentRegexp(2), ParseFile(2), ParseJsonLine(2), ParseLog4jLine(2), ParseRailsLine(2), ParseVpcFlowLine(2)",
+ "class_names": "BanditJSONParser(1), ClangTidyParser(1), DuckDBTestParser(1), DuckHuntFormatsBindData(1), DuckHuntFormatsGlobalState(1), FailureInfo(1), HadolintTextParser(1), LcovParser(1), MochaChaiTextParser(1), MypyParser(1), PlaywrightTextParser(1), PytestParser(1), RailsRequest(1), ReadDuckHuntWorkflowLogBindData(1), ReadDuckHuntWorkflowLogGlobalState(1), ReadDuckHuntWorkflowLogLocalState(1), RuffJsonParser(1), SwiftLintJSONParser(1), SyslogParser(1), TrivyJSONParser(1), WebbedIntegration(1), WorkflowEvent(1), WorkflowLogFormat(1), XmlParserBase(1), tm(1)",
+ "call_names": "find(234), str(227), empty(128), push_back(100), regex_search(85), yyjson_obj_get(55), SafeStoi(53), substr(37), to_string(35), size(33), Like(29), yyjson_is_str(29), length(26), yyjson_get_str(24), yyjson_doc_free(23), getline(20), registerParser(20), yyjson_is_arr(20), yyjson_is_obj(20), begin(17), EscapeJsonString(16), end(16), regex_replace(15), c_str(14), yyjson_doc_get_root(14), yyjson_read(14), find_first_not_of(12), yyjson_get_int(12), yyjson_is_num(12), regex_match(11), ExtractJSONString(10), find_last_not_of(9), IOException(8), SetValue(8), Value(8), getInstance(8), Literal(7), ExtractStringField(6), SafeStod(6), parse(6), reserve(6), transform(6), ExtractNestedJSONString(5), ReadContentFromSource(5), Regexp(5), move(5), LIST(4), SafeRegexSearch(4), SplitFormatList(4), back(4), getContentFamily(4), insert(4), isPhaseMarker(4), isSpackMarker(4), make_pair(4), min(4), yyjson_arr_get_first(4), DECLARE_PARSER_CATEGORY(3), EndsWith(3), IsConfigFilePath(3)",
+ "node_types": "identifier(7329), field_identifier(2673), field_expression(2515), namespace_identifier(2108), ::(2070), qualified_identifier(2070), =(1938), argument_list(1834), expression_statement(1782), call_expression(1702), string_literal(1569), string_content(1567), assignment_expression(1548), type_identifier(1377), binary_expression(1186), declaration(833), compound_statement(792), comment(664), number_literal(655), condition_clause(581), init_declarator(569), if_statement(551), type_qualifier(479), primitive_type(340), return_statement(336), parameter_declaration(325), parameter_list(305), escape_sequence(305), subscript_argument_list(295), subscript_expression(295), function_declarator(293), +(292), >(286), &(275), reference_declarator(269), <(252), !=(244), type_descriptor(239), template_argument_list(232), function_definition(212), template_type(201), preproc_include(184), #include(184), ==(172), ||(166)"
+}

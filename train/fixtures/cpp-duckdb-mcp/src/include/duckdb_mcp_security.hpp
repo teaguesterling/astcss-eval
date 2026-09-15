@@ -1,0 +1,135 @@
+#pragma once
+
+#include "duckdb/common/common.hpp"
+#include "duckdb/common/vector.hpp"
+#include "duckdb/common/string_util.hpp"
+#include "duckdb/common/exception.hpp"
+#include "duckdb/storage/storage_extension.hpp"
+#include "duckdb/common/unordered_map.hpp"
+#include <mutex>
+
+namespace duckdb {
+
+//! MCP Security Configuration
+//! Manages security settings for MCP server connections
+class MCPSecurityConfig {
+public:
+	//! Set allowed MCP command paths (colon-delimited)
+	void SetAllowedCommands(const string &commands);
+
+	//! Set allowed MCP URLs (space-delimited)
+	void SetAllowedUrls(const string &urls);
+
+	//! Set MCP server configuration file path
+	void SetServerFile(const string &file_path);
+
+	//! Lock server configuration (prevent further changes)
+	void LockServers(bool lock);
+
+	//! Disable MCP server functionality entirely (client-only mode)
+	void SetServingDisabled(bool disabled);
+
+	//! Enable/disable the permissive escape hatch (opt-in). Default OFF: with no
+	//! command allowlist configured, spawning is DENY-ALL (fail-closed).
+	void SetAllowPermissive(bool value);
+
+	//! Check if a command path is allowed
+	bool IsCommandAllowed(const string &command_path) const;
+
+	//! Check if a URL is allowed
+	bool IsUrlAllowed(const string &url) const;
+
+	//! Check if we're in permissive mode (no security settings configured)
+	bool IsPermissiveMode() const;
+
+	//! Check if servers are locked
+	bool AreServersLocked() const {
+		lock_guard<mutex> lock(config_mutex);
+		return servers_locked;
+	}
+
+	//! Check if commands are locked (immutable once set)
+	bool AreCommandsLocked() const {
+		lock_guard<mutex> lock(config_mutex);
+		return commands_locked;
+	}
+
+	//! Check if serving is disabled
+	bool IsServingDisabled() const {
+		lock_guard<mutex> lock(config_mutex);
+		return serving_disabled;
+	}
+
+	//! Get server file path
+	string GetServerFile() const {
+		lock_guard<mutex> lock(config_mutex);
+		return server_file;
+	}
+
+	//! Validate ATTACH parameters for security
+	void ValidateAttachSecurity(const string &command, const vector<string> &args) const;
+
+	friend class MCPInstanceState;
+
+private:
+	MCPSecurityConfig()
+	    : servers_locked(false), commands_locked(false), serving_disabled(false), allow_permissive(false),
+	      server_file("./.mcp.json") {
+	}
+
+	mutable mutex config_mutex;
+	vector<string> allowed_commands;
+	vector<string> allowed_urls;
+	string server_file;
+	bool servers_locked;
+	bool commands_locked;
+	bool serving_disabled;
+	//! Opt-in escape hatch. When false (default), an empty allowlist is DENY-ALL,
+	//! not "allow everything". Enabled only via SET mcp_allow_all_commands=true.
+	bool allow_permissive;
+
+	//! Parse colon or space delimited string into vector
+	vector<string> ParseDelimitedString(const string &input, char delimiter) const;
+
+	//! Internal unlocked helpers (caller must hold config_mutex)
+	bool IsPermissiveModeInternal() const;
+	bool IsCommandAllowedInternal(const string &command_path) const;
+};
+
+#ifndef __EMSCRIPTEN__
+
+//! Structured MCP connection parameters
+struct MCPConnectionParams {
+	string command;                    // Command path or URL
+	vector<string> args;               // Command arguments
+	string working_dir;                // Current working directory
+	string transport = "stdio";        // Transport type (stdio, tcp, websocket)
+	unordered_map<string, string> env; // Environment variables
+
+	// Configuration file parameters
+	string config_file_path; // Path to .mcp.json file
+	string server_name;      // Server name in .mcp.json
+
+	bool IsValid() const {
+		// For config file mode, we need config_file_path and server_name
+		if (!config_file_path.empty()) {
+			return !server_name.empty();
+		}
+		// For direct mode, we need command and valid transport
+		return !command.empty() && (transport == "stdio" || transport == "tcp" || transport == "websocket");
+	}
+
+	bool IsConfigFileMode() const {
+		return !config_file_path.empty() && !server_name.empty();
+	}
+};
+
+//! Parse structured ATTACH parameters from AttachInfo
+MCPConnectionParams ParseMCPAttachParams(DatabaseInstance &db, const class AttachInfo &info);
+
+//! Parse .mcp.json configuration file and extract server parameters
+MCPConnectionParams ParseMCPConfigFile(DatabaseInstance &db, const string &config_file_path, const string &server_name);
+
+#endif // !__EMSCRIPTEN__
+
+} // namespace duckdb

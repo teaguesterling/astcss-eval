@@ -1,0 +1,20 @@
+{
+  "accepted": 1,
+  "accepted_by_tier": {
+    "1": 1
+  },
+  "batch": "rust-b1-r2",
+  "candidates": 1,
+  "engine": {
+    "cli": "/home/teague/Projects/sitting_duck/build/release/duckdb",
+    "extension": "/home/teague/Projects/sitting_duck/build/release/extension/sitting_duck/sitting_duck.duckdb_extension",
+    "extension_mtime": 1789275699.8944218,
+    "macros": "/home/teague/Projects/sitting_duck/trees/fix/127-combinator-steps/src/sql_macros/css_selectors.sql",
+    "macros_sha256": "28c60f39605c039b0c40f9dd44ca5bcb0aded4cab38c39dc98ef828ce2a5f3c6",
+    "sitting_duck_checkout_head": "1a10b7d3da97d6ca92ac3f1c73ac1307ce1c01f0"
+  },
+  "pending": 0,
+  "rejected": 0,
+  "source": "train/candidates/rust-b1-r2.jsonl",
+  "when": "2026-09-14T16:33:00-0700"
+}

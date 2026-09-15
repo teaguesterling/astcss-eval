@@ -1,0 +1,29 @@
+{
+ "fixture": "sql-block-utils",
+ "language": "sql",
+ "files": 8,
+ "aliases": {
+  ".fn": "0 :: ",
+  ".class": "2 :: create_view=1, create_query=1",
+  ".call": "419 :: invocation=419",
+  ".loop": "0 :: ",
+  ".if": "0 :: ",
+  ".jump": "0 :: ",
+  ".try": "0 :: ",
+  ".catch": "0 :: ",
+  ".throw": "0 :: ",
+  ".import": "0 :: ",
+  ".str": "0 :: ",
+  ".comment": "197 :: comment=194, marginalia=3",
+  ".var": "0 :: ",
+  ".member": "20 :: subscript=20",
+  ".comp": "32 :: select_expression=25, subquery=7",
+  ".mod": "7 :: program=7"
+ },
+ "lang": "sql=8f/5950n",
+ "fnhasfn": "0 truth / 0 engine",
+ "fn_names": "",
+ "class_names": "all_fixtures(1)",
+ "call_names": "db_text(83), db_list_item(61), db_paragraph(48), db_heading(38), db_bold(28), db_inline_code(28), db_list(28), db_code(19), db_link(16), db_assemble(14), db_blockquote(10), db_italic(9), count(6), db_hr(5), db_image(5), db_raw(4), bar(2), db_blocks_validate(2), tp_sparkline(2), db_blocks_to_text(1), db_math(1), db_query_table(1), db_render_blocks(1), db_strikethrough(1), db_subscript(1), db_superscript(1), duck_blocks_to_pandoc_ast(1), list(1), tp_bar(1), tp_density(1)",
+ "node_types": "term(791), literal(578), identifier(532), object_reference(434), invocation(419), ERROR(204), comment(194), list(72), field(46), select_expression(25), column(21), relation(20), subscript(20), statement(14), *(12), all_fields(12), subquery(7), program(7), keyword_level(7), binary_expression(6), keyword_read(4), >=(4), =(4), op_other(4), marginalia(3), <(3), !=(3), order_by(2), keyword_encoding(2), order_target(2), direction(1), create_query(1), create_view(1), keyword_valid(1), set_operation(1), >(1)"
+}

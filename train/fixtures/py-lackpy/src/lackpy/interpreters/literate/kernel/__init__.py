@@ -1,0 +1,104 @@
+"""Incremental cell execution kernel.
+
+Two execution paths exist:
+
+  Batch (LiterateInterpreter.execute in ../__init__.py):
+    Uses LightweightKernel directly. No recovery, no plugins,
+    no streaming. Suited for tests and simple one-shot execution.
+
+  Streaming (StreamingDriver):
+    StreamingCellParser detects fence boundaries in partial model
+    output, yielding Cell objects as they complete. The driver
+    feeds each cell to LightweightKernel and orchestrates recovery
+    (via RecoveryHandler) and plugin advice (via ExecutionPlugin).
+
+Both paths share the same kernel: LightweightKernel compiles each
+cell via compiler._COMPILERS, runs static_analysis.check_cell()
+(compile check + AST name resolution), then evaluates the result
+in a persistent namespace dict.
+"""
+
+from .driver import CellExecutionEvent, StreamingDriver
+from .forgiveness import (
+    ERROR_REIFIED,
+    FORGIVENESS_ENTRY_TYPES,
+    HOLE_OPENED,
+    SOURCE_UNAVAILABLE,
+    ErrorValue,
+    Hole,
+    Unavailable,
+    describe_failure,
+    is_forgiving,
+    reified_failures,
+    round_is_left,
+)
+from .interface import CellResult, KernelInterface
+from .ledger import AIDR_LEDGER_COLUMNS, Ledger, LedgerEntry
+from .lightweight import LightweightKernel
+from .persistence import (
+    PersistenceBackend,
+    PersistentBindingVersions,
+    PersistentLedger,
+    deserialize_value,
+    ledger_entry_to_dict,
+    serialize_value,
+)
+from .plugins import ExecutionPlugin, PluginAdvice, merge_advice
+from .reactive import DIRTY, DependencyGraph
+from .versions import (
+    AIDR_BINDING_COLUMNS,
+    SUPERSEDED,
+    BindingVersion,
+    BindingVersions,
+)
+from .recovery import (
+    InferenceRecoveryHandler,
+    NoRecoveryHandler,
+    RecoveryAction,
+    RecoveryContext,
+    RecoveryHandler,
+)
+from .streaming_parser import StreamingCellParser
+
+__all__ = [
+    "AIDR_BINDING_COLUMNS",
+    "AIDR_LEDGER_COLUMNS",
+    "BindingVersion",
+    "BindingVersions",
+    "CellExecutionEvent",
+    "CellResult",
+    "DIRTY",
+    "DependencyGraph",
+    "ERROR_REIFIED",
+    "ErrorValue",
+    "ExecutionPlugin",
+    "SUPERSEDED",
+    "FORGIVENESS_ENTRY_TYPES",
+    "HOLE_OPENED",
+    "Hole",
+    "InferenceRecoveryHandler",
+    "KernelInterface",
+    "Ledger",
+    "LedgerEntry",
+    "LightweightKernel",
+    "NoRecoveryHandler",
+    "PersistenceBackend",
+    "PersistentBindingVersions",
+    "PersistentLedger",
+    "PluginAdvice",
+    "RecoveryAction",
+    "RecoveryContext",
+    "RecoveryHandler",
+    "SOURCE_UNAVAILABLE",
+    "StreamingCellParser",
+    "StreamingDriver",
+    "Unavailable",
+    "describe_failure",
+    "deserialize_value",
+    "is_forgiving",
+    "ledger_entry_to_dict",
+    "merge_advice",
+    "reified_failures",
+    "round_is_left",
+    "serialize_value",
+]

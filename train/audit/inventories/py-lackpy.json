@@ -1,0 +1,29 @@
+{
+ "fixture": "py-lackpy",
+ "language": "python",
+ "files": 45,
+ "aliases": {
+  ".fn": "254 :: function_definition=224, lambda=30",
+  ".class": "60 :: class_definition=60",
+  ".call": "1487 :: call=1487",
+  ".loop": "165 :: for_statement=100, for_in_clause=59, while_statement=6",
+  ".if": "415 :: if_statement=287, elif_clause=41, conditional_expression=39, else_clause=25, if_clause=23",
+  ".jump": "347 :: return_statement=305, continue_statement=30, break_statement=12",
+  ".try": "22 :: try_statement=22",
+  ".catch": "22 :: except_clause=22",
+  ".throw": "29 :: raise_statement=28, assert_statement=1",
+  ".import": "479 :: import_from_statement=160, import_prefix=90, relative_import=90, import_statement=55, __future__=41, future_import_statement=41",
+  ".str": "4236 :: string_content=1958, string=1852, interpolation=262, escape_sequence=90, format_specifier=50, concatenated_string=22",
+  ".comment": "188 :: comment=143, decorated_definition=43, global_statement=2",
+  ".var": "1113 :: assignment=824, typed_parameter=222, typed_default_parameter=67",
+  ".member": "1826 :: attribute=1523, subscript=241, slice=62",
+  ".comp": "59 :: list_comprehension=28, generator_expression=27, set_comprehension=4",
+  ".mod": "45 :: module=45"
+ },
+ "lang": "python=45f/48129n",
+ "fnhasfn": "32 truth / 239 engine",
+ "fn_names": "__init__(19), check(9), run(8), main(6), resolve(6), available(5), name(5), build(4), __repr__(3), execute(3), from_dict(3), generate(3), to_dict(3), validate(3), _namespace_desc_for(2), system_prompt_hint(2), __iter__(1), __len__(1), __new__(1), __str__(1), _apply_unified_diff(1), _ast_select_gate(1), _attrs_to_info(1), _best_cells_per_interpreter(1), _call_fixer(1), _chat_with_timeout(1), _classify(1), _clean_dsl_output(1), _collect_definitions(1), _collect_references(1), _display(1), _elide(1), _extract_path_from_body(1), _failure_modes(1), _get_class_annotations(1), _handler(1), _info_to_attrs(1), _init_config(1), _install_sigint_handler(1), _is_dict_with_keys(1), _is_int_at_least(1), _is_nonempty(1), _load(1), _log_trials(1), _markdown_contains(1), _markdown_count_at_least(1), _markdown_nonempty(1), _names_from_args(1), _names_from_target(1), _normalize_checks(1), _parse_frontmatter_block(1), _parse_hunks(1), _parse_info_string(1), _parse_int(1), _parse_profile(1), _parse_template_file(1), _pick_fence(1), _plucker_adhoc_gate(1), _pss_adhoc_gate(1), _python_adhoc_gate(1)",
+ "class_names": "AnalysisReport(1), Assistant(1), AsyncBridge(1), BuiltinProvider(1), CallableCheck(1), Cell(1), Check(1), ConfigToolSource(1), DelegatingInterpreter(1), ErrorValue(1), ExecutionContext(1), ExecutionPlugin(1), Fallback(1), FreshFixStep(1), Frontmatter(1), GenerateDSLStep(1), GenerationResult(1), Grade(1), HarnessConfig(1), HasPromptHint(1), Hole(1), IncrementalInterpreter(1), InferenceDispatcher(1), InferenceProvider(1), InferenceStrategy(1), Interpreter(1), InterpreterCheck(1), InterpreterExecutionResult(1), InterpreterValidationResult(1), Lackey(1), LackeyMeta(1), LackpyToolWrapper(1), Ledger(1), LedgerEntry(1), Log(1), OneShotStrategy(1), ParseResult(1), PluginAdvice(1), PolicyLayer(1), PolicySource(1)",
+ "call_names": "get(104), append(93), print(92), isinstance(57), strip(53), len(42), add_argument(41), join(32), Intent(29), field(27), sorted(23), GateResult(22), add_parser(21), split(21), str(21), add(17), update(17), Path(16), perf_counter(15), startswith(15), dumps(14), group(14), items(14), set(14), exists(12), list(12), _names_from_target(11), Sequence(10), lower(10), visit(10), getattr(9), open(9), replace(9), run(9), ValueError(8), _markdown_contains(8), defaultdict(8), validate(8), ArgumentParser(7), ValidateStep(7), compile(7), loads(7), match(7), mkdir(7), parse_args(7), RuntimeError(6), _repr_contains_all(6), _repr_contains_any(6), add_subparsers(6), count(6), enumerate(6), hasattr(6), int(6), keys(6), main(6), partial(6), read_text(6), rstrip(6), time(6), write_text(6)",
+ "node_types": "identifier(9389), string_content(1958), string(1852), =(1631), attribute(1523), call(1487), argument_list(1479), expression_statement(1384), type(1069), assignment(824), keyword_argument(806), block(798), dotted_name(532), integer(317), return_statement(305), if_statement(287), interpolation(262), subscript(241), none(239), in(231), type_parameter(226), generic_type(226), comparison_operator(225), function_definition(224), parameters(224), typed_parameter(222), ->(213), pair(199), binary_operator(167), import_from_statement(160), comment(143), list(124), boolean_operator(113), for_statement(100), not(98), escape_sequence(90), import_prefix(90), relative_import(90), dictionary(80), not_operator(74), |(72), typed_default_parameter(67), ==(66), slice(62), or(62)"
+}

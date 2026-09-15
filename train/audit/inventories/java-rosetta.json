@@ -1,0 +1,29 @@
+{
+ "fixture": "java-rosetta",
+ "language": "java",
+ "files": 30,
+ "aliases": {
+  ".fn": "70 :: method_declaration=54, lambda_expression=14, constructor_declaration=1, static_initializer=1",
+  ".class": "25 :: class_declaration=24, interface_declaration=1",
+  ".call": "225 :: method_invocation=194, object_creation_expression=31",
+  ".loop": "17 :: for_statement=10, while_statement=5, do_statement=2",
+  ".if": "47 :: if_statement=26, ?=10, ternary_expression=9, switch_expression=2",
+  ".jump": "27 :: return_statement=27",
+  ".try": "4 :: try_statement=3, try_with_resources_statement=1",
+  ".catch": "12 :: catch_type=6, catch_clause=6",
+  ".throw": "5 :: throw_statement=5",
+  ".import": "33 :: import_declaration=33",
+  ".str": "184 :: string_fragment=90, string_literal=87, character_literal=7",
+  ".comment": "102 :: modifiers=89, line_comment=10, block_comment=2, marker_annotation=1",
+  ".var": "206 :: variable_declarator=80, local_variable_declaration=53, formal_parameter=51, field_declaration=16, catch_formal_parameter=6",
+  ".member": "101 :: field_access=83, ::=6, array_access=6, method_reference=6",
+  ".comp": "0 :: ",
+  ".mod": "32 :: program=30, package_declaration=2"
+ },
+ "lang": "java=30f/6292n",
+ "fnhasfn": "11 truth / 11 engine",
+ "fn_names": "main(20), factorial(4), methodB(3), methodC(3), fib(2), methodA(2), Beer(1), applyAsLong(1), beerCheck(1), bottles(1), factorialBig(1), factorialPositive(1), factorialRec(1), fibInner(1), fibStream(1), fibTailRec(1), get(1), goToStore(1), impl(1), itFibN(1), nextInt(1), onTakeClick(1), party(1), putLastOnWall(1), putOnWall(1), run(1), solve(1), song(1), sum(1), takeOneDown(1)",
+ "class_names": "Beer(4), FizzBuzz(3), HundredDoors(3), Example(2), FizzBuzzJdk12(2), AplusB(1), ExampleImpl(1), Factorial(1), FibUtil(1), Fibonacci(1), IterativeFactorial(1), LargeFactorial(1), NineNineBottles(1), RecursiveFactorial(1), Sum2(1), SumDif(1)",
+ "call_names": "println(40), append(8), nextLine(6), printf(6), contains(5), factorial(5), multiply(5), toString(5), add(4), close(4), nextInt(4), parseInt(4), equals(3), impl(3), iterate(3), limit(3), mapToObj(3), nextToken(3), pow(3), reduce(3), beerCheck(2), bottles(2), defaultCharset(2), fibInner(2), forEach(2), map(2), nextBigInteger(2), put(2), putOnWall(2), range(2), rangeClosed(2), setText(2), signum(2), song(2), split(2), toLowerCase(2), valueOf(2), addActionListener(1), apply(1), collect(1), compareTo(1), computeIfAbsent(1), dispose(1), equalsIgnoreCase(1), exit(1), factorialRec(1), fibStream(1), filter(1), flatMap(1), flip(1), flush(1), forEachOrdered(1), format(1), getAsLong(1), goToStore(1), joining(1), nextLong(1), pack(1), party(1), putLastOnWall(1)",
+ "node_types": "identifier(1079), argument_list(225), method_invocation(194), binary_expression(161), expression_statement(148), decimal_integer_literal(137), type_identifier(125), =(111), block(108), string_fragment(90), modifiers(89), string_literal(87), field_access(83), integral_type(81), variable_declarator(80), scoped_identifier(74), +(71), formal_parameters(55), method_declaration(54), local_variable_declaration(53), formal_parameter(51), assignment_expression(47), parenthesized_expression(46), import_declaration(33), object_creation_expression(31), program(30), void_type(29), return_statement(27), if_statement(26), class_body(25), long(24), dimensions(24), class_declaration(24), ->(22), array_type(21), ==(18), escape_sequence(18), field_declaration(16), update_expression(15), lambda_expression(14), else(14), <(14), >(13), *(13), %(11)"
+}

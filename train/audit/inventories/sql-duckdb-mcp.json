@@ -1,0 +1,29 @@
+{
+ "fixture": "sql-duckdb-mcp",
+ "language": "sql",
+ "files": 13,
+ "aliases": {
+  ".fn": "0 :: ",
+  ".class": "54 :: create_table=24, create_query=16, create_view=14",
+  ".call": "111 :: invocation=111",
+  ".loop": "0 :: ",
+  ".if": "7 :: filter_expression=7",
+  ".jump": "0 :: ",
+  ".try": "0 :: ",
+  ".catch": "0 :: ",
+  ".throw": "0 :: ",
+  ".import": "0 :: ",
+  ".str": "0 :: ",
+  ".comment": "322 :: comment=306, table_option=12, constraints=2, constraint=2",
+  ".var": "115 :: column_definition=113, create_role=2",
+  ".member": "37 :: ::=35, subscript=2",
+  ".comp": "94 :: select_expression=82, subquery=12",
+  ".mod": "13 :: program=13"
+ },
+ "lang": "sql=13f/8397n",
+ "fnhasfn": "0 truth / 0 engine",
+ "fn_names": "",
+ "class_names": "SELECT(5), products(3), customers(2), order_items(2), orders(2), activity_log(1), audit_log(1), branch_summary(1), customer_orders(1), daily_metrics(1), daily_summary(1), documents(1), inventory_status(1), order_details(1), org_summary(1), organizations(1), product_sales(1), project_health(1), projects(1), recent_activity(1), recent_commits(1), safe_user_summary(1), sensitive_data(1), task_board(1), tasks(1), test_users(1), user_summary(1), users(1), weekly_metrics(1)",
+ "call_names": "COUNT(31), NOW(11), mcp_render_template(8), SUM(7), mcp_register_template(7), COALESCE(4), mcp_server_start(4), count(3), mcp_get_server_template(3), ROUND(2), fake_email(2), fake_first_name(2), fake_last_name(2), fake_uuid(2), mcp_list_server_templates(2), mcp_list_templates(2), parse_sql(2), AVG(1), MAX(1), NULLIF(1), extract_front_matter(1), fake_city(1), fake_country(1), fake_phone(1), git_branches(1), git_log(1), http_get(1), http_post(1), mcp_publish_tool(1), random(1), range(1), read_text(1), split_part(1), trim(1)",
+ "node_types": "identifier(1230), literal(841), object_reference(471), term(321), comment(306), field(268), list(127), binary_expression(114), column_definition(113), invocation(111), statement(104), column(86), ERROR(83), select_expression(82), =(82), relation(63), int(43), ::(35), column_definitions(27), *(26), timestamp(24), create_table(24), all_fields(20), create_query(16), create_view(14), program(13), subquery(12), table_option(12), <(10), !=(9), op_other(8), decimal(8), filter_expression(7), group_by(7), :=(7), >=(5), -(3), interval(3), <=(3), order_by(3), order_target(3), direction(3), >(2), +(2), keyword_inet(2)"
+}

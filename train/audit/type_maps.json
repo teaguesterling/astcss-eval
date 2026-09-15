@@ -1,0 +1,7677 @@
+{
+ "python": [
+  {
+   "node_type": "attribute",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "slice",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "subscript",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "call",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "parenthesized_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "with_item",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "class_definition",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "async_function_definition",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_definition",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "lambda",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "module",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "assignment",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "default_parameter",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "named_expression",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "typed_default_parameter",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "typed_parameter",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "except_clause",
+   "semantic_type": "ERROR_CATCH",
+   "kind": "error"
+  },
+  {
+   "node_type": "finally_clause",
+   "semantic_type": "ERROR_FINALLY",
+   "kind": "error"
+  },
+  {
+   "node_type": "assert_statement",
+   "semantic_type": "ERROR_THROW",
+   "kind": "error"
+  },
+  {
+   "node_type": "raise_statement",
+   "semantic_type": "ERROR_THROW",
+   "kind": "error"
+  },
+  {
+   "node_type": "try_statement",
+   "semantic_type": "ERROR_TRY",
+   "kind": "error"
+  },
+  {
+   "node_type": "delete_statement",
+   "semantic_type": "EXECUTION_MUTATION",
+   "kind": "statement"
+  },
+  {
+   "node_type": "expression_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "pass_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "exec_statement",
+   "semantic_type": "EXECUTION_STATEMENT_CALL",
+   "kind": "statement"
+  },
+  {
+   "node_type": "print_statement",
+   "semantic_type": "EXECUTION_STATEMENT_CALL",
+   "kind": "statement"
+  },
+  {
+   "node_type": "__future__",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "aliased_import",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "future_import_statement",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_from_statement",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_prefix",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_statement",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "relative_import",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "wildcard_import",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "case_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "conditional_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "elif_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "else_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "if_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "if_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "match_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "break_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "continue_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "return_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_in_clause",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "while_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "ellipsis",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "false",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "none",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "true",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "float",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "integer",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "concatenated_string",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "conversion",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "escape_interpolation",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "escape_sequence",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "format_expression",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "format_specifier",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "interpolation",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "interpolation_conversion",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string_content",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "dictionary",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "list",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "pair",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "set",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "tuple",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "as_clause",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "decorated_definition",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "global_statement",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "nonlocal_statement",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "decorator",
+   "semantic_type": "NAME_ATTRIBUTE",
+   "kind": "name"
+  },
+  {
+   "node_type": "_",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "dotted_name",
+   "semantic_type": "NAME_QUALIFIED",
+   "kind": "name"
+  },
+  {
+   "node_type": "cls",
+   "semantic_type": "NAME_SCOPED",
+   "kind": "name"
+  },
+  {
+   "node_type": "self",
+   "semantic_type": "NAME_SCOPED",
+   "kind": "name"
+  },
+  {
+   "node_type": "super",
+   "semantic_type": "NAME_SCOPED",
+   "kind": "name"
+  },
+  {
+   "node_type": "%",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "**",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "//",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "@",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "binary_operator",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "unary_operator",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": "OPERATOR_ARITHMETIC"
+  },
+  {
+   "node_type": "~",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "%=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "**=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "//=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ":=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "@=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "augmented_assignment",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "=",
+   "kind": "OPERATOR_ASSIGNMENT"
+  },
+  {
+   "node_type": "!=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<>",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "==",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "comparison_operator",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "in",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "is",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "is not",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "not in",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "and",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "boolean_operator",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "not",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "not_operator",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "or",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "block",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "with_clause",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "with_statement",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "argument_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "expression_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "keyword_argument",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "lambda_parameters",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "parameters",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "(",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ")",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "[",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "]",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "{",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "}",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ",",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ".",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ":",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "chevron",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "keyword_separator",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "positional_separator",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "string_end",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "string_start",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "ERROR",
+   "semantic_type": "PARSER_SYNTAX",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "line_continuation",
+   "semantic_type": "PARSER_SYNTAX",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "dictionary_splat",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "dictionary_splat_pattern",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "list_splat",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "list_splat_pattern",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "splat_pattern",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "as_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "as_pattern_target",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "attribute_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "list_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "pattern_list",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "tuple_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "case_pattern",
+   "semantic_type": "PATTERN_MATCH",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "class_pattern",
+   "semantic_type": "PATTERN_MATCH",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "complex_pattern",
+   "semantic_type": "PATTERN_MATCH",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "keyword_pattern",
+   "semantic_type": "PATTERN_MATCH",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "union_pattern",
+   "semantic_type": "PATTERN_MATCH",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "value_pattern",
+   "semantic_type": "PATTERN_MATCH",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "dictionary_comprehension",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "generator_expression",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "list_comprehension",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "set_comprehension",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "generic_type",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_parameter",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "->",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_conversion",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  }
+ ],
+ "rust": [
+  {
+   "node_type": "->",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": ".",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "::",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "field_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "index_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "call_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "macro_invocation",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "method_call_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "associated_type",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "enum_item",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "impl_item",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "struct_item",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "trait_item",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "type_item",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "union_item",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "closure_expression",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_item",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_signature_item",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "macro_definition",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "mod_item",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "source_file",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "const_item",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "enum_variant",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "field_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "let_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "parameter",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "static_item",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "expression_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "unsafe_block",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "extern_crate_declaration",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "use_as_clause",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "use_declaration",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "use_wildcard",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "?",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "if_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "match_arm",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "match_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "break_expression",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "continue_expression",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "return_expression",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_expression",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "loop_expression",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "while_expression",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "async_block",
+   "semantic_type": "FLOW_SYNC",
+   "kind": "flow"
+  },
+  {
+   "node_type": "await_expression",
+   "semantic_type": "FLOW_SYNC",
+   "kind": "flow"
+  },
+  {
+   "node_type": "boolean_literal",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "float_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "integer_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "char_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "raw_string_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "array_expression",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "struct_expression",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "tuple_expression",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "attribute_item",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "inner_attribute_item",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "mutable_specifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "visibility_modifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "block_comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "line_comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "field_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "scoped_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "%",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "..",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "..=",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "binary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "range_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "unary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": "OPERATOR_ARITHMETIC"
+  },
+  {
+   "node_type": "%=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "assignment_expression",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "compound_assignment_expr",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "=",
+   "kind": "OPERATOR_ASSIGNMENT"
+  },
+  {
+   "node_type": "!=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "==",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "!",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&&",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": ""
+  },
+  {
+   "node_type": "block",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "arguments",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "closure_parameters",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "enum_variant_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "field_declaration_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "parameters",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "use_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "(",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ")",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "[",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "]",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "{",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "}",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ",",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ":",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "=>",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "_",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "ERROR",
+   "semantic_type": "PARSER_SYNTAX",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "range_pattern",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "wildcard_pattern",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "match_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "reference_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "struct_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "tuple_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "array_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "function_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "trait_object_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "tuple_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "generic_type",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "higher_ranked_trait_bound",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "lifetime",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "lifetime_parameter",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_arguments",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_parameter",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_parameters",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "where_clause",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "primitive_type",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "pointer_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "reference_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "scoped_type_identifier",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_identifier",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  }
+ ],
+ "javascript": [
+  {
+   "node_type": "?.",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "member_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "optional_chain",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "subscript_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "call_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "new_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "computed_property_name",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "parenthesized_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "sequence_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "class_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "class_expression",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "arrow_function",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "async_function_declaration",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "async_generator_function",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_declaration",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_expression",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "generator_function",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "generator_function_declaration",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "method_definition",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "method_signature",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "program",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "field_definition",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "lexical_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "optional_parameter",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "property_signature",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "required_parameter",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "variable_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "variable_declarator",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "catch_clause",
+   "semantic_type": "ERROR_CATCH",
+   "kind": "error"
+  },
+  {
+   "node_type": "finally_clause",
+   "semantic_type": "ERROR_FINALLY",
+   "kind": "error"
+  },
+  {
+   "node_type": "throw_statement",
+   "semantic_type": "ERROR_THROW",
+   "kind": "error"
+  },
+  {
+   "node_type": "try_statement",
+   "semantic_type": "ERROR_TRY",
+   "kind": "error"
+  },
+  {
+   "node_type": "empty_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "expression_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "labeled_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "export_clause",
+   "semantic_type": "EXTERNAL_EXPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "export_default_declaration",
+   "semantic_type": "EXTERNAL_EXPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "export_specifier",
+   "semantic_type": "EXTERNAL_EXPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "export_statement",
+   "semantic_type": "EXTERNAL_EXPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_attribute",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_clause",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_default_specifier",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_specifier",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_statement",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "named_imports",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "namespace_import",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "case_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "conditional_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "default_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "else_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "if_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "switch_case",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "switch_default",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "switch_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "ternary_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "break_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "continue_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "return_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "do_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_in_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_of_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "while_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "await_expression",
+   "semantic_type": "FLOW_SYNC",
+   "kind": "flow"
+  },
+  {
+   "node_type": "yield_expression",
+   "semantic_type": "FLOW_SYNC",
+   "kind": "flow"
+  },
+  {
+   "node_type": "false",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "null",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "true",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "undefined",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "number",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "escape_sequence",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "regex",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "regex_flags",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "regex_pattern",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string_fragment",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "template_string",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "template_substitution",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "array",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "object",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "pair",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "property_assignment",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "hash_bang_line",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "property_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "shorthand_property_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "statement_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "meta_property",
+   "semantic_type": "NAME_SCOPED",
+   "kind": "name"
+  },
+  {
+   "node_type": "%",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "**",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "++",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "--",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>>",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "binary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "unary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "update_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": "OPERATOR_ARITHMETIC"
+  },
+  {
+   "node_type": "~",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "%=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&&=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "**=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "=>",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>>=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "??=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "assignment_expression",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "augmented_assignment_expression",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "=",
+   "kind": "OPERATOR_ASSIGNMENT"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": "="
+  },
+  {
+   "node_type": "!=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "!==",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "==",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "===",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "in",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "instanceof",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "!",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&&",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "?",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "??",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": ""
+  },
+  {
+   "node_type": "class_body",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "statement_block",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "switch_body",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "arguments",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "formal_parameters",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "\"",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "${",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "'",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "(",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ")",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "[",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "]",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "`",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "{",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "}",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ",",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ".",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ":",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "ERROR",
+   "semantic_type": "PARSER_SYNTAX",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "...",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "rest_parameter",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "rest_pattern",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "spread_element",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "array_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "assignment_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "object_assignment_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "object_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "pair_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "shorthand_property_identifier_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "type_arguments",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "predefined_type",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "non_null_expression",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_annotation",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_assertion",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_identifier",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  }
+ ],
+ "typescript": [
+  {
+   "node_type": "?.",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "member_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "optional_chain",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "subscript_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "call_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "instantiation_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "new_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "computed_property_name",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "parenthesized_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "sequence_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "abstract_class_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "class_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "class_expression",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "enum_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "interface_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "type_alias_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "abstract_method_signature",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "arrow_function",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "async_function_declaration",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "async_generator_function",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "call_signature",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "construct_signature",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_declaration",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_expression",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_signature",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "generator_function",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "generator_function_declaration",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "method_definition",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "method_signature",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "ambient_declaration",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "internal_module",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "module_declaration",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "namespace_declaration",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "program",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "enum_assignment",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "field_definition",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "index_signature",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "lexical_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "optional_parameter",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "parameter_property",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "property_signature",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "public_field_definition",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "required_parameter",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "variable_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "variable_declarator",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "catch_clause",
+   "semantic_type": "ERROR_CATCH",
+   "kind": "error"
+  },
+  {
+   "node_type": "finally_clause",
+   "semantic_type": "ERROR_FINALLY",
+   "kind": "error"
+  },
+  {
+   "node_type": "throw_statement",
+   "semantic_type": "ERROR_THROW",
+   "kind": "error"
+  },
+  {
+   "node_type": "try_statement",
+   "semantic_type": "ERROR_TRY",
+   "kind": "error"
+  },
+  {
+   "node_type": "empty_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "expression_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "labeled_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "export_clause",
+   "semantic_type": "EXTERNAL_EXPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "export_default_declaration",
+   "semantic_type": "EXTERNAL_EXPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "export_specifier",
+   "semantic_type": "EXTERNAL_EXPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "export_statement",
+   "semantic_type": "EXTERNAL_EXPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "export_type_clause",
+   "semantic_type": "EXTERNAL_EXPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "external_module_reference",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_attribute",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_clause",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_default_specifier",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_require_clause",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_specifier",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_statement",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_type_clause",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "named_imports",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "namespace_import",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "case_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "conditional_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "default_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "else_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "if_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "switch_case",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "switch_default",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "switch_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "ternary_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "break_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "continue_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "return_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "do_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_in_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_of_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "while_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "await_expression",
+   "semantic_type": "FLOW_SYNC",
+   "kind": "flow"
+  },
+  {
+   "node_type": "yield_expression",
+   "semantic_type": "FLOW_SYNC",
+   "kind": "flow"
+  },
+  {
+   "node_type": "false",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "null",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "true",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "undefined",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "number",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "escape_sequence",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "regex",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "regex_flags",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "regex_pattern",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string_fragment",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "template_literal_type_span",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "template_string",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "template_substitution",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "array",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "object",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "pair",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "property_assignment",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "meta",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "hash_bang_line",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "decorator",
+   "semantic_type": "NAME_ATTRIBUTE",
+   "kind": "name"
+  },
+  {
+   "node_type": "identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "property_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "shorthand_property_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "statement_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "target",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "nested_identifier",
+   "semantic_type": "NAME_QUALIFIED",
+   "kind": "name"
+  },
+  {
+   "node_type": "meta_property",
+   "semantic_type": "NAME_SCOPED",
+   "kind": "name"
+  },
+  {
+   "node_type": "%",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "**",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "++",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "--",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>>",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "binary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "unary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "update_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": "OPERATOR_ARITHMETIC"
+  },
+  {
+   "node_type": "~",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "%=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&&=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "**=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "=>",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>>=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "??=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "assignment_expression",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "augmented_assignment_expression",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "=",
+   "kind": "OPERATOR_ASSIGNMENT"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": "="
+  },
+  {
+   "node_type": "!=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "!==",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "==",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "===",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "in",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "instanceof",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "!",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&&",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "?",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "?:",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "??",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": ""
+  },
+  {
+   "node_type": "class_body",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "enum_body",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "interface_body",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "statement_block",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "switch_body",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "arguments",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "declaration_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "formal_parameters",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "\"",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "${",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "'",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "(",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ")",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "[",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "]",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "`",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "{",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "}",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ",",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ".",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ":",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "ERROR",
+   "semantic_type": "PARSER_SYNTAX",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "...",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "rest_parameter",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "rest_pattern",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "spread_element",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "array_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "assignment_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "object_assignment_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "object_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "pair_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "shorthand_property_identifier_pattern",
+   "semantic_type": "PATTERN_DESTRUCTURE",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "array_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "constructor_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "function_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "intersection_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "object_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "template_literal_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "template_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "tuple_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "union_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "generic_type",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_arguments",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_parameter",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_parameters",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "boolean_literal_type",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "literal_type",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "number_literal_type",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "predefined_type",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "string_literal_type",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "as_expression",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "asserts_annotation",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "class_heritage",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "conditional_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "constraint",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "default_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "extends_clause",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "extends_type_clause",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "flow_maybe_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "implements_clause",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "index_type_query",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "indexed_access_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "infer_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "keyof_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "lookup_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "mapped_type_clause",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "nested_type_identifier",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "non_null_expression",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "opting_type_annotation",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "parenthesized_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "readonly_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "satisfies_expression",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "this_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_annotation",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_assertion",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_identifier",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_predicate",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_predicate_annotation",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_query",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "typeof_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  }
+ ],
+ "cpp": [
+  {
+   "node_type": "->",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "::",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "field_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "pointer_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "subscript_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "call_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "delete_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "new_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "lambda_capture_specifier",
+   "semantic_type": "COMPUTATION_CLOSURE",
+   "kind": "access"
+  },
+  {
+   "node_type": "lambda_declarator",
+   "semantic_type": "COMPUTATION_CLOSURE",
+   "kind": "access"
+  },
+  {
+   "node_type": "lambda_default_capture",
+   "semantic_type": "COMPUTATION_CLOSURE",
+   "kind": "access"
+  },
+  {
+   "node_type": "cast_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "parenthesized_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "class_specifier",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "enum_specifier",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "struct_specifier",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "type_definition",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "union_specifier",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "constructor_definition",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "default_method_clause",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "delete_method_clause",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "destructor_definition",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_declarator",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_definition",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "lambda_expression",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "method_definition",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "preproc_function_def",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "template_function",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "template_method",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "namespace_definition",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "translation_unit",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "alias_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "enumerator",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "field_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "init_declarator",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "optional_parameter_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "parameter_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "catch_clause",
+   "semantic_type": "ERROR_CATCH",
+   "kind": "error"
+  },
+  {
+   "node_type": "throw_statement",
+   "semantic_type": "ERROR_THROW",
+   "kind": "error"
+  },
+  {
+   "node_type": "try_statement",
+   "semantic_type": "ERROR_TRY",
+   "kind": "error"
+  },
+  {
+   "node_type": "expression_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "preproc_include",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "system_lib_string",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "using_declaration",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "?",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "case_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "condition_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "conditional_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "else_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "if_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "switch_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "break_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "continue_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "goto_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "return_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "do_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_range_loop",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "while_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "co_await_expression",
+   "semantic_type": "FLOW_SYNC",
+   "kind": "flow"
+  },
+  {
+   "node_type": "co_return_statement",
+   "semantic_type": "FLOW_SYNC",
+   "kind": "flow"
+  },
+  {
+   "node_type": "co_yield_expression",
+   "semantic_type": "FLOW_SYNC",
+   "kind": "flow"
+  },
+  {
+   "node_type": "false",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "null",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "nullptr",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "true",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "number_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "char_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "character",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "concatenated_string",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "escape_sequence",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "raw_string_content",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "raw_string_delimiter",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "raw_string_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string_content",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "compound_literal_expression",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "field_initializer",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "initializer_list",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "access_specifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "explicit_function_specifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "linkage_specification",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "storage_class_specifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "type_qualifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "virtual_specifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#define",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#elif",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#else",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#endif",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#if",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#ifdef",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#ifndef",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#include",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#pragma",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#undef",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "preproc_arg",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "preproc_call",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "preproc_def",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "preproc_directive",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "preproc_else",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "preproc_if",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "preproc_ifdef",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "preproc_ifndef",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "destructor_name",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "field_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "operator_name",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "namespace_identifier",
+   "semantic_type": "NAME_QUALIFIED",
+   "kind": "name"
+  },
+  {
+   "node_type": "qualified_identifier",
+   "semantic_type": "NAME_QUALIFIED",
+   "kind": "name"
+  },
+  {
+   "node_type": "scoped_identifier",
+   "semantic_type": "NAME_SCOPED",
+   "kind": "name"
+  },
+  {
+   "node_type": "this",
+   "semantic_type": "NAME_SCOPED",
+   "kind": "name"
+  },
+  {
+   "node_type": "%",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "++",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "--",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "binary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "unary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "update_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": "OPERATOR_ARITHMETIC"
+  },
+  {
+   "node_type": "~",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "%=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "assignment_expression",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "=",
+   "kind": "OPERATOR_ASSIGNMENT"
+  },
+  {
+   "node_type": "!=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "==",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "!",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&&",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": ""
+  },
+  {
+   "node_type": "compound_statement",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "argument_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "declaration_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "enumerator_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "field_declaration_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "field_initializer_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "parameter_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "preproc_params",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "subscript_argument_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "template_argument_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "template_parameter_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  }
+ ],
+ "c": [
+  {
+   "node_type": "->",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "::",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "field_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "pointer_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "subscript_designator",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "subscript_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "call_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "offsetof_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "preproc_call",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "cast_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "gnu_asm_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "gnu_asm_input_operand",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "gnu_asm_output_operand",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "parenthesized_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "enum_specifier",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "struct_specifier",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "type_definition",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "typedef_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "union_specifier",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_definition",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "preproc_function_def",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "translation_unit",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "enumerator",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "field_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "init_declarator",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "parameter_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "preproc_def",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "__asm__",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "expression_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "labeled_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "preproc_include",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "system_lib_string",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "?",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "case_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "conditional_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "else_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "if_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "preproc_elif",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "preproc_else",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "preproc_if",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "preproc_ifdef",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "switch_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "break_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "continue_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "goto_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "return_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "do_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "while_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "NULL",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "false",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "null",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "nullptr",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "true",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "number_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "char_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "character",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "concatenated_string",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "escape_sequence",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string_content",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "compound_literal_expression",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "initializer_list",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "__attribute__",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "__declspec",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "__forceinline",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "__stdcall",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "alignas_qualifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "attribute",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "attribute_declaration",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "attribute_specifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "gnu_asm_qualifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "linkage_specification",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "ms_call_modifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "ms_declspec_modifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "ms_pointer_modifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "ms_restrict_modifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "storage_class_specifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "type_qualifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#define",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#elif",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#else",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#endif",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#if",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#ifdef",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#ifndef",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#include",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#pragma",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "#undef",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "defined",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "preproc_arg",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "preproc_defined",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "preproc_directive",
+   "semantic_type": "METADATA_DIRECTIVE",
+   "kind": "comment"
+  },
+  {
+   "node_type": "field_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "statement_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "%",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "++",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "--",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "binary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "sizeof_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "unary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "update_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": "OPERATOR_ARITHMETIC"
+  },
+  {
+   "node_type": "~",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "%=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "assignment_expression",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "=",
+   "kind": "OPERATOR_ASSIGNMENT"
+  },
+  {
+   "node_type": "!=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "==",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "!",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&&",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": ""
+  },
+  {
+   "node_type": "compound_statement",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "argument_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "comma_expression",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "declaration_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "enumerator_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "field_declaration_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "gnu_asm_clobber_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "gnu_asm_input_operand_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "gnu_asm_output_operand_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "parameter_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "preproc_params",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "\"",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "'",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "(",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ")",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "L\"",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "[",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "[[",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "]",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "]]",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "u\"",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "u'",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "{",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "}",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ",",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ".",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ":",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  }
+ ],
+ "sql": [
+  {
+   "node_type": "::",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "subscript",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "function_call",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "invocation",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "window_function",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "binary_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "parenthesized_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "term",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "create_materialized_view",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "create_query",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "create_table",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "create_type",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "create_view",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "create_function",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "create_trigger",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "create_database",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "create_schema",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "program",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "column_definition",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "create_index",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "create_role",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "create_sequence",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "alter_table",
+   "semantic_type": "EXECUTION_MUTATION",
+   "kind": "statement"
+  },
+  {
+   "node_type": "delete_statement",
+   "semantic_type": "EXECUTION_MUTATION",
+   "kind": "statement"
+  },
+  {
+   "node_type": "insert_statement",
+   "semantic_type": "EXECUTION_MUTATION",
+   "kind": "statement"
+  },
+  {
+   "node_type": "rename_object",
+   "semantic_type": "EXECUTION_MUTATION",
+   "kind": "statement"
+  },
+  {
+   "node_type": "returning",
+   "semantic_type": "EXECUTION_MUTATION",
+   "kind": "statement"
+  },
+  {
+   "node_type": "update_statement",
+   "semantic_type": "EXECUTION_MUTATION",
+   "kind": "statement"
+  },
+  {
+   "node_type": "drop_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "transaction",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "create_extension",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "filter_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "having_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "where_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "boolean_literal",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "literal",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "number_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "filename",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "constraint",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "constraints",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "table_option",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "marginalia",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "column",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "column_reference",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "field",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "parameter",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "object_reference",
+   "semantic_type": "NAME_QUALIFIED",
+   "kind": "name"
+  },
+  {
+   "node_type": "relation",
+   "semantic_type": "NAME_QUALIFIED",
+   "kind": "name"
+  },
+  {
+   "node_type": "table_reference",
+   "semantic_type": "NAME_QUALIFIED",
+   "kind": "name"
+  },
+  {
+   "node_type": "%",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "op_other",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "op_unary_other",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "unary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ":=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "assignment",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "!=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<>",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "between_expression",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "is_not",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "not_in",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "not_like",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "column_definitions",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "direction",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "function_argument",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "function_arguments",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "index_fields",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "order_by",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "order_by_clause",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "order_target",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "ordered_columns",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "(",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ")",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "[",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "]",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ",",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ".",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ":",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "group_by",
+   "semantic_type": "TRANSFORM_AGGREGATION",
+   "kind": "transform"
+  },
+  {
+   "node_type": "group_by_clause",
+   "semantic_type": "TRANSFORM_AGGREGATION",
+   "kind": "transform"
+  },
+  {
+   "node_type": "partition_by",
+   "semantic_type": "TRANSFORM_AGGREGATION",
+   "kind": "transform"
+  },
+  {
+   "node_type": "set_operation",
+   "semantic_type": "TRANSFORM_AGGREGATION",
+   "kind": "transform"
+  },
+  {
+   "node_type": "cross_join",
+   "semantic_type": "TRANSFORM_ITERATION",
+   "kind": "transform"
+  },
+  {
+   "node_type": "lateral_cross_join",
+   "semantic_type": "TRANSFORM_ITERATION",
+   "kind": "transform"
+  },
+  {
+   "node_type": "all_fields",
+   "semantic_type": "TRANSFORM_PROJECTION",
+   "kind": "transform"
+  },
+  {
+   "node_type": "cte",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "frame_definition",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "offset",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "select_expression",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "select_statement",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "subquery",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "window_clause",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "window_frame",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "window_specification",
+   "semantic_type": "TRANSFORM_QUERY",
+   "kind": "transform"
+  },
+  {
+   "node_type": "array",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "array_size_definition",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "bigint",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "char",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "decimal",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "double",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "float",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "int",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "interval",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "smallint",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "time",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "timestamp",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "tinyint",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  }
+ ],
+ "bash": [
+  {
+   "node_type": "expansion",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "simple_expansion",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "string_expansion",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "command_substitution",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "process_substitution",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "arithmetic_expansion",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "brace_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "parenthesized_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "test_command",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "function_definition",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "program",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "declaration_command",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "unset_command",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "variable_assignment",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "&",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "command",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "file_redirect",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "heredoc_redirect",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "herestring_redirect",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "pipeline",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "simple_command",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "case_item",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "case_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "elif_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "else_clause",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "if_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "break_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "continue_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "exit_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "return_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "c_style_for_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "while_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "number",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "ansii_c_string",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "concatenation",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "raw_string",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "array",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "special_variable_name",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "variable_name",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "word",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "postfix_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "unary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "binary_expression",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&&",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": ""
+  },
+  {
+   "node_type": "compound_statement",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "do_group",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "subshell",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "(",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ")",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "[",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "]",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "{",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "}",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "$",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": "PARSER_PUNCTUATION"
+  },
+  {
+   "node_type": "ERROR",
+   "semantic_type": "PARSER_SYNTAX",
+   "kind": "syntax"
+  }
+ ],
+ "java": [
+  {
+   "node_type": "::",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "array_access",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "field_access",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "method_reference",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "method_invocation",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "object_creation_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "parenthesized_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "annotation_type_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "class_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "enum_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "interface_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "record_declaration",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "constructor_declaration",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "instance_initializer",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "lambda_expression",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "method_declaration",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "static_initializer",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "package_declaration",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "program",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "catch_formal_parameter",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "enum_constant",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "field_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "formal_parameter",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "local_variable_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "spread_parameter",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "variable_declarator",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "catch_clause",
+   "semantic_type": "ERROR_CATCH",
+   "kind": "error"
+  },
+  {
+   "node_type": "catch_type",
+   "semantic_type": "ERROR_CATCH",
+   "kind": "error"
+  },
+  {
+   "node_type": "finally_clause",
+   "semantic_type": "ERROR_FINALLY",
+   "kind": "error"
+  },
+  {
+   "node_type": "throw_statement",
+   "semantic_type": "ERROR_THROW",
+   "kind": "error"
+  },
+  {
+   "node_type": "try_statement",
+   "semantic_type": "ERROR_TRY",
+   "kind": "error"
+  },
+  {
+   "node_type": "try_with_resources_statement",
+   "semantic_type": "ERROR_TRY",
+   "kind": "error"
+  },
+  {
+   "node_type": "expression_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "import_declaration",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "?",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "if_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "switch_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "switch_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "ternary_expression",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "break_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "continue_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "return_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "yield_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "do_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "enhanced_for_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "while_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "false",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "null_literal",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "true",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "binary_integer_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "decimal_floating_point_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "decimal_integer_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "hex_floating_point_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "hex_integer_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "octal_integer_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "character_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string_fragment",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "string_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "annotation",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "marker_annotation",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "modifier",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "modifiers",
+   "semantic_type": "METADATA_ANNOTATION",
+   "kind": "comment"
+  },
+  {
+   "node_type": "block_comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "line_comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "@",
+   "semantic_type": "NAME_ATTRIBUTE",
+   "kind": "name"
+  },
+  {
+   "node_type": "identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "scoped_identifier",
+   "semantic_type": "NAME_QUALIFIED",
+   "kind": "name"
+  },
+  {
+   "node_type": "%",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "++",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "--",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>>",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "binary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "unary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "update_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": "OPERATOR_ARITHMETIC"
+  },
+  {
+   "node_type": "~",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "%=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "->",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>>=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "assignment_expression",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "=",
+   "kind": "OPERATOR_ASSIGNMENT"
+  },
+  {
+   "node_type": "!=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "==",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "!",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&&",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": ""
+  },
+  {
+   "node_type": "block",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "class_body",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "constructor_body",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "enum_body",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "interface_body",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "annotation_argument_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "argument_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "formal_parameters",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "\"",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "'",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "(",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ")",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "[",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "]",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "{",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "}",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ",",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ".",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ":",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "array_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "dimensions",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "generic_type",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_arguments",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "boolean_type",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "floating_point_type",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "integral_type",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "void_type",
+   "semantic_type": "TYPE_PRIMITIVE",
+   "kind": "type"
+  },
+  {
+   "node_type": "scoped_type_identifier",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_identifier",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  }
+ ],
+ "go": [
+  {
+   "node_type": "index_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "selector_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "slice_expression",
+   "semantic_type": "COMPUTATION_ACCESS",
+   "kind": "access"
+  },
+  {
+   "node_type": "call_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "type_conversion_expression",
+   "semantic_type": "COMPUTATION_CALL",
+   "kind": "access"
+  },
+  {
+   "node_type": "parenthesized_expression",
+   "semantic_type": "COMPUTATION_EXPRESSION",
+   "kind": "access"
+  },
+  {
+   "node_type": "interface_type",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "struct_type",
+   "semantic_type": "DEFINITION_CLASS",
+   "kind": "definition"
+  },
+  {
+   "node_type": "func_literal",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "function_declaration",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "method_declaration",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "method_elem",
+   "semantic_type": "DEFINITION_FUNCTION",
+   "kind": "definition"
+  },
+  {
+   "node_type": "package_clause",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "source_file",
+   "semantic_type": "DEFINITION_MODULE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "const_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "const_spec",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "field_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "parameter_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "short_var_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "var_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "var_spec",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "variadic_parameter_declaration",
+   "semantic_type": "DEFINITION_VARIABLE",
+   "kind": "definition"
+  },
+  {
+   "node_type": "type_declaration",
+   "semantic_type": "EXECUTION_DECLARATION",
+   "kind": "statement"
+  },
+  {
+   "node_type": "type_spec",
+   "semantic_type": "EXECUTION_DECLARATION",
+   "kind": "statement"
+  },
+  {
+   "node_type": "dec_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "expression_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "inc_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "labeled_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "receive_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "send_statement",
+   "semantic_type": "EXECUTION_STATEMENT",
+   "kind": "statement"
+  },
+  {
+   "node_type": "import_declaration",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "import_spec",
+   "semantic_type": "EXTERNAL_IMPORT",
+   "kind": "external"
+  },
+  {
+   "node_type": "default_case",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "expression_case",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "expression_switch_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "if_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "select_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "switch_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "type_switch_statement",
+   "semantic_type": "FLOW_CONDITIONAL",
+   "kind": "flow"
+  },
+  {
+   "node_type": "break_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "continue_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "goto_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "return_statement",
+   "semantic_type": "FLOW_JUMP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_clause",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "for_statement",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "range_clause",
+   "semantic_type": "FLOW_LOOP",
+   "kind": "flow"
+  },
+  {
+   "node_type": "defer_statement",
+   "semantic_type": "FLOW_SYNC",
+   "kind": "flow"
+  },
+  {
+   "node_type": "go_statement",
+   "semantic_type": "FLOW_SYNC",
+   "kind": "flow"
+  },
+  {
+   "node_type": "false",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "nil",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "true",
+   "semantic_type": "LITERAL_ATOMIC",
+   "kind": "literal"
+  },
+  {
+   "node_type": "float_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "imaginary_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "int_literal",
+   "semantic_type": "LITERAL_NUMBER",
+   "kind": "literal"
+  },
+  {
+   "node_type": "escape_sequence",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "interpreted_string_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "interpreted_string_literal_content",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "raw_string_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "rune_literal",
+   "semantic_type": "LITERAL_STRING",
+   "kind": "literal"
+  },
+  {
+   "node_type": "composite_literal",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "literal_element",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "literal_value",
+   "semantic_type": "LITERAL_STRUCTURED",
+   "kind": "literal"
+  },
+  {
+   "node_type": "block_comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "line_comment",
+   "semantic_type": "METADATA_COMMENT",
+   "kind": "comment"
+  },
+  {
+   "node_type": "field_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "label_name",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "package_identifier",
+   "semantic_type": "NAME_IDENTIFIER",
+   "kind": "name"
+  },
+  {
+   "node_type": "%",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&^",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "++",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "--",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<<",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">>",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "^",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "binary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "unary_expression",
+   "semantic_type": "OPERATOR_ARITHMETIC",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": "OPERATOR_ARITHMETIC"
+  },
+  {
+   "node_type": "&^=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "*=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "+=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "-=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "/=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": ":=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "=",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "assignment_statement",
+   "semantic_type": "OPERATOR_ASSIGNMENT",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "=",
+   "kind": "OPERATOR_ASSIGNMENT"
+  },
+  {
+   "node_type": "!=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "<=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "==",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": ">=",
+   "semantic_type": "OPERATOR_COMPARISON",
+   "kind": "operator"
+  },
+  {
+   "node_type": "!",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "&&",
+   "semantic_type": "OPERATOR_LOGICAL",
+   "kind": "operator"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "",
+   "kind": ""
+  },
+  {
+   "node_type": "block",
+   "semantic_type": "ORGANIZATION_BLOCK",
+   "kind": "block"
+  },
+  {
+   "node_type": "argument_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "expression_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "field_declaration_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "import_spec_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "parameter_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "var_spec_list",
+   "semantic_type": "ORGANIZATION_LIST",
+   "kind": "block"
+  },
+  {
+   "node_type": "\"",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "(",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ")",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "[",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "]",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "{",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "}",
+   "semantic_type": "PARSER_DELIMITER",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ",",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ".",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": ":",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "dot",
+   "semantic_type": "PARSER_PUNCTUATION",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "ERROR",
+   "semantic_type": "PARSER_SYNTAX",
+   "kind": "syntax"
+  },
+  {
+   "node_type": "...",
+   "semantic_type": "PATTERN_COLLECT",
+   "kind": "pattern"
+  },
+  {
+   "node_type": "array_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "channel_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "function_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "map_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "slice_type",
+   "semantic_type": "TYPE_COMPOSITE",
+   "kind": "type"
+  },
+  {
+   "node_type": "generic_type",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_arguments",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_instantiation_expression",
+   "semantic_type": "TYPE_GENERIC",
+   "kind": "type"
+  },
+  {
+   "node_type": "parenthesized_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "pointer_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "qualified_type",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_assertion_expression",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_elem",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  },
+  {
+   "node_type": "type_identifier",
+   "semantic_type": "TYPE_REFERENCE",
+   "kind": "type"
+  }
+ ]
+}

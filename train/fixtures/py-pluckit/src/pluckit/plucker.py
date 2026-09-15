@@ -1,0 +1,358 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from pluckit._context import _Context
+from pluckit._sql import _esc, ast_select_from_sql, ast_select_sql
+from pluckit.doc_selection import DocSelection
+from pluckit.pluckins.base import Pluckin, PluckinRegistry
+from pluckit.types import PluckerError
+
+if TYPE_CHECKING:
+    import duckdb
+
+    from pluckit.pluckins.viewer import View
+    from pluckit.selection import Selection
+    from pluckit.source import Source
+
+
+class Plucker:
+    """Composable entry point for pluckit.
+
+    Args:
+        code: Default source — glob pattern, file path, or DuckDB table/view name.
+        docs: Default docs source — glob pattern for markdown files.
+        plugins: Pluckin classes or instances to register.
+        repo: Repository root (defaults to cwd). Globs resolve relative to this.
+        db: Existing DuckDB connection to reuse.
+        peek: How much source text to materialize into the ``peek`` column
+            (``'smart'`` bounded preview by default, ``'full'`` for whole
+            nodes). Only applies when *cache* is enabled — the uncached path
+            goes through ``ast_select``, which always returns a NULL peek.
+        profile: Fledgling profile (e.g. ``'analyst'``). When given without
+            *modules*, fledgling loads the profile's default module set.
+        modules: Fledgling SQL modules to load (e.g. ``['source', 'code']``).
+        init: Fledgling init-file path, ``False`` to skip, ``None`` to auto-discover.
+    """
+
+    def __init__(
+        self,
+        code: str | None = None,
+        *,
+        docs: str | None = None,
+        plugins: list[type[Pluckin] | Pluckin] | None = None,
+        repo: str | None = None,
+        db: duckdb.DuckDBPyConnection | None = None,
+        cache: bool | str = False,
+        peek: str | None = None,
+        profile: str | None = None,
+        modules: list[str] | None = None,
+        init: str | bool | None = False,
+    ):
+        import os
+
+        # Resolve cache path
+        db_path: str | None = None
+        if cache:
+            effective_repo = repo or os.getcwd()
+            if isinstance(cache, str):
+                db_path = cache
+            else:
+                db_path = os.path.join(effective_repo, ".pluckit.duckdb")
+
+        self._ctx = _Context(
+            repo=repo, db=db, db_path=db_path,
+            profile=profile, modules=modules, init=init,
+        )
+        self._registry = PluckinRegistry()
+        self._code_source = code
+        self._docs_source = docs
+
+        self._cache = None
+        if cache:
+            from pluckit.cache import ASTCache
+            self._cache = ASTCache(self._ctx.db, peek=peek)
+
+        for p in (plugins or []):
+            instance = p() if isinstance(p, type) else p
+            self._registry.register(instance)
+
+    @property
+    def connection(self):
+        """The underlying database connection. **Public API.**
+
+        When fledgling is installed, this is a :class:`fledgling.Connection`
+        proxy exposing the stable ``.con`` (raw duckdb), ``.tools``, and
+        ``.ensure_fts()`` accessors plus auto-generated macro wrappers (e.g.
+        ``plucker.connection.project_overview()``). Without fledgling it is a
+        bare :class:`duckdb.DuckDBPyConnection` with none of those — so any
+        consumer that needs ``.con``/``.tools`` (e.g. squackit) must declare a
+        direct dependency on ``fledgling-mcp``.
+        """
+        return self._ctx.db
+
+    @property
+    def pluckins(self):
+        """The loaded pluckin instances, in registration order. **Public API.**
+
+        Stable accessor for downstream consumers (e.g. squackit) that enumerate
+        pluckins for tool/integration discovery — a pluckin may expose a
+        ``squackit_tools`` attribute that such consumers collect. Use this
+        instead of reaching into the private ``._registry``.
+        """
+        return self._registry.pluckins
+
+    def fts_collection(self, name: str):
+        """Get a named FTS collection handle.
+
+        Requires fledgling. Returns an object with ``.create(query)``
+        and ``.search(query)`` for building and querying BM25 indexes.
+        """
+        from pluckit.fts import FtsCollection
+        con = self.connection
+        if not hasattr(con, 'create_fts_collection'):
+            from pluckit.types import PluckerError
+            raise PluckerError(
+                "Named FTS collections require fledgling. "
+                "Install with: pip install fledgling-mcp"
+            )
+        return FtsCollection(con, name)
+
+    @property
+    def fn(self):
+        """Direct access to fledgling macro functions.
+
+        Exposes every fledgling macro as a callable. Globs and
+        parameters are always passed explicitly::
+
+            pluck.fn.doc_outline("docs/**/*.md")
+            pluck.fn.search_code("src/**/*.py", "auth")
+            pluck.fn.find_definitions("src/**/*.py")
+        """
+        from pluckit.fn import FnAccessor
+        return FnAccessor(self._ctx.db)
+
+    def docs(self) -> DocSelection:
+        """Query the configured docs source.
+
+        Returns a :class:`DocSelection` backed by
+        ``read_markdown_sections`` over the glob passed to
+        ``Plucker(docs=...)``.
+        """
+        if self._docs_source is None:
+            raise PluckerError(
+                "No docs source configured. "
+                "Use Plucker(docs='**/*.md') or Plucker(docs='docs/**/*.md')"
+            )
+        # read_markdown_sections comes from the duckdb_markdown community
+        # extension — lazy-load on first use so Pluckers that never call
+        # docs() don't pay the install/load cost.
+        self._ctx._ensure_markdown_extension()
+        import os
+        glob = self._docs_source
+        if not os.path.isabs(glob):
+            glob = os.path.join(self._ctx.repo, glob)
+        rel = self._ctx.db.sql(
+            f"SELECT * FROM read_markdown_sections("
+            f"'{_esc(glob)}', include_content := true, include_filepath := true)"
+        )
+        return DocSelection(rel, self._ctx, docs_glob=self._docs_source)
+
+    def find(self, selector: str) -> Selection:
+        """Query the configured code source."""
+        if self._code_source is None:
+            raise PluckerError(
+                "No source configured. "
+                "Use Plucker(code='**/*.py') or .source('path')"
+            )
+        rel = self._resolve_source(self._code_source, selector)
+        from pluckit.selection import Selection
+        return Selection(rel, self._ctx, self._registry, _op=("find", (selector,), {}))
+
+    def source(self, path: str) -> Source:
+        """Create a one-off Source for a specific query."""
+        from pluckit.source import Source
+        return Source(path, self._ctx, self._registry)
+
+    def view(self, query: str, *, format: str = "markdown") -> View:
+        """Render matched code regions from a viewer query.
+
+        Requires the AstViewer plugin to be registered. Convenience wrapper
+        that delegates to the plugin if present. Returns a :class:`View`
+        object — see ``pluckit.pluckins.viewer.View`` for the full surface.
+        """
+        if "view" not in self._registry.methods:
+            raise PluckerError(
+                "view() requires the AstViewer plugin. "
+                "Use: Plucker(code=..., plugins=[AstViewer])"
+            )
+        plugin, method_name = self._registry.methods["view"]
+        method = getattr(plugin, method_name)
+        return method(self, query, format=format)
+
+    def __getattr__(self, name: str):
+        """Delegate unknown attributes to registered plugins."""
+        # __getattr__ is only called when normal attribute lookup fails,
+        # so self._registry should always exist by this point.
+        registry = self.__dict__.get("_registry")
+        if registry is not None and name in registry.methods:
+            plugin, method_name = registry.methods[name]
+            method = getattr(plugin, method_name)
+            return lambda *args, **kwargs: method(self, *args, **kwargs)
+
+        if registry is not None:
+            provider = registry.method_provider(name)
+            if provider:
+                raise PluckerError(
+                    f"{name}() requires the {provider} plugin. "
+                    f"Use: Plucker(code=..., plugins=[{provider}])"
+                )
+
+        raise AttributeError(f"Plucker has no method {name!r}")
+
+    def to_dict(self) -> dict:
+        """Serialize constructor args (not the live connection)."""
+        import os
+
+        d: dict = {}
+        if self._code_source:
+            d["code"] = self._code_source
+        if self._docs_source:
+            d["docs"] = self._docs_source
+        # Extract unique plugin names from registered plugins
+        plugin_names: list[str] = []
+        seen: set[int] = set()
+        for (plugin, _method_name) in self._registry.methods.values():
+            if id(plugin) in seen:
+                continue
+            seen.add(id(plugin))
+            name = getattr(plugin, "name", None) or type(plugin).__name__
+            if name and name not in plugin_names:
+                plugin_names.append(name)
+        if plugin_names:
+            d["plugins"] = plugin_names
+        if self._ctx.repo and self._ctx.repo != os.getcwd():
+            d["repo"] = self._ctx.repo
+        return d
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Plucker:
+        """Reconstruct a Plucker from a serialized dict."""
+        from pluckit.pluckins.base import resolve_plugins
+
+        plugin_classes = resolve_plugins(data.get("plugins", []))
+        return cls(
+            code=data.get("code"),
+            docs=data.get("docs"),
+            plugins=plugin_classes,
+            repo=data.get("repo"),
+        )
+
+    def to_json(self, **kwargs) -> str:
+        """Serialize to a JSON string."""
+        import json as _json
+
+        return _json.dumps(self.to_dict(), **kwargs)
+
+    @classmethod
+    def from_json(cls, text: str) -> Plucker:
+        """Reconstruct a Plucker from a JSON string."""
+        import json as _json
+
+        return cls.from_dict(_json.loads(text))
+
+    def to_argv(self) -> list[str]:
+        """Convert to CLI argument tokens."""
+        tokens: list[str] = []
+        d = self.to_dict()
+        for p in d.get("plugins", []):
+            tokens.extend(["--plugin", p])
+        if d.get("repo"):
+            tokens.extend(["--repo", d["repo"]])
+        if d.get("docs"):
+            tokens.extend(["--docs", d["docs"]])
+        if d.get("code"):
+            tokens.append(d["code"])
+        return tokens
+
+    @classmethod
+    def from_argv(cls, tokens: list[str]) -> Plucker:
+        """Parse Plucker constructor args from CLI tokens.
+
+        Consumes --plugin/--repo flags and a source positional; ignores
+        any step-name tokens that might follow.
+        """
+        from pluckit.pluckins.base import resolve_plugins
+
+        plugins: list[str] = []
+        repo: str | None = None
+        docs: str | None = None
+        code: str | None = None
+        i = 0
+        n = len(tokens)
+        while i < n:
+            tok = tokens[i]
+            if tok in ("--plugin", "-p"):
+                if i + 1 < n:
+                    plugins.append(tokens[i + 1])
+                    i += 2
+                    continue
+                i += 1
+                continue
+            if tok in ("--repo", "-r"):
+                if i + 1 < n:
+                    repo = tokens[i + 1]
+                    i += 2
+                    continue
+                i += 1
+                continue
+            if tok == "--docs":
+                if i + 1 < n:
+                    docs = tokens[i + 1]
+                    i += 2
+                    continue
+                i += 1
+                continue
+            # First non-flag token is the source
+            if not tok.startswith("-") and code is None:
+                code = tok
+            i += 1
+        return cls(
+            code=code,
+            docs=docs,
+            plugins=resolve_plugins(plugins),
+            repo=repo,
+        )
+
+    def _resolve_source(self, source: str, selector: str):
+        """Resolve source string to a DuckDB relation.
+
+        1. Contains * or / → glob → read_ast with selector
+        2. No wildcards → check if DuckDB table/view → use directly
+        3. Not a table → single file path → read_ast with selector
+        """
+        import os
+
+        resolved = source
+        if '*' not in source and '/' not in source:
+            # Could be table name or bare filename — check table first
+            exists = self._ctx.db.sql(
+                f"SELECT 1 FROM information_schema.tables "
+                f"WHERE table_name = '{_esc(source)}'"
+            ).fetchone()
+            if exists:
+                return self._ctx.db.sql(ast_select_from_sql(source, selector))
+            # Not a table — treat as file, resolve relative to repo
+            if not os.path.isabs(resolved):
+                resolved = os.path.join(self._ctx.repo, resolved)
+        else:
+            # Glob or path with separators — resolve relative to repo
+            if not os.path.isabs(resolved):
+                resolved = os.path.join(self._ctx.repo, resolved)
+
+        # Cache path: use ASTCache when enabled
+        if self._cache is not None:
+            table_name = self._cache.get_or_create(resolved)
+            return self._ctx.db.sql(ast_select_from_sql(table_name, selector))
+
+        return self._ctx.db.sql(ast_select_sql(resolved, selector))

@@ -15,6 +15,9 @@ PR #129 selector macros), on the `py-variety` fixture unless stated.
 | #132 | `is_boolean_literal()` tests `LITERAL_BOOLEAN`, which doesn't exist; `is_semantic_type` accepts unknown names silently; `.bool` includes `None` | t1-p10 held |
 | #133 | inside `:has` / `:not(:has)` an alias also matches syntax-only keyword tokens (`def`, `class`, `for`, `as`) | t4-p26 held |
 | #134 | `.comment` is kind-level `METADATA` (decorators, `as`) and undocumented | t3-p07 held |
+| #139 | classes match sub-nodes of their construct (C++ `.fn` adds `function_declarator`, `.import` adds `system_lib_string` / `import_clause`, Java `.catch` adds `catch_type`, Go `.mod` adds `package_clause`); Bash `.call` misses `command`, Python `.self` is empty | training pairs use node types instead (`train/LANGUAGE_NOTES.md`) |
+| #140 | names don't bind: Bash `command`, Go `struct_type` / `interface_type` (name is on `type_spec`), Java imports (name is the whole statement) | training pairs avoid `#name` on these |
+| #141 | `A + B` counts punctuation as siblings, so comma-separated siblings are never adjacent (`identifier + identifier` 0 vs `~` 113) | no `+` pairs between list elements |
 
 ## Not filed
 
@@ -142,6 +145,15 @@ On all 108 pairs with card v1c: gemma 88.0 %, Coder 77.8 %, the 9B 70.4 %.
   `.call#json.dumps` right after the card mentioned `time.sleep`). Only
   Qwen3.6-27B gained from v2. Card work beyond v1c is unlikely to pay; the
   remaining errors are the target for tuning.
+
+- **Card v1c's `.import ~ .var` example matches nothing in Python.** `.var`
+  (`assignment`) is always a child of `expression_statement` (824 on py-lackpy)
+  or `parameters` (289), never of the module, so an import's later siblings are
+  `expression_statement`s (`.import ~ expression_statement`: 75, `.import ~ .var`:
+  0). It is an illustration, not a scored pair, so no result changes, but it
+  shows a shape Python never produces; a later card revision should use
+  `.import ~ .fn` or `.import ~ expression_statement`. (Found by the Python
+  training-drafting agent.)
 
 **Device lessons folded into `qualify.py`.**
 - A chat request that overlapped the NPU embedding job's batches hung 108 s,

@@ -1,0 +1,29 @@
+{
+ "fixture": "js-rosetta",
+ "language": "javascript",
+ "files": 30,
+ "aliases": {
+  ".fn": "129 :: arrow_function=74, function_expression=29, function_declaration=21, generator_function_declaration=4, generator_function=1",
+  ".class": "0 :: ",
+  ".call": "239 :: call_expression=238, new_expression=1",
+  ".loop": "30 :: while_statement=19, for_statement=9, for_in_statement=2",
+  ".if": "46 :: ternary_expression=27, if_statement=14, else_clause=5",
+  ".jump": "58 :: return_statement=58",
+  ".try": "0 :: ",
+  ".catch": "0 :: ",
+  ".throw": "2 :: throw_statement=2",
+  ".import": "0 :: ",
+  ".str": "200 :: string=88, string_fragment=86, escape_sequence=8, template_substitution=5, regex=4, regex_pattern=4",
+  ".comment": "85 :: comment=85",
+  ".var": "202 :: variable_declarator=112, lexical_declaration=56, variable_declaration=34",
+  ".member": "195 :: member_expression=150, subscript_expression=45",
+  ".comp": "0 :: ",
+  ".mod": "30 :: program=30"
+ },
+ "lang": "javascript=30f/6440n",
+ "fnhasfn": "54 truth / 89 engine",
+ "fn_names": "range(7), factorial(4), fib(4), fizzBuzz(3), enumFromTo(2), perfectSquaresUpTo(2), replicate(2), unlines(2), Bottles(1), Just(1), Nothing(1), Tuple(1), Y(1), append(1), bool(1), bottleSong(1), caseOf(1), cycle(1), enumFrom(1), fb(1), fibonacciGenerator(1), finalDoors(1), flip(1), fmap(1), fst(1), go(1), integerFactors(1), isNull(1), length(1), liftA2(1), main(1), map(1), mapAccumL(1), product(1), snd(1), song(1), str(1), take(1), test(1), uncons(1), zip(1), zipWith(1)",
+ "class_names": "",
+ "call_names": "log(15), map(11), floor(10), concat(8), join(8), range(8), from(7), push(7), reduce(6), Array(5), apply(5), f(5), sqrt(5), take(5), factorial(4), fn(4), getElementById(4), replace(4), uncons(4), Number(3), fib(3), filter(3), forEach(3), slice(3), Just(2), Nothing(2), Tuple(2), enumFromTo(2), fb(2), fst(2), perfectSquaresUpTo(2), replicate(2), snd(2), song(2), toString(2), unlines(2), zipWith(2), Bottles(1), String(1), Y(1), appendChild(1), caseOf(1), createElement(1), cycle(1), dn(1), entries(1), enumFrom(1), every(1), exit(1), fibonacciGenerator(1), finalDoors(1), fizzBuzz(1), fmap(1), g(1), go(1), integerFactors(1), isArray(1), isFinite(1), length(1), liftA2(1)",
+ "node_types": "identifier(966), arguments(239), call_expression(238), binary_expression(189), property_identifier(179), number(172), =(165), member_expression(150), variable_declarator(112), expression_statement(96), parenthesized_expression(93), statement_block(89), formal_parameters(88), string(88), string_fragment(86), comment(85), arrow_function(74), =>(74), +(61), return_statement(58), lexical_declaration(56), subscript_expression(45), assignment_expression(45), >(42), variable_declaration(34), -(33), <(31), program(30), array(29), function_expression(29), ?(27), ternary_expression(27), function_declaration(21), *(21), update_expression(20), pair(20), while_statement(19), jsx_opening_element(17), </(14), if_statement(14), jsx_element(14), object(14), jsx_closing_element(14), ERROR(13), /(13)"
+}
