@@ -59,7 +59,15 @@ ISSUES = {"scope-selector": 145, "calls-scope": 146, "is-referenced": 147, "expo
           "chained-receiver": 149, "attr-in-has": 150, "has-keyword-tokens": 133, "called-by-lambda": 152,
           # refined call codes (Rust macro_invocation 211, JS new_expression 210) are not
           # = 'COMPUTATION_CALL' in the macros' call-graph conditions (#152, second comment)
-          "call-code-literal": 152}
+          "call-code-literal": 152,
+          # C++ templates (2026-09-15): template_function/template_method use sites are classified as
+          # definitions and the call around them has no name (#158); :templated is a proposal (#159)
+          "template-call-name": 158, "templated": 159}
+# Documented post-#158 semantics: a call whose callee is a template_function/template_method (directly,
+# or through qualified_identifier / field_expression) takes that template's name. Off by default so the
+# engine-agreement pipelines keep today's names; the template batch turns it on.
+DOCUMENTED_TEMPLATE_CALL_NAMES = False
+TEMPLATE_NAME_TYPES = {"template_function", "template_method"}
 _extra_fixtures = {}
 
 
@@ -208,6 +216,10 @@ def features(c):
                 fs.add("called-by-lambda")   # the engine's nearest-function test skips lambdas (#152)
             elif k in ("is-referenced", "exported"):
                 fs.add(k)
+            elif k == "templated":
+                fs.add("templated")
+                if st.get("name") is not None and st["sel"] in (".call", "call_expression"):
+                    fs.add("template-call-name")
             elif k in ("has", "not-has"):
                 fs.add("has-keyword-tokens")
                 if arg.get("attrs") or arg.get("pseudos"):
@@ -250,7 +262,7 @@ _ID = re.compile(r"#([A-Za-z_][\w]*)")
 _ATTR = re.compile(r"\[\s*([\w-]+)\s*(\^=|\$=|\*=|=)\s*(?:\"([^\"]*)\"|'([^']*)'|([^\]\s]*))\s*\]")
 _PSEUDO = re.compile(r":([\w-]+)")
 PSEUDO_KINDS = {"has", "not", "calls", "called-by", "is-called", "is-referenced", "exported", "scope", "decorated",
-                "async", "typed"}
+                "async", "typed", "templated"}
 
 
 def _balanced(s, i):
@@ -424,6 +436,12 @@ class Tree:
                     self.kids[(r["file_path"], r["parent_id"])].append(k)
         for v in self.kids.values():
             v.sort(key=lambda k: self.node[k]["sibling_index"])
+        if DOCUMENTED_TEMPLATE_CALL_NAMES:
+            for k, r in self.node.items():
+                if r["type"] == "call_expression" and not r["name"]:
+                    t = self.template_callee(k)
+                    if t is not None and self.node[t]["name"]:
+                        r["name"] = self.node[t]["name"]
         self.atoms = {s: {tuple(k) for k in keys} for s, keys in json.load(open(cache(fx, "atoms.json"))).items()}
         self._step, self._anc, self._near = {}, {}, {}
 
@@ -437,6 +455,17 @@ class Tree:
         while p is not None:
             yield p
             p = self.parent(p)
+
+    def template_callee(self, k):
+        """The template_function/template_method a call goes through, if its callee carries an explicit
+        template argument list: the callee itself, or its child under qualified_identifier/field_expression."""
+        kids = self.kids.get(k) or []
+        if not kids:
+            return None
+        callee = kids[0]
+        if self.node[callee]["type"] in TEMPLATE_NAME_TYPES:
+            return callee
+        return next((c for c in self.kids.get(callee) or [] if self.node[c]["type"] in TEMPLATE_NAME_TYPES), None)
 
     def nearest(self, k, sem):
         key = (k, sem)
@@ -561,6 +590,17 @@ class Tree:
             return {k for k in s if "async" in n[k]["modifiers"]}
         if kind == "typed":
             return {k for k in s if n[k]["signature_type"]}
+        if kind == "templated":
+            # Proposed (#159): a definition directly inside template_declaration, or a call whose callee
+            # carries an explicit template argument list (make_uniq<T>(...), obj.Cast<T>()).
+            out = set()
+            for k in s:
+                par = self.parent(k)
+                if par is not None and n[par]["type"] == "template_declaration":
+                    out.add(k)
+                elif n[k]["type"] == "call_expression" and self.template_callee(k) is not None:
+                    out.add(k)
+            return out
         raise ValueError("unknown pseudo-class %r" % kind)
 
     # -- node -> selector (DevTools "Copy selector")
@@ -678,6 +718,9 @@ def classify(c, oracle_digest, engine):
     if "error" in engine:
         if "attr-in-has" in fs:
             return "pending", ["pending_engine:attr-in-has#150"]
+        if "templated" in fs:
+            # the engine has no :templated yet (#159) and refuses it
+            return "pending", ["pending_engine:%s#%d" % (f, ISSUES[f]) for f in sorted(fs & {"templated", "template-call-name"})]
         return "rejected", ["engine refuses the selector: %s" % engine["error"][:160]]
     if V._digest(engine["nodes"]) == oracle_digest:
         return "verified", []
