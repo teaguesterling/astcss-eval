@@ -259,6 +259,24 @@ median. One request stalled ~103 s and returned empty; the retry answered in 0.3
 Its 83.3 % "exec" is inflated: prose and malformed first lines still execute, because
 unknown selector parts are ignored silently (sitting_duck #128).
 
+Context arms on the same Qwen3-8B (store downloads failing, it is the smallest chat model
+on the device), same session and engine, flips against its card v1c control:
+
+| arm | match | T1 | T2 | T3 | T4 | +flip | -flip |
+|---|---|---|---|---|---|---|---|
+| card v1c | 51.9 | 14/21 | 18/25 | 6/31 | 18/31 | | |
+| static 10 | 57.4 | 10/21 | 20/25 | 10/31 | 22/31 | 11 | 5 |
+| retrieve 8 | **64.8** | 15/21 | 21/25 | 10/31 | 24/31 | 16 | 2 |
+
+- Without examples Qwen3-8B anchors selectors at the module (`.mod > .try > .call`,
+  `.mod > .import`) -- the stage-1 `.mod >` habit. Both arms mostly remove it.
+- Retrieval also fixes `:has` placement (`.fn .call#rglob` -> `.fn:has(.call#rglob)`,
+  `.class[name*="speak"]` -> `.class:has(.fn#speak)`) and `.call#json.dumps` ->
+  `.call#dumps`, and its two losses are both T4. Static examples cost four T1 pairs by
+  decorating plain classes (`.comp` -> `.comp#list`).
+- Retrieval's +13.0 (16/2) is the largest context effect measured in stage 5 or 6, on
+  the weakest device model. No run-to-run noise measurement exists for Qwen3-8B.
+
 ## Taxonomy observations (no defect claimed)
 
 - `.loop` includes comprehension `for_in_clause`, and `.if` includes `if_clause`,
