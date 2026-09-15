@@ -387,10 +387,42 @@ and return no answer after ~142 s, on the retry too.
   separates them.
 - Training speed was the same with and without the card on the 0.8B (~27 min per epoch
   for 2,205 rows).
-- The no-card 0.8B adapters often do not stop: after the selector they continue with
-  `assistant` / `user` fragments to the 48-token limit (e.g. `.try\nassistant\n.try\nuser...`).
-  Scoring takes the first line, so match is unaffected, but latency doubles. The card
-  adapter and the 9B no-card adapter stop after the selector (3-7 tokens).
+- Some runs generate to the 48-token limit after the selector (`.try\nassistant\n.try\nuser...`).
+  Not the model: every Qwen3.5 `config.json` names `<|endoftext|>` (248044) as eos, while
+  a chat turn ends with `<|im_end|>` (248046), so `generate` ran past the end of the
+  turn and the next turn's role names decode as text. Scoring takes the first line, so
+  match is unaffected; latency is inflated in every local run before 2026-09-15 05:10.
+  local_generate.py now stops on both ids (a 4-pair check: 3-9 tokens per answer).
+
+### Stage 6c: the Qwen3.5 size ladder, trained with the per-language card
+
+Same 820 pairs and card format as the 0.8B arm above (train/cards/card_<lang>.md in
+training, card_v1c.md when asked), LoRA r=16, 2 epochs, pinned engine. The ladder was
+switched from the no-card format to this one before it started, on the stage 6b result.
+
+| model | untuned, no card | untuned, card v1c | trained e1 / e2 | per epoch, peak |
+|---|---|---|---|---|
+| Qwen3.5-0.8B float16 | 0.0 | 26.9 | 69.4 / 81.5 | 27 min, 1.8 GiB |
+| Qwen3.5-2B float16 | 0.0 | 30.6 | 80.6 / 82.4 | 27 min, 4.1 GiB |
+| Qwen3.5-4B NF4 | 0.0 | 57.4 | 86.1 / **89.8** | 49 min, 3.8 GiB |
+| Qwen3.5-9B NF4 | 0.0 | 64.8 | stage 6e | ~75 min (probe), 8.5 GiB |
+
+- **The trained 4B (89.8; T1 21/21, T2 21/25, T3 28/31, T4 27/31) is within 3.7 of the
+  best device result**, Qwen3.6-27B with retrieval (93.5). Pair by pair: 94 both right,
+  4 both wrong, 7 only the 27B, 3 only the 4B. The 27B's extra wins are mostly
+  prefix filters the 4B turns into exact or wrong names (`.fn#update` for
+  `.fn[name^="update_"]`, `.call#fetch`, `.call[name^="_add_"]` for `^="add"`), plus
+  `if_statement` for `.if` and `.fn#run` for `.fn#main`. The 4B's three are node types
+  the 27B dotted into non-classes (`.while`, `.continue`, `.decorated_definition`).
+- Training lifts every size far above its untuned card score; the gain shrinks with size
+  (0.8B +54.6, 2B +51.8, 4B +32.4), and 0.8B and 2B land together (81.5, 82.4).
+- One run per arm; the stage-3 flip rates (1-6 per 98) are the only noise reference.
+
+### Stage 6d: Qwen3-4B-Instruct-2507 locally (NF4, untuned)
+
+The store download to the device fails (above), so it ran on the 2080 Ti: card v1c
+55.6, static 10 examples 66.7 (+15 -3), retrieval 8 66.7 (+16 -4); examples take T3
+from 9 to 15-16/31. Below Qwen3.5-4B trained (89.8) by 23 points.
 
 ## Taxonomy observations (no defect claimed)
 

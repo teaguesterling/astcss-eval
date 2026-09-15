@@ -87,6 +87,9 @@ def main():
     todo = [p for p in pairs if p["id"] not in done]
     print("%s: %d of %d pairs to ask" % (args.name, len(todo), len(pairs)), flush=True)
     pad = tok.pad_token_id if tok.pad_token_id is not None else tok.eos_token_id
+    stop_ids = sorted({i for i in (tok.convert_tokens_to_ids(prompting.end_of_turn(tok)), tok.eos_token_id,
+                                   getattr(model.generation_config, "eos_token_id", None)) if isinstance(i, int)})
+    print("stopping on token ids %s" % stop_ids, flush=True)
     with open(resp_path, "a") as fh:
         for i in range(0, len(todo), args.batch):
             chunk = todo[i:i + args.batch]
@@ -95,7 +98,11 @@ def main():
             enc = tok(texts, return_tensors="pt", padding=True, add_special_tokens=False).to(dev)
             t0 = time.time()
             with torch.no_grad():
-                out = model.generate(**enc, max_new_tokens=args.max_new_tokens, do_sample=False, pad_token_id=pad)
+                # Qwen3.5's config.json names <|endoftext|> as eos, but a chat turn ends with
+                # <|im_end|>: without both, generation ran past the turn to max_new_tokens
+                # (decoded as "\nuser\nuser...") -- first line unchanged, latency inflated.
+                out = model.generate(**enc, max_new_tokens=args.max_new_tokens, do_sample=False, pad_token_id=pad,
+                                     eos_token_id=stop_ids)
             dt = (time.time() - t0) / len(chunk)
             for p, seq in zip(chunk, out):
                 gen = seq[enc["input_ids"].shape[1]:]
