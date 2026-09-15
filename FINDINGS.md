@@ -677,3 +677,46 @@ Fixes:
   bare callee name (`dumps`), and the `.dumps` part is dropped silently (#128).
   Models do write this spelling (Qwen3-8B, smoke run), so it will show up as a
   common miss rather than an error.
+
+## Verification speed: what a batch actually costs (2026-09-15)
+
+Measured on the pinned engine and on a clean build of sitting_duck main (caa35ff), CLI timings:
+
+| what | time |
+|---|---|
+| `read_ast` of a 1246-node file | 0.03 s |
+| `read_ast` of the whole c-duckhts fixture | 0.16 s |
+| any `ast_select_from` call | 6.0-6.4 s |
+| the same call on a 1-row table | 6.1 s |
+| `PREPARE` of that call, then each `EXECUTE` | 6.0 s, then 6.2 s each |
+| `UNION ALL` of 3 selectors | 21.8 s |
+| `EXPLAIN` of one call | 39 s |
+
+JSON profiling puts 5.2 s of a 6.3 s call in the planner (binding is 0.05 s of that) and 0.9 s
+in the optimizer; execution is 0.19 s of CPU. `ast_select_from` is a table macro with a
+46,362-character body. Filed as **sitting_duck #160**: the cost is per call, not per row, so
+verification time is the number of distinct engine calls and nothing else.
+
+Two changes followed, and both were validated by replaying already-verified batches:
+
+- **Result cache** (`verify.execute`): identical (fixture, selector) queries run once, and
+  results persist in `workspace/cache/engine-results.sqlite` keyed on content hashes of the CLI,
+  extension and macros, the fixture's files, and the selector. Deterministic errors are cached;
+  timeouts, missing output and memory errors are not. `ASTCSS_ENGINE_CACHE=0` turns it off.
+  The verifier self-test: 28.8 s cold, 2.0 s warm, identical output.
+- **Oracle-first gates** (`pilot.oracle_first_verify`, the default for training batches): the
+  engine runs each reference selector; relaxations and distractors are answered from
+  `oracle.Tree` where the oracle reproduces the engine's reference exactly and the check
+  carries no feature with a filed engine defect (`oracle.ISSUES`). Everything else still goes to
+  the engine -- whole pairs when the oracle cannot parse the selector, when the fixture has no
+  oracle cache, or when the reference disagrees; single checks otherwise. `--gates=engine`
+  forces the old path, and the eval set (root == HERE) keeps it.
+
+Replay of three batches on the engine that verified them, same verdicts and same node sets:
+
+| batch | candidates | before | after | oracle-answered checks |
+|---|---|---|---|---|
+| templates-c1 | 8 | (part of a 7-min run) | 47 s | 20 of 22 |
+| audit-r1 | 90 | 16 m 41 s | 4 m 57 s | 252 of 288 |
+| prefix-c1 | 184 | 41 m 52 s | 4 m 36 s | 658 of 658 |
+

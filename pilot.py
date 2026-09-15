@@ -180,11 +180,109 @@ def eval_overlap(rows):
     return bad
 
 
-def main(path, batch, root=HERE, paraphrase_rule="strict"):
+def oracle_first_verify(rows):
+    """verify.verify's report, with the engine asked only what the oracle can't answer (2026-09-15).
+
+    Every ast_select_from call costs ~6 s of planning (sitting_duck #160), and verify.verify spends
+    ~3 of them per pair on relaxations and distractors. Here the engine runs each reference; where
+    oracle.py parses the selector and computes the same node set, the relaxations and distractors
+    are answered from oracle.Tree. The oracle is trusted only
+      - when it reproduces the engine's reference exactly (same digest), and
+      - for a relaxation or distractor with no documented-vs-engine difference (oracle.ISSUES features).
+    Everything else goes to the engine: whole pairs through verify.verify (unparseable selectors,
+    fixtures with no oracle cache, a reference the oracle disagrees with), single relaxations and
+    distractors as engine queries. Each entry records how it was decided ("gates": oracle|engine)."""
+    import oracle as O
+    trees, plan, fallback, queries = {}, {}, [], []
+    for r in rows:
+        fx, c = r["fixture"], O.parse(r["css"])
+        dis = [O.parse(d) for d in r.get("distractors", [])]
+        cached = os.path.exists(O.cache(fx, "nodes.csv")) and os.path.exists(O.cache(fx, "atoms.json"))
+        if c is None or None in dis or not cached:
+            fallback.append(r)
+            continue
+        plan[r["id"]] = (c, dis)
+        queries.append((r["id"] + ":ref", fx, r["css"]))
+    got = V.execute(queries) if queries else {}
+
+    report, second, pending = {}, [], {}
+    for r in rows:
+        if r["id"] not in plan:
+            continue
+        pid, fx = r["id"], r["fixture"]
+        c, dis = plan[pid]
+        ref = got[pid + ":ref"]
+        if "error" in ref:
+            fallback.append(r)       # verify.verify words the error; the query is cached
+            continue
+        if fx not in trees:
+            trees[fx] = O.Tree(fx)
+        t = trees[fx]
+        oref = t.select(c)
+        if t.digest(oref) != V._digest(ref["nodes"]):
+            fallback.append(r)
+            continue
+        checks = [("rel", x) for x in O.relaxed(c)] + [("dis", d) for d in dis]
+        answers = []
+        for i, (kind, x) in enumerate(checks):
+            if O.features(x) & set(O.ISSUES):
+                qid = "%s:%s%d" % (pid, kind, i)
+                second.append((qid, fx, O.render(x) if kind == "rel" else r["distractors"][i - len(checks) + len(dis)]))
+                answers.append((kind, x, qid))
+            else:
+                answers.append((kind, x, t.select(x) == oref))
+        pending[pid] = (r, ref["nodes"], answers)
+    got2 = V.execute(second) if second else {}
+
+    for pid, (r, nodes, answers) in pending.items():
+        reasons = []
+        entry = {"ok": False, "reasons": reasons, "relaxations": [], "distractors": [], "gates": "oracle",
+                 "reference": {"count": len(nodes), "sha256": V._digest(nodes), "nodes": nodes}}
+        if not V.MIN_NODES <= len(nodes) <= V.MAX_NODES:
+            reasons.append("reference returns %d nodes (need %d..%d)" % (len(nodes), V.MIN_NODES, V.MAX_NODES))
+        di = 0
+        for kind, x, ans in answers:
+            by = "oracle"
+            if isinstance(ans, str):
+                by, e = "engine", got2.get(ans, {"error": "no output for query"})
+                ans = e if "error" in e else e["nodes"] == nodes
+            if kind == "rel":
+                sel, label = O.render(x), "drop to " + O.render(x)
+                if isinstance(ans, dict):
+                    verdict = "inconclusive: relaxed selector errors"
+                    reasons.append("%s -> %s" % (label, verdict))
+                elif ans:
+                    verdict = "VACUOUS: same %d nodes without it" % len(nodes)
+                    reasons.append("%s is not load-bearing" % label)
+                else:
+                    verdict = "load-bearing"
+                entry["relaxations"].append({"label": label, "selector": sel, "verdict": verdict, "by": by})
+            else:
+                sel = r["distractors"][di]
+                di += 1
+                if isinstance(ans, dict):
+                    verdict = "REJECTED: distractor does not parse/execute"
+                    reasons.append("distractor %r errors" % sel)
+                elif ans:
+                    verdict = "REJECTED: distractor matches the reference"
+                    reasons.append("distractor %r matches the reference" % sel)
+                else:
+                    verdict = "ok"
+                entry["distractors"].append({"selector": sel, "verdict": verdict, "by": by})
+        entry["ok"] = not reasons
+        report[pid] = entry
+    if fallback:
+        for pid, entry in V.verify(fallback).items():
+            report[pid] = dict(entry, gates="engine")
+    return report
+
+
+def main(path, batch, root=HERE, paraphrase_rule="strict", gates="oracle"):
     rows = [json.loads(line) for line in open(path) if line.strip()]
     for r in rows:
         r["selector"] = r["css"]
-    report = V.verify(rows)
+    # The eval (root == HERE) keeps the engine-only gates it was frozen with.
+    report = oracle_first_verify(rows) if gates == "oracle" and os.path.abspath(root) != HERE else V.verify(rows)
     # Training batches only: the eval's pairs were audited by hand (FINDINGS.md).
     has_bad = has_truth_mismatches(rows) if os.path.abspath(root) != HERE else {}
     overlap_bad = eval_overlap(rows) if os.path.abspath(root) != HERE else {}
@@ -280,5 +378,6 @@ def main(path, batch, root=HERE, paraphrase_rule="strict"):
 
 if __name__ == "__main__":
     rule = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--paraphrases=")), "strict")
-    argv = [a for a in sys.argv[1:] if not a.startswith("--paraphrases=")]
-    main(argv[0], argv[1], os.path.join(HERE, argv[2]) if len(argv) > 2 else HERE, rule)
+    gates = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--gates=")), "oracle")
+    argv = [a for a in sys.argv[1:] if not a.startswith("--")]
+    main(argv[0], argv[1], os.path.join(HERE, argv[2]) if len(argv) > 2 else HERE, rule, gates)
