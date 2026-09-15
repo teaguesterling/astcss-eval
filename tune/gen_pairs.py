@@ -754,12 +754,23 @@ def cmd_verify(out, batch):
 
 # ---------------------------------------------------------------- back-translate
 
-def cmd_back(out, batch):
+def risky(struct):
+    """Constructs where a fluent wording can silently say the neighbouring selector: sibling
+    and child combinators ("immediately after" for ~ in the suite-1 smoke test) and :scope."""
+    if len(struct["steps"]) == 2 and struct["op"] in ("~", "+", ">"):
+        return True
+    return any(p["kind"] == "scope" for p in struct["steps"][-1].get("pseudos") or [])
+
+
+def cmd_back(out, batch, risky_only=False):
     logf = lambda m: log(out, m)  # noqa: E731
     kept = []
     for name in ("accepted", "pending"):
         f = os.path.join(out, "pairs", "%s-%s.jsonl" % (name, batch))
         kept += [json.loads(l) for l in open(f)] if os.path.exists(f) else []
+    if risky_only:
+        kept = [p for p in kept if risky(p["struct"])]
+        logf("back: %d risky pairs (~ + > :scope)" % len(kept))
     resp_path = os.path.join(out, "back.jsonl")
     done = set()
     if os.path.exists(resp_path):
@@ -795,9 +806,44 @@ def cmd_back(out, batch):
             t = trees.setdefault(p["fixture"], O.Tree(p["fixture"]))
             s = O.parse(r.get("prediction") or "")
             r["parsed"] = s is not None
-            r["match"] = bool(s) and t.digest(t.select(s)) == p["reference"]["sha256"]
+            got = t.digest(t.select(s)) if s else None
+            r["match"] = bool(s) and got == p["reference"]["sha256"]
+            # The wording said a near miss: its back-translation selects a distractor's nodes.
+            dis = [O.parse(d) for d in p.get("distractors") or []]
+            r["distractor_hit"] = bool(s) and not r["match"] and any(
+                d is not None and t.digest(t.select(d)) == got for d in dis)
             fh.write(json.dumps(r, ensure_ascii=False) + "\n")
     logf("back: scored")
+
+
+def cmd_filter(out, batch):
+    """Drop wordings whose back-translation lands on a distractor; write pairs/kept-<batch>.jsonl."""
+    logf = lambda m: log(out, m)  # noqa: E731
+    back = collections.defaultdict(dict)
+    path = os.path.join(out, "back.scored.jsonl")
+    if os.path.exists(path):
+        for r in map(json.loads, open(path)):
+            back[r["id"]][r["text_index"]] = r
+    kept, dropped_texts, dropped_pairs = [], 0, 0
+    for name in ("accepted", "pending"):
+        f = os.path.join(out, "pairs", "%s-%s.jsonl" % (name, batch))
+        for p in map(json.loads, open(f)) if os.path.exists(f) else []:
+            texts = [p["nl"]] + list(p["paraphrases"])
+            keep = [tx for k, tx in enumerate(texts) if not back[p["id"]].get(k, {}).get("distractor_hit")]
+            dropped_texts += len(texts) - len(keep)
+            if not keep:
+                dropped_pairs += 1
+                continue
+            kept.append(dict(p, nl=keep[0], paraphrases=keep[1:],
+                             filter={"dropped_wordings": len(texts) - len(keep),
+                                     "back_translated": sorted(back[p["id"]])}))
+    dest = os.path.join(out, "pairs", "kept-%s.jsonl" % batch)
+    with open(dest + ".tmp", "w") as fh:
+        for p in kept:
+            fh.write(json.dumps(p, ensure_ascii=False) + "\n")
+    os.replace(dest + ".tmp", dest)
+    logf("filter: kept %d pairs, dropped %d wordings that read back as a distractor and %d pairs left with none"
+         % (len(kept), dropped_texts, dropped_pairs))
 
 
 def cmd_report(out, batch):
@@ -833,7 +879,8 @@ def cmd_report(out, batch):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("stage", choices=("enumerate", "word", "verify", "back", "report"))
+    ap.add_argument("stage", choices=("enumerate", "word", "verify", "back", "filter", "report"))
+    ap.add_argument("--risky-only", action="store_true", help="back: only pairs with ~ + > or :scope")
     ap.add_argument("--batch", default="gp-1")
     ap.add_argument("--out", required=True)
     ap.add_argument("--fixtures", required=True)
@@ -852,7 +899,9 @@ def main():
     elif args.stage == "verify":
         cmd_verify(out, args.batch)
     elif args.stage == "back":
-        cmd_back(out, args.batch)
+        cmd_back(out, args.batch, args.risky_only)
+    elif args.stage == "filter":
+        cmd_filter(out, args.batch)
     elif args.stage == "report":
         cmd_report(out, args.batch)
 
