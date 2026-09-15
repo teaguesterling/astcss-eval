@@ -453,6 +453,28 @@ The store download to the device fails (above), so it ran on the 2080 Ti: card v
 55.6, static 10 examples 66.7 (+15 -3), retrieval 8 66.7 (+16 -4); examples take T3
 from 9 to 15-16/31. Below Qwen3.5-4B trained (89.8) by 23 points.
 
+### Stage 7a/7b: seed noise, and 343 more pairs on the 0.8B
+
+Same recipe as the stage 6b card arm (per-language card, cap 8, LoRA r=16, 2 epochs).
+7a changes only the seed. 7b keeps seed 17 and appends the selector-first pilot's 343
+engine-verified pairs (T1-T4, gemma-worded, wording not back-translation filtered;
+workspace/sfgen/pairs/accepted-sf-p1.jsonl).
+
+| 0.8B arm | e1 | e2 | e2 T1 | T2 | T3 | T4 |
+|---|---|---|---|---|---|---|
+| 820 pairs, seed 17 (6b) | 69.4 | 81.5 | 19/21 | 16/25 | 25/31 | 28/31 |
+| 820 pairs, seed 18 (7a) | 78.7 | **82.4** | 19/21 | 17/25 | 25/31 | 28/31 |
+| 820 + 343 pairs, seed 17 (7b) | 74.1 | 79.6 | 19/21 | 17/25 | 24/31 | 26/31 |
+
+- **Seed noise is large after one epoch and small after two**: the seeds differ by 9.3
+  at e1 and by 1 pair at e2. Single-run e1 comparisons in stages 6b-6e are not
+  evidence of anything; e2 comparisons within ~2 points are not either.
+- **The 343 pairs did not help**: e2 is 1.9 below the same seed (+5 -7 flips) and 2.8
+  below seed 18 (+4 -7), losing T3/T4 pairs. That is within about two pairs of noise,
+  so "no gain" is the safe reading rather than "harm". The pilot pairs are the same
+  T1-T4 shapes the 820 already cover, so more of the same may simply be saturated at
+  this size; the tier-5 suite tests whether new shapes do better.
+
 ## From the generation pilot (device models write training pairs from source files)
 
 gemma-4-26B-A4B-it was given one training-fixture file at a time (10 Python, 10 Rust, 10
