@@ -475,6 +475,30 @@ workspace/sfgen/pairs/accepted-sf-p1.jsonl).
   T1-T4 shapes the 820 already cover, so more of the same may simply be saturated at
   this size; the tier-5 suite tests whether new shapes do better.
 
+### Stage 7c: tier-5 baselines before any tier-5 training
+
+The 55 tier-5 eval pairs (eval_t5, t5-b1 + t5-b2), asked with card_t5.md (card v1c + the
+tier-5 vocabulary block). The trained adapters are the stage 6b/6c/7a ones: they never
+saw a tier-5 selector or the tier-5 block. Pending pairs are scored by documented semantics.
+
+| model | tier-5 match | exact | med s |
+|---|---|---|---|
+| Qwen3.5-0.8B untuned | 7.3 | 3.6 | 0.20 |
+| Qwen3.5-0.8B trained, seed 17 / seed 18 | 34.5 / 30.9 | 10.9 / 9.1 | 0.24 |
+| Qwen3.5-2B trained | 38.2 | 14.5 | 0.34 |
+| Qwen3.5-4B NF4 trained | **67.3** | 34.5 | 0.84 |
+| Qwen3.5-9B NF4 untuned | 60.0 | 38.2 | 0.83 |
+
+- **Tier 5 separates sizes far more than tiers 1-4 do**: on the 108 pairs the trained
+  0.8B/2B/4B score 81.5/82.4/89.8; on tier 5 they score 31-35/38/67. The untuned 9B
+  (64.8 on the 108 with the card) is within 7 points of the trained 4B here. New
+  vocabulary read from a card is what the small models cannot do yet.
+- **The longer card costs the trained 0.8B 8.3 points on the 108 pairs** (82.4 -> 74.1,
+  +1 -10 flips, losses in every tier) with the same adapter. A model trained on one card
+  is brittle to prompt drift, so the tier-5 training runs must train with the card they
+  are asked with (train/cards/v2 = card + tier-5 block) and be scored on both evals with
+  that card; the 82.4 baseline was measured with card v1c and is not directly comparable.
+
 ## From the generation pilot (device models write training pairs from source files)
 
 gemma-4-26B-A4B-it was given one training-fixture file at a time (10 Python, 10 Rust, 10
