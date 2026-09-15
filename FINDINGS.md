@@ -18,6 +18,13 @@ PR #129 selector macros), on the `py-variety` fixture unless stated.
 | #139 | classes match sub-nodes of their construct (C++ `.fn` adds `function_declarator`, `.import` adds `system_lib_string` / `import_clause`, Java `.catch` adds `catch_type`, Go `.mod` adds `package_clause`); Bash `.call` misses `command`, Python `.self` is empty | training pairs use node types instead (`train/LANGUAGE_NOTES.md`) |
 | #140 | names don't bind: Bash `command`, Go `struct_type` / `interface_type` (name is on `type_spec`), Java imports (name is the whole statement) | training pairs avoid `#name` on these |
 | #141 | `A + B` counts punctuation as siblings, so comma-separated siblings are never adjacent (`identifier + identifier` 0 vs `~` 113) | no `+` pairs between list elements |
+| #145 | `:scope(selector)` is ignored: `.fn:scope(.class#UserService)` returns every function, `.call:scope(.class#UserService)` none; only a type argument works | tier-5 pairs use the documented meaning, verified by the reference checker (`pending_engine:scope-selector`) |
+| #146 | `:calls(name)` is plain containment, not scope-aware as documented: an outer function matches a call inside its nested function | same, `pending_engine:calls-scope` where the two differ |
+| #147 | `:is-referenced` matches every named definition (181 of 183 functions on py-blq), so `:not(:is-referenced)` finds no dead code | same, `pending_engine:is-referenced` |
+| #148 | `:exported` includes methods and nested functions; documented as module-level public definitions | same, `pending_engine:exported` |
+| #149 | `[receiver=X]` collapses chained receivers to the last segment: `self.db.execute()` has receiver `db` | pairs use single-segment receivers where the two meanings agree |
+| #150 | the tutorial's capstone selector errors: attribute filters inside `:has` are refused | tier-5 pairs may use them under `pending_engine:attr-in-has` |
+| #128 (comment) | captures (`.fn@f`) and unknown class aliases (`.nosuchclass`, `.with_statement`) return 0 without error | captures stay out of pairs |
 
 ## Not filed
 
