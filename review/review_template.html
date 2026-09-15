@@ -1,0 +1,640 @@
+<title>astcss Review Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --ground: #eef1f4;
+  --surface: #ffffff;
+  --surface-2: #f6f8fa;
+  --ink: #18212b;
+  --muted: #5e6977;
+  --rule: #d5dbe2;
+  --accent: #2b59c3;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3ebfb;
+  --ok: #1e7b4f;
+  --ok-soft: #e1f3ea;
+  --warn: #9a5b00;
+  --warn-soft: #fff1d6;
+  --bad: #b3261e;
+  --bad-soft: #fde7e5;
+  --hint: #6a5acd;
+  --hint-soft: #eeebfb;
+  --mark: #fff0a8;
+  --syn-class: #2b59c3;
+  --syn-name: #8a3ab9;
+  --syn-attr: #9a5b00;
+  --syn-str: #1e7b4f;
+  --syn-pseudo: #0e7490;
+  --syn-comb: #b3261e;
+  --shadow: 0 1px 2px rgba(24, 33, 43, .06), 0 4px 16px rgba(24, 33, 43, .06);
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0f1318; --surface: #171c23; --surface-2: #1d232b; --ink: #e4e9ef; --muted: #93a0af;
+    --rule: #28303a; --accent: #86a8ff; --accent-ink: #0f1318; --accent-soft: #1f2a44;
+    --ok: #62c994; --ok-soft: #16301f; --warn: #edb65a; --warn-soft: #3a2e14; --bad: #ff8b7e; --bad-soft: #3d1c19;
+    --hint: #b3a8ff; --hint-soft: #262240; --mark: #5a4b12;
+    --syn-class: #86a8ff; --syn-name: #d9a0ff; --syn-attr: #edb65a; --syn-str: #62c994; --syn-pseudo: #5fd0e6; --syn-comb: #ff8b7e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0f1318; --surface: #171c23; --surface-2: #1d232b; --ink: #e4e9ef; --muted: #93a0af;
+  --rule: #28303a; --accent: #86a8ff; --accent-ink: #0f1318; --accent-soft: #1f2a44;
+  --ok: #62c994; --ok-soft: #16301f; --warn: #edb65a; --warn-soft: #3a2e14; --bad: #ff8b7e; --bad-soft: #3d1c19;
+  --hint: #b3a8ff; --hint-soft: #262240; --mark: #5a4b12;
+  --syn-class: #86a8ff; --syn-name: #d9a0ff; --syn-attr: #edb65a; --syn-str: #62c994; --syn-pseudo: #5fd0e6; --syn-comb: #ff8b7e;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: 14px/1.5 var(--sans); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--mono); }
+.app { display: flex; flex-direction: column; height: 100%; }
+.app[data-filters="hidden"] .tabs, .app[data-filters="hidden"] .filters { display: none; }
+.summary { display: none; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.app[data-filters="hidden"] .summary { display: inline; }
+.app[data-list="hidden"] .work { grid-template-columns: 1fr; }
+.app[data-list="hidden"] .list { display: none; }
+.btn[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.navline { display: flex; gap: 8px; align-items: center; margin: 0 0 10px; }
+.navline .meta { flex: 1; text-align: center; }
+
+/* top bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--rule);
+  padding: 10px max(16px, env(safe-area-inset-left, 0px)) 8px; display: grid; gap: 8px; }
+.bar-top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.brand { font-weight: 700; font-size: 16px; letter-spacing: -.01em; }
+.brand span { font-family: var(--mono); font-weight: 500; color: var(--accent); }
+.meta { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.spacer { flex: 1; }
+.sync { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.sync i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; }
+.sync[data-state="store"] i { background: var(--ok); }
+.sync[data-state="saving"] i { background: var(--warn); }
+.sync[data-state="error"] i { background: var(--bad); }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tab { border: 1px solid var(--rule); background: var(--surface-2); border-radius: 6px; padding: 4px 10px; cursor: pointer;
+  display: inline-flex; gap: 8px; align-items: baseline; }
+.tab b { font-weight: 600; }
+.tab small { color: var(--muted); font-variant-numeric: tabular-nums; }
+.tab[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.tab[aria-pressed="true"] small { color: inherit; opacity: .8; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.filters select, .filters input { background: var(--surface-2); border: 1px solid var(--rule); border-radius: 6px; padding: 4px 8px; min-width: 0; }
+.filters input[type="search"] { flex: 1 1 220px; }
+.btn { border: 1px solid var(--rule); background: var(--surface-2); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+/* workspace */
+.work { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(280px, 38%) 1fr; }
+.list { overflow: auto; border-right: 1px solid var(--rule); background: var(--surface); }
+.row { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 8px 16px; border-bottom: 1px solid var(--rule); cursor: pointer; }
+.row:hover { background: var(--surface-2); }
+.row[aria-selected="true"] { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.row .rid { font: 500 12px var(--mono); color: var(--muted); }
+.row .rsel { font: 12.5px var(--mono); grid-column: 1 / -1; overflow-wrap: anywhere; }
+.row .rtext { grid-column: 1 / -1; color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chips { display: inline-flex; gap: 4px; align-items: center; }
+.chip { font-size: 11px; padding: 0 6px; border-radius: 999px; line-height: 18px; white-space: nowrap; border: 1px solid transparent; }
+.chip.gate { background: var(--warn-soft); color: var(--warn); }
+.chip.hint { background: var(--hint-soft); color: var(--hint); }
+.chip.v-ok { background: var(--ok-soft); color: var(--ok); }
+.chip.v-bad { background: var(--bad-soft); color: var(--bad); }
+.chip.v-mid { background: var(--warn-soft); color: var(--warn); }
+.chip.set { border-color: var(--rule); color: var(--muted); }
+.empty { padding: 32px 16px; color: var(--muted); }
+
+.detail { overflow: auto; padding: 16px max(16px, env(safe-area-inset-right, 0px)) 48px 20px; }
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
+.card.lift { box-shadow: var(--shadow); }
+.d-head { display: flex; gap: 8px 16px; flex-wrap: wrap; align-items: baseline; }
+.d-id { font: 600 15px var(--mono); }
+.facts { display: flex; gap: 4px 14px; flex-wrap: wrap; color: var(--muted); font-size: 12.5px; }
+.facts b { color: var(--ink); font-weight: 500; }
+.selector { font: 500 17px/1.4 var(--mono); margin: 10px 0 4px; overflow-wrap: anywhere; }
+.sub { font-size: 12px; color: var(--muted); }
+.label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.verdicts { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 8px; }
+.vbtn { border: 1px solid var(--rule); background: var(--surface-2); border-radius: 6px; padding: 3px 10px; cursor: pointer; font-size: 13px; }
+.vbtn kbd { font: 11px var(--mono); color: var(--muted); margin-left: 4px; }
+.vbtn[aria-pressed="true"][data-tone="ok"] { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.vbtn[aria-pressed="true"][data-tone="bad"] { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.vbtn[aria-pressed="true"][data-tone="mid"] { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+.field { display: grid; gap: 4px; margin-top: 8px; }
+.field label { font-size: 12px; color: var(--muted); }
+.field input, .field textarea { width: 100%; background: var(--surface-2); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 8px; }
+.field textarea { min-height: 54px; resize: vertical; }
+.field input.mono { font-family: var(--mono); }
+.texts { display: grid; gap: 10px; }
+.text { border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; background: var(--surface); }
+.text.asked { border-color: var(--accent); }
+.t-head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.t-idx { font: 600 11px var(--mono); color: var(--muted); }
+.t-body { font-size: 15px; margin: 2px 0 6px; overflow-wrap: anywhere; }
+.t-body mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1px; }
+.flag { font-size: 12.5px; padding: 3px 8px; border-radius: 6px; margin: 4px 0 0; }
+.flag.gate { background: var(--warn-soft); color: var(--warn); }
+.flag.hint { background: var(--hint-soft); color: var(--hint); }
+.nodes { font: 12px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.help { font-size: 12px; color: var(--muted); }
+.help kbd { font: 11px var(--mono); border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; background: var(--surface-2); }
+.tok-class { color: var(--syn-class); } .tok-name { color: var(--syn-name); } .tok-attr { color: var(--syn-attr); }
+.tok-str { color: var(--syn-str); } .tok-pseudo { color: var(--syn-pseudo); } .tok-comb { color: var(--syn-comb); font-weight: 600; }
+
+dialog { border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); color: var(--ink); padding: 0; width: min(760px, calc(100vw - 32px)); box-shadow: var(--shadow); }
+dialog::backdrop { background: rgba(10, 14, 20, .45); }
+.dlg { padding: 16px; display: grid; gap: 10px; }
+.dlg h2 { margin: 0; font-size: 16px; }
+.dlg textarea { width: 100%; height: 320px; font: 12px/1.45 var(--mono); background: var(--surface-2); border: 1px solid var(--rule); border-radius: 6px; padding: 8px; }
+.dlg .row-btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.dlg .note { font-size: 12.5px; color: var(--muted); }
+
+@media (max-width: 760px) {
+  .work { grid-template-columns: 1fr; grid-template-rows: minmax(160px, 38vh) auto; overflow: auto; }
+  .list { border-right: 0; border-bottom: 1px solid var(--rule); }
+  .detail { overflow: visible; padding: 12px 16px 40px; }
+}
+@media (max-width: 760px) {
+  #meta { display: none; }
+  .bar { padding-block: 8px 6px; gap: 6px; }
+  .app[data-list="hidden"] .work { grid-template-rows: auto; }
+  .sync span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="app" id="app" data-filters="shown" data-list="shown">
+  <header class="bar">
+    <div class="bar-top">
+      <div class="brand"><span>astcss</span> Review Desk</div>
+      <div class="meta" id="meta"></div>
+      <span class="summary" id="summary"></span>
+      <div class="spacer"></div>
+      <button class="btn" id="toggle-filters" type="button" aria-expanded="true" aria-controls="tabs">Hide filters</button>
+      <button class="btn" id="toggle-list" type="button" aria-expanded="true" aria-controls="list">Hide list</button>
+      <div class="sync" id="sync" data-state="local"><i></i><span>Saved in this browser</span></div>
+      <button class="btn primary" id="export-btn" type="button">Export log</button>
+    </div>
+    <nav class="tabs" id="tabs" aria-label="Pair sets"></nav>
+    <div class="filters">
+      <input type="search" id="f-search" placeholder="Search id, selector or request  ( / )" aria-label="Search">
+      <select id="f-lang" aria-label="Language"></select>
+      <select id="f-tier" aria-label="Tier"></select>
+      <select id="f-flag" aria-label="Audit flags">
+        <option value="">Any flags</option>
+        <option value="gate">Gate flagged</option>
+        <option value="hint">Hint flagged</option>
+        <option value="flagged">Any flag</option>
+        <option value="clean">No flags</option>
+      </select>
+      <select id="f-status" aria-label="Review status">
+        <option value="">Any status</option>
+        <option value="todo">Not reviewed</option>
+        <option value="done">Reviewed</option>
+        <option value="problem">Marked a problem</option>
+      </select>
+      <span class="meta" id="count"></span>
+    </div>
+  </header>
+  <main class="work">
+    <section class="list" id="list" role="listbox" aria-label="Pairs"></section>
+    <section class="detail" id="detail" aria-live="polite"></section>
+  </main>
+</div>
+
+<dialog id="export-dlg">
+  <div class="dlg">
+    <h2>Annotation log</h2>
+    <div class="note" id="export-note"></div>
+    <div class="field"><label for="reviewer">Reviewer name (kept in the log)</label><input id="reviewer" type="text" placeholder="optional"></div>
+    <textarea id="export-json" readonly aria-label="Annotation log JSON"></textarea>
+    <div class="row-btns">
+      <button class="btn primary" id="save-btn" type="button">Save as file</button>
+      <button class="btn" id="copy-btn" type="button">Copy JSON</button>
+      <span class="note" id="export-status"></span>
+      <div class="spacer"></div>
+      <button class="btn" id="close-btn" type="button">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<script type="application/json" id="review-data">__REVIEW_DATA__</script>
+<script>
+(() => {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("review-data").textContent);
+  const PAIRS = DATA.pairs;
+  const BY_ID = new Map(PAIRS.map(p => [p.id + "|" + p.set, p]));
+  const LS_KEY = "astcss-review-annotations/v1";
+  const PAIR_VERDICTS = [
+    { v: "ok", label: "Looks right", tone: "ok", key: "1" },
+    { v: "wording", label: "Wording wrong", tone: "mid", key: "2" },
+    { v: "selector", label: "Selector wrong", tone: "bad", key: "3" },
+    { v: "ambiguous", label: "Ambiguous", tone: "mid", key: "4" },
+    { v: "drop", label: "Drop pair", tone: "bad", key: "5" },
+  ];
+  const TEXT_VERDICTS = [
+    { v: "ok", label: "Fine", tone: "ok" },
+    { v: "reword", label: "Reword", tone: "mid" },
+    { v: "drop", label: "Drop text", tone: "bad" },
+  ];
+  const TONE = Object.fromEntries(PAIR_VERDICTS.map(x => [x.v, x.tone]));
+
+  // ---- annotation state: key "<set>/<id>" -> body --------------------------------------
+  let A = {};
+  try { A = JSON.parse(localStorage.getItem(LS_KEY) || "{}") || {}; } catch (e) { A = {}; }
+  const docId = key => key.replace("/", "~");          // store doc ids can't contain "/"
+  const keyOf = p => p.set + "/" + p.id;
+
+  const state = { set: DATA.sets[0] ? DATA.sets[0].key : "train", sel: null, search: "", lang: "", tier: "", flag: "", status: "" };
+
+  // ---- store sync (Artifact db) with a local fallback ----------------------------------
+  let db = null;
+  const timers = new Map(), writing = new Set(), dirty = new Set(), localEdits = new Set();
+  const syncEl = document.getElementById("sync");
+  function setSync(s, text) { syncEl.dataset.state = s; syncEl.querySelector("span").textContent = text; }
+
+  function persistLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(A)); } catch (e) { /* storage unavailable */ } }
+
+  function isEmpty(b) {
+    if (!b) return true;
+    const t = b.texts || {};
+    return !b.verdict && !b.note && !b.fix_css && !Object.values(t).some(x => x && (x.verdict || x.note || x.fix_text));
+  }
+
+  function schedule(key) {
+    persistLocal();
+    if (!db) return;
+    localEdits.add(key);
+    clearTimeout(timers.get(key));
+    timers.set(key, setTimeout(() => flush(key), 700));
+    setSync("saving", "Saving…");
+  }
+
+  async function flush(key, retried) {
+    if (writing.has(key)) { dirty.add(key); return; }
+    writing.add(key);
+    const ref = db.doc("annotations/" + docId(key));
+    try {
+      const body = A[key];
+      if (isEmpty(body)) await ref.delete(); else await ref.set(JSON.parse(JSON.stringify(body)));
+      setSync("store", "Saved to this page's store");
+    } catch (e) {
+      const code = e && e.code;
+      if (code === "unavailable" && !retried) {
+        writing.delete(key);
+        setTimeout(() => flush(key, true), 400 + Math.random() * 800);
+        return;
+      }
+      setSync("error", code === "quota_exceeded" ? "Store is full: export the log" : "Not saved to the store (" + (code || "error") + "); kept in this browser");
+    } finally {
+      writing.delete(key);
+      localEdits.delete(key);
+    }
+    if (dirty.delete(key)) flush(key);
+  }
+
+  (async () => {
+    if (!window.claude || typeof window.claude.use !== "function") return;
+    try { db = await window.claude.use("db"); } catch (e) { db = null; }
+    if (!db) return;
+    setSync("store", "Saved to this page's store");
+    db.collection("annotations").onSnapshot(snap => {
+      let changed = false;
+      for (const ch of snap.docChanges()) {
+        const body = ch.doc.data();
+        const key = body && body.key;
+        if (!key || localEdits.has(key) || timers.has(key) && writing.has(key)) continue;
+        if (ch.type === "removed") { delete A[key]; } else { A[key] = JSON.parse(JSON.stringify(body)); }
+        changed = true;
+      }
+      if (changed) { persistLocal(); renderTabs(); renderList(); renderDetail(); }
+    }, err => setSync("error", "Store unavailable (" + err.code + "); kept in this browser"));
+  })();
+
+  function ann(p, create) {
+    const key = keyOf(p);
+    if (!A[key] && create) A[key] = { key, id: p.id, set: p.set, css: p.css, verdict: null, note: "", fix_css: "", texts: {}, updated_at: null, data_version: DATA.version };
+    return A[key];
+  }
+  function touch(p) { const b = ann(p, true); b.updated_at = new Date().toISOString(); b.data_version = DATA.version; if (isEmpty(b)) delete A[keyOf(p)]; schedule(keyOf(p)); }
+
+  // ---- helpers ---------------------------------------------------------------------------
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  function highlightSelector(css) {
+    const re = /("[^"]*")|(::?[a-z][a-z-]*)|(\.[A-Za-z_][\w-]*)|(#[A-Za-z_$][\w$]*)|(\[[\w-]+|\]|[\^$*]?=)|(\s*[>~+]\s*)|([()])|([A-Za-z_][\w]*)|(\s+)|(.)/g;
+    let out = "", m;
+    while ((m = re.exec(css))) {
+      const [t, str, pse, cls, nam, attr, comb, paren, typ] = m;
+      if (str) out += '<span class="tok-str">' + esc(t) + "</span>";
+      else if (pse) out += '<span class="tok-pseudo">' + esc(t) + "</span>";
+      else if (cls) out += '<span class="tok-class">' + esc(t) + "</span>";
+      else if (nam) out += '<span class="tok-name">' + esc(t) + "</span>";
+      else if (attr) out += '<span class="tok-attr">' + esc(t) + "</span>";
+      else if (comb) out += '<span class="tok-comb">' + esc(t) + "</span>";
+      else if (paren) out += '<span class="tok-pseudo">' + esc(t) + "</span>";
+      else out += esc(t);
+    }
+    return out;
+  }
+  function markLiterals(text, lits) {
+    let html = esc(text);
+    const vals = (lits || []).filter(v => v.replace(/_/g, "").length).sort((a, b) => b.length - a.length);
+    if (!vals.length) return html;
+    const pat = vals.map(v => esc(v).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+    return html.replace(new RegExp("(^|[^A-Za-z0-9])(" + pat + ")(?=$|[^A-Za-z0-9])", "gi"), "$1<mark>$2</mark>");
+  }
+  const gateCount = p => p.flags.filter(f => f[1] === "gate").length;
+  const hintCount = p => p.flags.filter(f => f[1] === "hint").length;
+  function isProblem(b) {
+    if (!b) return false;
+    return (b.verdict && b.verdict !== "ok") || Object.values(b.texts || {}).some(t => t && t.verdict && t.verdict !== "ok");
+  }
+
+  // ---- filters ---------------------------------------------------------------------------
+  const langSel = document.getElementById("f-lang"), tierSel = document.getElementById("f-tier");
+  const langs = [...new Set(PAIRS.map(p => p.lang))].sort();
+  langSel.innerHTML = '<option value="">All languages</option>' + langs.map(l => '<option value="' + esc(l) + '">' + esc(l) + "</option>").join("");
+  const tiers = [...new Set(PAIRS.map(p => p.tier))].filter(t => t != null).sort();
+  tierSel.innerHTML = '<option value="">All tiers</option>' + tiers.map(t => '<option value="' + t + '">T' + t + "</option>").join("");
+
+  function visible() {
+    const q = state.search.trim().toLowerCase();
+    return PAIRS.filter(p => {
+      if (p.set !== state.set) return false;
+      if (state.lang && p.lang !== state.lang) return false;
+      if (state.tier && String(p.tier) !== state.tier) return false;
+      if (state.flag === "gate" && !gateCount(p)) return false;
+      if (state.flag === "hint" && !hintCount(p)) return false;
+      if (state.flag === "flagged" && !p.flags.length) return false;
+      if (state.flag === "clean" && p.flags.length) return false;
+      const b = A[keyOf(p)];
+      if (state.status === "todo" && b) return false;
+      if (state.status === "done" && !b) return false;
+      if (state.status === "problem" && !isProblem(b)) return false;
+      if (q && !(p.id.toLowerCase().includes(q) || p.css.toLowerCase().includes(q) || p.texts.some(t => t.toLowerCase().includes(q)))) return false;
+      return true;
+    });
+  }
+
+  // ---- rendering -------------------------------------------------------------------------
+  function renderTabs() {
+    const el = document.getElementById("tabs");
+    el.innerHTML = DATA.sets.map(s => {
+      const all = PAIRS.filter(p => p.set === s.key);
+      const done = all.filter(p => A[keyOf(p)]).length;
+      return '<button class="tab" type="button" data-set="' + s.key + '" aria-pressed="' + (s.key === state.set) + '" title="' + esc(s.desc) + '"><b>' + esc(s.label) + "</b><small>" + done + " / " + all.length + " reviewed</small></button>";
+    }).join("");
+  }
+
+  let current = [];
+  function renderList() {
+    current = visible();
+    const el = document.getElementById("list");
+    document.getElementById("count").textContent = current.length + " shown";
+    const active = ["search", "lang", "tier", "flag", "status"].filter(k => state[k]).length;
+    document.getElementById("summary").textContent = ((DATA.sets.find(s => s.key === state.set) || {}).label || state.set) +
+      " · " + current.length + " shown" + (active ? " · " + active + " filter" + (active > 1 ? "s" : "") : "");
+    if (!current.length) { el.innerHTML = '<div class="empty">No pairs match these filters.</div>'; return; }
+    if (!state.sel || !current.some(p => keyOf(p) === state.sel)) state.sel = keyOf(current[0]);
+    el.innerHTML = current.map(p => {
+      const b = A[keyOf(p)], g = gateCount(p), h = hintCount(p);
+      let chips = "";
+      if (g) chips += '<span class="chip gate">' + g + " gate</span>";
+      if (h) chips += '<span class="chip hint">' + h + " hint</span>";
+      if (b) chips += b.verdict ? '<span class="chip v-' + (TONE[b.verdict] === "ok" ? "ok" : TONE[b.verdict] === "bad" ? "bad" : "mid") + '">' + esc(PAIR_VERDICTS.find(x => x.v === b.verdict).label) + "</span>"
+        : '<span class="chip ' + (isProblem(b) ? "v-mid" : "v-ok") + '">' + (isProblem(b) ? "text notes" : "noted") + "</span>";
+      return '<div class="row" role="option" data-key="' + esc(keyOf(p)) + '" aria-selected="' + (keyOf(p) === state.sel) + '">' +
+        '<span class="rid">' + esc(p.id) + " · " + esc(p.lang) + " · T" + esc(p.tier) + '</span><span class="chips">' + chips + "</span>" +
+        '<span class="rsel">' + highlightSelector(p.css) + "</span>" +
+        '<span class="rtext">' + esc(p.texts[0]) + "</span></div>";
+    }).join("");
+  }
+
+  function selected() { return current.find(p => keyOf(p) === state.sel) || null; }
+
+  const appEl = document.getElementById("app");
+  function navLine(p) {
+    const i = current.findIndex(x => keyOf(x) === keyOf(p));
+    return '<div class="navline"><button class="btn" type="button" data-nav="-1"' + (i <= 0 ? " disabled" : "") + '>‹ Prev</button>' +
+      '<span class="meta">' + (i + 1) + " / " + current.length + '</span>' +
+      '<button class="btn" type="button" data-nav="1"' + (i >= current.length - 1 ? " disabled" : "") + '>Next ›</button></div>';
+  }
+  function go(delta) {
+    const idx = current.findIndex(p => keyOf(p) === state.sel);
+    const n = Math.max(0, Math.min(current.length - 1, idx + delta));
+    if (!current[n] || n === idx) return;
+    state.sel = keyOf(current[n]);
+    document.querySelectorAll('.row[aria-selected="true"]').forEach(x => x.setAttribute("aria-selected", "false"));
+    const row = document.querySelector('.row[data-key="' + CSS.escape(state.sel) + '"]');
+    if (row) { row.setAttribute("aria-selected", "true"); if (appEl.dataset.list !== "hidden") row.scrollIntoView({ block: "nearest" }); }
+    renderDetail();
+    document.getElementById("detail").scrollTop = 0;
+    document.querySelector(".work").scrollTop = 0;
+  }
+
+  function renderDetail() {
+    const el = document.getElementById("detail");
+    const p = selected();
+    if (!p) { el.innerHTML = '<div class="empty">Pick a pair on the left.</div>'; return; }
+    const b = A[keyOf(p)] || { texts: {} };
+    const asked = p.set === "eval" || p.set === "eval_t5";
+    const setLabel = (DATA.sets.find(s => s.key === p.set) || {}).label || p.set;
+    let html = navLine(p) + '<div class="card lift">' +
+      '<div class="d-head"><span class="d-id">' + esc(p.id) + '</span><span class="chip set">' + esc(setLabel) + "</span>" +
+      (p.tags || []).filter(t => t.startsWith("pending_engine")).map(t => '<span class="chip hint">' + esc(t) + "</span>").join("") + "</div>" +
+      '<div class="facts"><span>language <b>' + esc(p.lang) + "</b></span><span>tier <b>T" + esc(p.tier) + "</b></span><span>fixture <b>" + esc(p.fixture) + "</b></span>" +
+      (p.count != null ? "<span>selects <b>" + p.count + "</b> nodes</span>" : "") + (p.batch ? "<span>batch <b>" + esc(p.batch) + "</b></span>" : "") + "</div>" +
+      '<div class="selector">' + highlightSelector(p.css) + "</div>" +
+      (p.distractors && p.distractors.length ? '<div class="sub">near misses: <span class="mono">' + p.distractors.map(esc).join(" · ") + "</span></div>" : "") +
+      (p.nodes && p.nodes.length ? '<div class="nodes">' + p.nodes.map(esc).join("  ") + (p.count > p.nodes.length ? "  …" : "") + "</div>" : "") +
+      (p.replaced_by ? '<div class="sub">replaced by <span class="mono">' + esc(p.replaced_by) + "</span>: " + esc(p.reason || "") + "</div>" : "") +
+      '<div class="verdicts" role="group" aria-label="Pair verdict">' + PAIR_VERDICTS.map(x =>
+        '<button type="button" class="vbtn" data-pv="' + x.v + '" data-tone="' + x.tone + '" aria-pressed="' + (b.verdict === x.v) + '">' + esc(x.label) + "<kbd>" + x.key + "</kbd></button>").join("") + "</div>" +
+      '<div class="field"><label for="fix-css">Corrected selector (if the selector is wrong)</label><input id="fix-css" class="mono" type="text" value="' + esc(b.fix_css || "") + '" placeholder="' + esc(p.css) + '"></div>' +
+      '<div class="field"><label for="pair-note">Note</label><textarea id="pair-note" placeholder="What is wrong, or why it is fine">' + esc(b.note || "") + "</textarea></div></div>";
+
+    html += '<p class="label">Requests' + (asked ? " — text 0 is the one the eval asks" : " — every text is a training row") + '</p><div class="texts">';
+    p.texts.forEach((t, i) => {
+      const tb = (b.texts || {})[i] || {};
+      const flags = p.flags.filter(f => f[0] === i);
+      html += '<div class="text' + (asked && i === 0 ? " asked" : "") + '">' +
+        '<div class="t-head"><span class="t-idx">' + (i === 0 ? "nl" : "paraphrase " + i) + "</span>" +
+        '<span class="verdicts" style="margin:0" role="group" aria-label="Text verdict">' + TEXT_VERDICTS.map(x =>
+          '<button type="button" class="vbtn" data-tv="' + x.v + '" data-ti="' + i + '" data-tone="' + x.tone + '" aria-pressed="' + (tb.verdict === x.v) + '">' + esc(x.label) + "</button>").join("") + "</span></div>" +
+        '<div class="t-body">' + markLiterals(t, p.lits) + "</div>" +
+        flags.map(f => '<div class="flag ' + f[1] + '">' + (f[1] === "gate" ? "gate: " : "hint: ") + esc(f[2]) + "</div>").join("") +
+        '<div class="field"><label for="fix-t' + i + '">Better wording</label><input id="fix-t' + i + '" data-fix="' + i + '" type="text" value="' + esc(tb.fix_text || "") + '"></div>' +
+        "</div>";
+    });
+    html += "</div>" +
+      '<p class="help" style="margin-top:14px"><kbd>j</kbd>/<kbd>k</kbd> next / previous · <kbd>1</kbd>–<kbd>5</kbd> pair verdict · <kbd>/</kbd> search · highlighted words are the selector\'s name literals as they appear in the request</p>';
+    el.innerHTML = html;
+  }
+
+  function renderAll() { renderTabs(); renderList(); renderDetail(); }
+
+  // ---- interaction -----------------------------------------------------------------------
+  document.getElementById("tabs").addEventListener("click", e => {
+    const t = e.target.closest("[data-set]"); if (!t) return;
+    state.set = t.dataset.set; state.sel = null; renderAll();
+    document.getElementById("list").scrollTop = 0;
+  });
+  document.getElementById("list").addEventListener("click", e => {
+    const r = e.target.closest("[data-key]"); if (!r) return;
+    state.sel = r.dataset.key;
+    document.querySelectorAll('.row[aria-selected="true"]').forEach(x => x.setAttribute("aria-selected", "false"));
+    r.setAttribute("aria-selected", "true");
+    renderDetail();
+  });
+  const bindFilter = (id, field, ev) => document.getElementById(id).addEventListener(ev || "change", e => { state[field] = e.target.value; state.sel = null; renderList(); renderDetail(); });
+  bindFilter("f-search", "search", "input"); bindFilter("f-lang", "lang"); bindFilter("f-tier", "tier"); bindFilter("f-flag", "flag"); bindFilter("f-status", "status");
+
+  function refreshRow(p) {
+    const keep = state.sel;
+    renderTabs(); renderList(); state.sel = keep;
+  }
+
+  document.getElementById("detail").addEventListener("click", e => {
+    const nav = e.target.closest("[data-nav]");
+    if (nav) { go(Number(nav.dataset.nav)); return; }
+    const p = selected(); if (!p) return;
+    const pv = e.target.closest("[data-pv]"), tv = e.target.closest("[data-tv]");
+    if (pv) {
+      const b = ann(p, true); b.verdict = b.verdict === pv.dataset.pv ? null : pv.dataset.pv;
+      touch(p); refreshRow(p); renderDetail();
+    } else if (tv) {
+      const b = ann(p, true), i = tv.dataset.ti;
+      b.texts[i] = b.texts[i] || { text: p.texts[i] };
+      b.texts[i].verdict = b.texts[i].verdict === tv.dataset.tv ? null : tv.dataset.tv;
+      touch(p); refreshRow(p); renderDetail();
+    }
+  });
+  document.getElementById("detail").addEventListener("input", e => {
+    const p = selected(); if (!p) return;
+    const b = ann(p, true);
+    if (e.target.id === "pair-note") b.note = e.target.value;
+    else if (e.target.id === "fix-css") b.fix_css = e.target.value;
+    else if (e.target.dataset.fix != null) {
+      const i = e.target.dataset.fix; b.texts[i] = b.texts[i] || { text: p.texts[i] }; b.texts[i].fix_text = e.target.value;
+    } else return;
+    touch(p);
+  });
+  document.getElementById("detail").addEventListener("change", e => { const p = selected(); if (p) refreshRow(p); });
+
+  document.addEventListener("keydown", e => {
+    if (e.target.closest("input, textarea, select") || e.metaKey || e.ctrlKey || e.altKey) {
+      if (e.key === "Escape" && e.target.blur) e.target.blur();
+      return;
+    }
+    if (document.getElementById("export-dlg").open) return;
+    const idx = current.findIndex(p => keyOf(p) === state.sel);
+    if (e.key === "j" || e.key === "k") {
+      go(e.key === "j" ? 1 : -1);
+      e.preventDefault();
+    } else if (e.key === "/") {
+      document.getElementById("f-search").focus(); e.preventDefault();
+    } else {
+      const v = PAIR_VERDICTS.find(x => x.key === e.key);
+      const p = selected();
+      if (v && p) { const b = ann(p, true); b.verdict = b.verdict === v.v ? null : v.v; touch(p); refreshRow(p); renderDetail(); e.preventDefault(); }
+    }
+  });
+
+  // ---- export ----------------------------------------------------------------------------
+  const dlg = document.getElementById("export-dlg");
+  const reviewerEl = document.getElementById("reviewer");
+  try { reviewerEl.value = localStorage.getItem(LS_KEY + "/reviewer") || ""; } catch (e) { /* no storage */ }
+
+  function buildLog() {
+    const annotations = Object.values(A).filter(b => !isEmpty(b)).map(b => {
+      const p = BY_ID.get(b.id + "|" + b.set) || null;
+      const texts = Object.entries(b.texts || {}).filter(([, t]) => t && (t.verdict || t.note || t.fix_text))
+        .map(([i, t]) => ({ index: Number(i), text: p ? p.texts[Number(i)] : t.text, verdict: t.verdict || null, fix_text: t.fix_text || null, note: t.note || null }))
+        .sort((x, y) => x.index - y.index);
+      return {
+        id: b.id, set: b.set, css: p ? p.css : b.css, fixture: p ? p.fixture : null, file: p ? p.file : null,
+        in_current_data: !!p, verdict: b.verdict || null, fix_css: b.fix_css || null, note: b.note || null,
+        texts, updated_at: b.updated_at, data_version: b.data_version,
+      };
+    }).sort((x, y) => (x.set + x.id).localeCompare(y.set + y.id));
+    const bySet = {};
+    annotations.forEach(a => { bySet[a.set] = (bySet[a.set] || 0) + 1; });
+    return {
+      schema: "astcss-review-log/1",
+      exported_at: new Date().toISOString(),
+      reviewer: reviewerEl.value.trim() || null,
+      data: { version: DATA.version, git: DATA.git, built: DATA.built },
+      counts: { annotated: annotations.length, by_set: bySet, problems: annotations.filter(a => isProblem({ verdict: a.verdict === "ok" ? null : a.verdict, texts: Object.fromEntries(a.texts.map(t => [t.index, t])) })).length },
+      annotations,
+    };
+  }
+  function openExport() {
+    document.getElementById("export-json").value = JSON.stringify(buildLog(), null, 2);
+    document.getElementById("export-status").textContent = "";
+    document.getElementById("export-note").textContent = db
+      ? "Annotations save to this page's store as you work, so Claude can read them directly; the file is a snapshot to keep or send."
+      : "Annotations are kept in this browser. Save or copy the log to share it.";
+    dlg.showModal();
+  }
+  document.getElementById("export-btn").addEventListener("click", openExport);
+  document.getElementById("close-btn").addEventListener("click", () => dlg.close());
+  reviewerEl.addEventListener("input", () => {
+    try { localStorage.setItem(LS_KEY + "/reviewer", reviewerEl.value); } catch (e) { /* no storage */ }
+    document.getElementById("export-json").value = JSON.stringify(buildLog(), null, 2);
+  });
+  document.getElementById("copy-btn").addEventListener("click", async () => {
+    const ta = document.getElementById("export-json"), st = document.getElementById("export-status");
+    try { await navigator.clipboard.writeText(ta.value); st.textContent = "Copied"; }
+    catch (e) { ta.focus(); ta.select(); st.textContent = "Copy blocked here: the text is selected, press Ctrl+C"; }
+  });
+  document.getElementById("save-btn").addEventListener("click", async () => {
+    const st = document.getElementById("export-status");
+    const text = document.getElementById("export-json").value;
+    const filename = "astcss-review-log-" + new Date().toISOString().slice(0, 16).replace(/[:T]/g, "") + ".json";
+    let downloads = null;
+    if (window.claude && typeof window.claude.use === "function") {
+      try { downloads = await window.claude.use("downloads"); } catch (e) { downloads = null; }
+      if (!downloads) { st.textContent = "Saving files isn't available here: use Copy JSON"; return; }
+      try { await downloads.save({ filename, data: text }); st.textContent = "Saved " + filename; }
+      catch (e) { st.textContent = e && e.code === "declined" ? "Not saved" : "Couldn't save (" + ((e && e.code) || "error") + "): use Copy JSON"; }
+      return;
+    }
+    const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+    const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    st.textContent = "Saved " + filename;
+  });
+
+  // Filters and the pair list collapse; on a narrow screen both start collapsed (remembered per browser).
+  const narrow = window.matchMedia("(max-width: 760px)").matches;
+  const uiPref = (k, d) => { try { const v = localStorage.getItem(LS_KEY + "/ui/" + k + (narrow ? "/narrow" : "")); return v === null ? d : v; } catch (e) { return d; } };
+  const uiSet = (k, v) => { try { localStorage.setItem(LS_KEY + "/ui/" + k + (narrow ? "/narrow" : ""), v); } catch (e) { /* no storage */ } };
+  const tf = document.getElementById("toggle-filters"), tl = document.getElementById("toggle-list");
+  function applyUi() {
+    tf.setAttribute("aria-expanded", String(appEl.dataset.filters === "shown"));
+    tl.setAttribute("aria-expanded", String(appEl.dataset.list === "shown"));
+    tf.textContent = appEl.dataset.filters === "shown" ? "Hide filters" : "Filters";
+    tl.textContent = appEl.dataset.list === "shown" ? "Hide list" : "List";
+  }
+  appEl.dataset.filters = uiPref("filters", narrow ? "hidden" : "shown");
+  appEl.dataset.list = uiPref("list", narrow ? "hidden" : "shown");
+  applyUi();
+  tf.addEventListener("click", () => { appEl.dataset.filters = appEl.dataset.filters === "shown" ? "hidden" : "shown"; uiSet("filters", appEl.dataset.filters); applyUi(); });
+  tl.addEventListener("click", () => {
+    appEl.dataset.list = appEl.dataset.list === "shown" ? "hidden" : "shown"; uiSet("list", appEl.dataset.list); applyUi();
+    if (appEl.dataset.list === "shown") { const row = document.querySelector('.row[aria-selected="true"]'); if (row) row.scrollIntoView({ block: "nearest" }); }
+  });
+
+  document.getElementById("meta").textContent = PAIRS.length + " pairs · data " + DATA.version + " · git " + DATA.git + " · built " + DATA.built;
+  renderAll();
+})();
+</script>

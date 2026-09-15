@@ -32,6 +32,7 @@ import time
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, HERE)
+import audit_pairs  # noqa: E402
 import oracle as O  # noqa: E402
 import pilot  # noqa: E402
 import verify as V  # noqa: E402
@@ -939,12 +940,21 @@ def cmd_filter(out, batch):
     if os.path.exists(path):
         for r in map(json.loads, open(path)):
             back[r["id"]][r["text_index"]] = r
-    kept, dropped_texts, dropped_pairs = [], 0, 0
+    kept, dropped_texts, dropped_pairs, undetermined = [], 0, 0, 0
     for name in ("accepted", "pending"):
         f = os.path.join(out, "pairs", "%s-%s.jsonl" % (name, batch))
         for p in map(json.loads, open(f)) if os.path.exists(f) else []:
             texts = [p["nl"]] + list(p["paraphrases"])
-            keep = [tx for k, tx in enumerate(texts) if not back[p["id"]].get(k, {}).get("distractor_hit")]
+            keep = []
+            for k, tx in enumerate(texts):
+                if back[p["id"]].get(k, {}).get("distractor_hit"):
+                    continue
+                # A wording that doesn't determine the selector without the fixture (the 2026-09-15
+                # audit: "start with cmd" for ^="_cmd_", "immediately" for ~) never reaches training.
+                if audit_pairs.request_reasons(p["css"], tx, p.get("fixture")):
+                    undetermined += 1
+                    continue
+                keep.append(tx)
             dropped_texts += len(texts) - len(keep)
             if not keep:
                 dropped_pairs += 1

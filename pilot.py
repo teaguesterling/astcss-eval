@@ -129,6 +129,23 @@ def has_truth_mismatches(rows):
     return bad
 
 
+def request_defects(rows):
+    """Training gate (2026-09-15 audit, FINDINGS.md): every request text must determine its selector
+    without the fixture. python-b1 verified "functions whose names start with cmd" as
+    `.fn[name^="_cmd_"]`, and the trained 0.8B learned to wrap prefixes in underscores.
+    audit_pairs.request_reasons lists the rules."""
+    import audit_pairs
+    bad = {}
+    for r in rows:
+        hits = []
+        for k, t in enumerate([r.get("nl", "")] + (r.get("paraphrases") or [])):
+            for why in audit_pairs.request_reasons(r.get("css", ""), t, r.get("fixture")):
+                hits.append("text %d %s" % (k, why))
+        if hits:
+            bad[r["id"]] = "request does not determine the selector: " + "; ".join(hits)
+    return bad
+
+
 def eval_overlap(rows):
     """Training gate: the held-out eval must stay held out.
 
@@ -171,6 +188,7 @@ def main(path, batch, root=HERE, paraphrase_rule="strict"):
     # Training batches only: the eval's pairs were audited by hand (FINDINGS.md).
     has_bad = has_truth_mismatches(rows) if os.path.abspath(root) != HERE else {}
     overlap_bad = eval_overlap(rows) if os.path.abspath(root) != HERE else {}
+    request_bad = request_defects(rows) if os.path.abspath(root) != HERE else {}
     engine = V.engine_identity()
 
     accepted, rejected, held, seen, prior_ids = [], [], [], {}, {}
@@ -193,6 +211,8 @@ def main(path, batch, root=HERE, paraphrase_rule="strict"):
             reasons.append(has_bad[r["id"]])
         if r["id"] in overlap_bad:
             reasons.append(overlap_bad[r["id"]])
+        if r["id"] in request_bad:
+            reasons.append(request_bad[r["id"]])
         if r["id"] in prior_ids:
             reasons.append("id already frozen in %s" % prior_ids[r["id"]])
         ref = v.get("reference")

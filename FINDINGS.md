@@ -499,6 +499,27 @@ saw a tier-5 selector or the tier-5 block. Pending pairs are scored by documente
   are asked with (train/cards/v2 = card + tier-5 block) and be scored on both evals with
   that card; the 82.4 baseline was measured with card v1c and is not directly comparable.
 
+### Stage 7d: training with the tier-5 card, no tier-5 pairs (0.8B)
+
+Stage 6b's recipe and 820 pairs (pre-audit), seed 17, with train/cards/v2 (card + tier-5 block)
+as the system prompt in training; asked with card_t5.md (identical to the v2 python card).
+
+| 0.8B, e2 | trained with | asked with | 108 pairs | T1 | T2 | T3 | T4 | tier 5 |
+|---|---|---|---|---|---|---|---|---|
+| 6b | card v1 | card v1c | **81.5** | 19/21 | 16/25 | 25/31 | 28/31 | -- |
+| 7c | card v1 | card_t5 | 74.1 | 18/21 | 16/25 | 22/31 | 24/31 | 34.5 |
+| 7d | v2 (card + tier-5 block) | card_t5 | 75.9 | 16/21 | 17/25 | 22/31 | 27/31 | 29.1 |
+
+- **The tier-5 vocabulary in the card does not teach tier 5 to the 0.8B**: 29.1 is no better
+  than the adapters that never saw the block (34.5 / 30.9). Reading new syntax off a card is
+  what the 0.8B can't do (7c); training on the card doesn't change that without examples.
+- **And the block costs the basic tiers ~6 points** (81.5 -> 75.9, mostly T1 and T3), about 6
+  pairs against ~1 pair of e2 seed noise. The extra ~700 tokens of vocabulary compete with
+  the vocabulary the 108 pairs use.
+- So the tier-5 run should not simply swap in the v2 card. Arms worth running once the suite
+  is filtered: card v1 + tier-5 pairs (vocabulary from examples only), v2 card + tier-5 pairs,
+  and a short tier-5 block. The 108-pair score is the guard against losing the basic tiers.
+
 ## From the generation pilot (device models write training pairs from source files)
 
 gemma-4-26B-A4B-it was given one training-fixture file at a time (10 Python, 10 Rust, 10
@@ -586,6 +607,58 @@ CUDA reservations). The one real memory fault was ours: `verify_batch` ran engin
 many fixtures per process (fixed: one fixture at a time). Long chains now run as systemd user
 units (`astcss-stage7`, `astcss-suite1`; `systemctl --user stop <unit>`), logging to
 `workspace/logs/unit-*.log`.
+
+## Request audit: requests that don't determine their selector (2026-09-15)
+
+The verifier checks a selector against its fixture, never whether the request carries what
+the selector needs. The 0.8B's misses showed the cost: it answered "starts with add" as
+`[name^="_add_"]` and "start with get_" as `^="_get_"` (4 eval pairs, 3.7 points), and
+python-b1 had taught it, e.g. "functions whose names start with cmd" verified as
+`.fn[name^="_cmd_"]` because the fixture's functions are `_cmd_*`. The drafting brief's
+paraphrase rule (no two texts share half their content words) pushed drafters to drop the
+name from paraphrases, and nothing checked that the request still named it.
+
+`audit_pairs.py` runs three passes over every set (training, the sf-p1 pilot, both evals, and
+suite1's generated wordings):
+
+| defect (audit_pairs.request_reasons) | training pairs | texts | example |
+|---|---|---|---|
+| prefix/suffix claim that isn't the filter value: falsified | 6 | 12 | "start with parse" for `^="_parse_"` |
+| the same, separator missing ("narrower") | 9 | 15 | "end in bind" for `$="_bind"` |
+| name filter value stated in no form | 37 | 59 | "which functions implement parsing?" for `^="_parse_"` |
+| a name defined in the fixture described only by its role | 47 | 112 | "the function that deletes a path" for `.fn#do_rm` |
+| "right after"/"immediately" worded against `~` | 3 | 4 | "which fields come right after a status field?" |
+| a request pointing outside itself | 2 | 2 | "which fields does that table define?" |
+
+90 training pairs (202 texts) were affected; a pair can carry more than one defect. Well-known APIs described by role
+("write to the console" for `print`, "set up command line arguments" for `add_argument`)
+are not defects: the eval asks them the same way, and a reader who can't see the fixture
+still recovers the name. Substring matches don't count as naming a literal ("deletion" does
+not name `del`, "reconciling" does not name `recon`).
+
+- **Eval (text 0, the text the model is asked):** one flag, t2-p24 "the update functions"
+  for `.fn[name^="update_"]` (exact name or prefix?). Teague's convention for such
+  ambiguity: return both, as a CSS/jQuery selector would, so the reference is the union of
+  `.fn#update` and `.fn[name^="update_"]`. On repo-small-py no function is named `update`
+  (update_file, update_index, update_sql_macro, update_test_file), so the union is the
+  current node set and the pair stands unchanged; `.fn#update` selects nothing and stays wrong. Paraphrases the eval never
+  asks have ~20 role-only texts. eval_t5: none.
+- **sf-p1:** two generated questions with inverted polarity ("Do any raise statements contain
+  a loop?" for `.throw:not(:has(.loop))`); sf-p1 is not in any planned dataset.
+- **suite1 wordings:** no prefix/suffix or literal defects (the glosses quote the value); one
+  selector worded "immediately following" for `~` in all three texts.
+
+Fixes:
+- `train/audit/reword-r1.json` rewords the 202 texts to state the literal (typed or spoken:
+  "the do_rm function", "where is the run user function defined?");
+  `train/audit/apply_reword.py` retires the 90 originals to `train/pairs/retired.jsonl` and
+  writes them as `<id>-a1` in `train/candidates/audit-r1.jsonl`.
+- `train/audit/prefix_contrast.py` adds 184 literal prefix/suffix candidates from real fixture
+  names (150 with no underscore; contrasts on one stem like `^="print"` / `^="print_"`),
+  batch prefix-c1.
+- `audit_pairs.request_reasons` is now a gate: pilot.py rejects training candidates that fail
+  it, and gen_pairs' filter stage drops such wordings before they reach a dataset.
+- The reworded ids change 90 pairs' validation membership (the split hashes the id).
 
 ## Taxonomy observations (no defect claimed)
 
