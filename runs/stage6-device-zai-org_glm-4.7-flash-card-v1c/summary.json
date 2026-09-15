@@ -1,0 +1,31 @@
+[
+  {
+    "model": "zai-org/GLM-4.7-Flash",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 100,
+    "exec_match": 60,
+    "exact": 53,
+    "by_tier": {
+      "1": [
+        8,
+        21
+      ],
+      "2": [
+        12,
+        25
+      ],
+      "3": [
+        19,
+        31
+      ],
+      "4": [
+        21,
+        31
+      ]
+    },
+    "median_latency_s": 1.17,
+    "mean_completion_tokens": 6.703703703703703,
+    "thinking": "off"
+  }
+]

@@ -18,6 +18,17 @@ PR #129 selector macros), on the `py-variety` fixture unless stated.
 | #139 | classes match sub-nodes of their construct (C++ `.fn` adds `function_declarator`, `.import` adds `system_lib_string` / `import_clause`, Java `.catch` adds `catch_type`, Go `.mod` adds `package_clause`); Bash `.call` misses `command`, Python `.self` is empty | training pairs use node types instead (`train/LANGUAGE_NOTES.md`) |
 | #140 | names don't bind: Bash `command`, Go `struct_type` / `interface_type` (name is on `type_spec`), Java imports (name is the whole statement) | training pairs avoid `#name` on these |
 | #141 | `A + B` counts punctuation as siblings, so comma-separated siblings are never adjacent (`identifier + identifier` 0 vs `~` 113) | no `+` pairs between list elements |
+| #145 | `:scope(selector)` is ignored: `.fn:scope(.class#UserService)` returns every function, `.call:scope(.class#UserService)` none; only a type argument works | tier-5 pairs use the documented meaning, verified by the reference checker (`pending_engine:scope-selector`) |
+| #146 | `:calls(name)` is plain containment, not scope-aware as documented: an outer function matches a call inside its nested function | same, `pending_engine:calls-scope` where the two differ |
+| #147 | `:is-referenced` matches every named definition (181 of 183 functions on py-blq), so `:not(:is-referenced)` finds no dead code | same, `pending_engine:is-referenced` |
+| #148 | `:exported` includes methods and nested functions; documented as module-level public definitions | same, `pending_engine:exported` |
+| #149 | `[receiver=X]` collapses chained receivers to the last segment: `self.db.execute()` has receiver `db` | pairs use single-segment receivers where the two meanings agree |
+| #150 | the tutorial's capstone selector errors: attribute filters inside `:has` are refused | tier-5 pairs may use them under `pending_engine:attr-in-has` |
+| #128 (comment) | captures (`.fn@f`) and unknown class aliases (`.nosuchclass`, `.with_statement`) return 0 without error | captures stay out of pairs |
+| #152 | `semantic_type = 'DEFINITION_FUNCTION'` is false for lambdas (code 241 renders as DEFINITION_FUNCTION, 240 is the literal), so `:called-by`'s nearest-function check looks through lambdas. Same for calls (comment): Rust `macro_invocation` (211) and JS `new_expression` (210) are not `= 'COMPUTATION_CALL'`, so `::callees` drops them (`.fn#test_glob_pattern_exact::callees` 0 vs 3) and `::callers` / `:calls` / `:is-called` can miss them | `pending_engine:called-by-lambda`, `pending_engine:call-code-literal` (6 of 35 generated `::callees` differ, all refined-code calls; all 25 `::callers` agree) |
+| #158 | C++ `template_function` / `template_method` are mapped to `DEFINITION_FUNCTION` with `NAME_DEFINITION \| IS_SCOPE`, but all 158 in the three C++ fixtures are use sites (112 under `call_expression`, 30 `field_expression`, 16 `qualified_identifier`, 0 in declarators): `.fn` matches `static_cast<int>(x)`, and a call through an explicit template argument list has no name (`.call#twice` 0 for `twice<int>(2)`) | 5 prefix-c1 C++ pairs dropped in the review (`.fn[name^="static"]`, `^="make"`, `$="cast"`, `^="Make"`, `$="Cast"`) |
+| #159 (feature) | `:templated` pseudo-class: `.fn:templated`, `.fn:not(:templated)` (no selector can exclude templated definitions today; `template_declaration > .fn` selects them), `.call:templated` for `make_uniq<T>(...)`; depends on #158 | template include/exclude pairs can be written against it once it lands |
+| #151 (filed elsewhere) | a bare type selector is a prefix match (`with` selects `with_item`, `with_statement`) | oracle.py matches types exactly; generated pairs use full type names, which agreed with the engine on all 343 regression selectors |
 
 ## Not filed
 
@@ -219,6 +230,24 @@ with float16 compute on the 2080 Ti, card v1c, greedy, thinking off
 directly comparable with the device's uncensored 9B (67.6 %): different weights,
 quantization and runtime.
 
+**Context arms on the local stock 9B** (same prompts as the device arms, greedy, NF4):
+
+| arm | match | T1 | T2 | T3 | T4 | +flip | -flip |
+|---|---|---|---|---|---|---|---|
+| no card | 0.0 | 0/21 | 0/25 | 0/31 | 0/31 | | |
+| card v1c | 64.8 | 15/21 | 20/25 | 14/31 | 21/31 | | |
+| static 10 | **75.9** | 15/21 | 22/25 | 21/31 | 24/31 | 15 | 3 |
+| retrieve 8 | 75.0 | 15/21 | 22/25 | 19/31 | 25/31 | 14 | 3 |
+
+- Without the card the stock 9B answers in prose ("I don't have access to any class...");
+  the card is what makes it answer with selectors at all.
+- Both example arms add ~10 points, mostly two-step selectors (T3 14 -> 19-21):
+  invented syntax goes (`.call:has(ancestor(.try))` -> `.try .call`), `:has` wraps the
+  right node (`.class .fn#speak` -> `.class:has(.fn#speak)`), and the dotted-node-type and
+  `.call#json.dumps` errors are fixed. The losses are `+`/`~` and an added `.try` step.
+- Unlike the device's larger models, the stock 9B gains as much from static examples as
+  from retrieval.
+
 **Prompt format facts, verified.**
 - Thinking is off in both runners. Locally the chat template is rendered with
   `enable_thinking=False` (an empty `<think></think>` block); no stock-9B response
@@ -276,6 +305,365 @@ on the device), same session and engine, flips against its card v1c control:
   decorating plain classes (`.comp` -> `.comp#list`).
 - Retrieval's +13.0 (16/2) is the largest context effect measured in stage 5 or 6, on
   the weakest device model. No run-to-run noise measurement exists for Qwen3-8B.
+
+## From stage 6 (local QLoRA learning curve, Qwen3.5-9B NF4, 108 pairs)
+
+LoRA r=16 on all linear layers, 2 epochs, no system prompt: the request goes in bare and
+the selector comes out. Training data is every verified training pair in all nine
+languages, capped at 8 per (request template, selector shape); the 25 % and 50 % subsets
+nest inside the full set and share its 85 validation pairs. 1.05-1.13 s per row on the
+2080 Ti, 8.1 GiB peak; the full set is ~40 min per epoch. Scored with the pinned engine.
+
+| training pairs (incl. 85 val) | shapes | val loss e1 / e2 | match e1 | match e2 |
+|---|---|---|---|---|
+| 278 (25 %) | 147 | 0.882 / 0.719 | 43.5 | 54.6 |
+| 457 (50 %) | 212 | 0.557 / 0.554 | 61.1 | 70.4 |
+| 820 (100 %) | 297 | 0.378 / 0.363 | **74.1** | 70.4 |
+
+Same model, untuned: no card 0.0 (it answers in prose), card v1c 64.8, static 10 examples
+75.9, retrieval 8 75.0.
+
+- The adapter with a 7-token prompt (74.1) matches the untuned model carrying the
+  ~2.5 KB card plus examples (75.9; +16/-18 flips), at half the latency (0.27 s vs 0.56 s
+  median). Against the card alone it is +9.3 (+26/-16).
+- The curve is still rising at the full set (43.5 -> 61.1 -> 74.1 at epoch 1), so more
+  verified pairs should still help. The second epoch helps small sets and not the full
+  one (74.1 -> 70.4, 4 pairs, one run each, no noise measurement).
+- Gains are structure the card never taught: `:has` versus a descendant step
+  (`.loop :has(.jump)` -> `.loop .jump`, `.if .jump` -> `.if:has(.jump)`), bare callee
+  names (`.call#json.dumps` -> `.call#dumps`), naming the enclosing function
+  (`.fn:has(.call#rename)`); T3 goes 14 -> 23/31.
+- **Most losses are other languages' vocabulary.** Of the 16 lost pairs, 9 use another
+  language's node types or names: `catch_clause` and `throw_statement` (Java),
+  `if_statement` (Java/Bash/Go), `.call#log` (JavaScript's `console.log`, three pairs),
+  `.fn#new` (Rust). Python is 297 of the 2,205 training rows, and nothing in a bare
+  request says which language it is. Python's training rows contain no `.call#print`,
+  no `.catch` and no `[params=N]` (the other two losses, card features the adapter never
+  saw); two more are raw `comprehension` for `.comp`. T4 drops 21 -> 19/31.
+- Next: name the language in the request (`[python] ...`; sitting_duck's classifier can
+  supply it when serving) on the same pairs, and see whether the vocabulary losses go.
+
+### Stage 6: every other chat model on the device, three context arms
+
+Same 108 pairs, pinned engine, one model at a time with arms back to back (2026-09-14
+21:29 -> 09-15 04:09). Thinking off where it can be switched off; gpt-oss at
+`reasoning_effort` low (4,000-token budget); Qwen3-30B-A3B-Thinking always thinks
+(8,000), so it ran the control only.
+
+| model | card v1c | static 10 | retrieve 8 | med s (control) |
+|---|---|---|---|---|
+| **Qwen/Qwen3.6-27B** | 88.9 | 92.6 (+5 -1) | **93.5** (+6 -1) | 2.1 |
+| Qwen/Qwen3-30B-A3B-Thinking | 83.3 | -- | -- | 35.5 |
+| Qwen/Qwen3-30B-A3B-Instruct | 74.1 | 76.9 (+7 -4) | 78.7 (+9 -4) | 0.41 |
+| Qwen/Qwen3.5-35B-A3B | 75.0 | 77.8 (+8 -5) | 77.8 (+10 -7) | 0.57 |
+| Qwen/Qwen3-Coder-30B-A3B-Instruct-Turbo | 71.3 | 78.7 (+16 -8) | 76.9 (+11 -5) | 0.57 |
+| openai/gpt-oss-20b | 65.0* | 65.7* | 75.2* | 6.4 |
+| openai/gpt-oss-120b | 66.7 | 68.5 (+12 -10) | 73.1 (+13 -6) | 10.2 |
+| zai-org/GLM-4.7-Flash | 55.6 | 71.3 (+20 -3) | 70.4 (+20 -4) | 1.17 |
+
+\* over 103-105 answered pairs: 3-5 requests per arm spend the whole reasoning budget
+and return no answer after ~142 s, on the retry too.
+
+- **Qwen3.6-27B with retrieval (93.5) is the best result so far**, above gemma-4-26B
+  (91.7, static examples, stage 5): T2 25/25, T3 29/31, T4 29/31. It is also the
+  slowest non-reasoning model (2-2.7 s per answer; gemma ~0.5 s).
+- Examples help every model; the weaker the control, the larger the gain (GLM +15.7,
+  Qwen3.6 +4.6). Retrieval is never worse than static examples by more than 2 points.
+- Reasoning does not pay here: gpt-oss-120b at low effort is below the non-thinking
+  30B-A3B-Instruct at 25x the latency, and the always-thinking 30B-A3B (83.3) is 9 points
+  above its Instruct sibling at ~85x the latency.
+- The Turbo Coder is not the stage-5 Coder (`Qwen3-Coder-30B-A3B-Instruct`, 76.9 control):
+  71.3 control here, different package, so not a noise estimate.
+
+### Stage 6b: Qwen3.5-0.8B (float16 weights + LoRA), same 820 pairs
+
+| arm | match | T1 | T2 | T3 | T4 | med s |
+|---|---|---|---|---|---|---|
+| untuned, no card | 0.0 | 0/21 | 0/25 | 0/31 | 0/31 | 0.21 |
+| untuned, card v1c | 26.9 | 10/21 | 12/25 | 5/31 | 2/31 | 0.27 |
+| LoRA, no system prompt, e1 / e2 / e3 | 63.9 / 65.7 / 69.4 | 17/21 | 17/25 | 25/31 | 16/31 | 0.37 |
+| LoRA, per-language card as system prompt, e1 / e2 | 69.4 / **81.5** | 19/21 | 16/25 | 25/31 | 28/31 | 0.17 |
+
+(tier columns are the last epoch)
+
+- **The 0.8B trained with its language's card beats every local 9B arm** (81.5 vs 75.9 for
+  the untuned 9B with card + examples, 74.1 for the 9B no-card adapter), at 1.8 GiB
+  peak and 0.72 s/row training. It is below the best device arm (gemma-4-26B, card +
+  examples, 91.7). One run per arm; no noise measurement.
+- The card arm trains on all nine languages with train/cards/card_<lang>.md and is asked
+  with card_v1c.md (identical to card_python.md), so the card also tells the model
+  which language it is answering. Card vs no card on the same pairs is +12.1 at the best
+  epoch and T4 16 -> 28/31 -- consistent with the stage 6 language-vocabulary losses,
+  but it confounds the card's content with the language cue. Stage 6e's `[python]` tag
+  separates them.
+- Training speed was the same with and without the card on the 0.8B (~27 min per epoch
+  for 2,205 rows).
+- Some runs generate to the 48-token limit after the selector (`.try\nassistant\n.try\nuser...`).
+  Not the model: every Qwen3.5 `config.json` names `<|endoftext|>` (248044) as eos, while
+  a chat turn ends with `<|im_end|>` (248046), so `generate` ran past the end of the
+  turn and the next turn's role names decode as text. Scoring takes the first line, so
+  match is unaffected; latency is inflated in every local run before 2026-09-15 05:10.
+  local_generate.py now stops on both ids (a 4-pair check: 3-9 tokens per answer).
+
+### Stage 6e: naming the language instead of sending the card (0.8B)
+
+Same 820 pairs and schedule as the 0.8B no-card adapter, with every request prefixed by
+its language (`[python] calls to sleep`; tune/prompting.tag_request), asked with
+`[python]` and no card:
+
+| 0.8B arm | e1 | e2 | e3 |
+|---|---|---|---|
+| no prompt (6b) | 63.9 | 65.7 | 69.4 |
+| language tag | 66.7 | **74.1** | 74.1 |
+| per-language card (6b) | 69.4 | **81.5** | -- |
+
+- The tag is worth +4.6 to +8.3 over the bare request at the same epoch, mostly T4
+  (16 -> 22-25/31): about half of the card's gain. The card's content is worth the rest
+  (-7.4 for the tag against the card, +4/-12 flips at e2).
+- A tag costs ~3 tokens and the card ~700, so where latency or context matter the tag is
+  the cheaper half; where they don't, the card still wins on the 0.8B.
+- **Qwen3.5-9B NF4 with the language tag: 75.0 / 77.8** (e1 / e2; T1 18/21, T2 18/25, T3 25/31,
+  T4 23/31 at e2), +3.7 over the 9B no-card adapter at e2 (74.1) and only 3.7 above the 0.8B
+  tag arm (74.1) for 11x the parameters; below the 0.8B trained with the card (81.5). The 9B
+  card run was paused on 2026-09-15 to give the GPU to the 0.8B work.
+- Generation stops at `<|im_end|>` in these runs: 0.08 s per answer on the 0.8B.
+
+### Stage 6c: the Qwen3.5 size ladder, trained with the per-language card
+
+Same 820 pairs and card format as the 0.8B arm above (train/cards/card_<lang>.md in
+training, card_v1c.md when asked), LoRA r=16, 2 epochs, pinned engine. The ladder was
+switched from the no-card format to this one before it started, on the stage 6b result.
+
+| model | untuned, no card | untuned, card v1c | trained e1 / e2 | per epoch, peak |
+|---|---|---|---|---|
+| Qwen3.5-0.8B float16 | 0.0 | 26.9 | 69.4 / 81.5 | 27 min, 1.8 GiB |
+| Qwen3.5-2B float16 | 0.0 | 30.6 | 80.6 / 82.4 | 27 min, 4.1 GiB |
+| Qwen3.5-4B NF4 | 0.0 | 57.4 | 86.1 / **89.8** | 49 min, 3.8 GiB |
+| Qwen3.5-9B NF4 | 0.0 | 64.8 | paused (language tag: 75.0 / 77.8) | ~75 min (probe), 8.5 GiB |
+
+- **The trained 4B (89.8; T1 21/21, T2 21/25, T3 28/31, T4 27/31) is within 3.7 of the
+  best device result**, Qwen3.6-27B with retrieval (93.5). Pair by pair: 94 both right,
+  4 both wrong, 7 only the 27B, 3 only the 4B. The 27B's extra wins are mostly
+  prefix filters the 4B turns into exact or wrong names (`.fn#update` for
+  `.fn[name^="update_"]`, `.call#fetch`, `.call[name^="_add_"]` for `^="add"`), plus
+  `if_statement` for `.if` and `.fn#run` for `.fn#main`. The 4B's three are node types
+  the 27B dotted into non-classes (`.while`, `.continue`, `.decorated_definition`).
+- Training lifts every size far above its untuned card score; the gain shrinks with size
+  (0.8B +54.6, 2B +51.8, 4B +32.4), and 0.8B and 2B land together (81.5, 82.4).
+- One run per arm; the stage-3 flip rates (1-6 per 98) are the only noise reference.
+
+### Stage 6d: Qwen3-4B-Instruct-2507 locally (NF4, untuned)
+
+The store download to the device fails (above), so it ran on the 2080 Ti: card v1c
+55.6, static 10 examples 66.7 (+15 -3), retrieval 8 66.7 (+16 -4); examples take T3
+from 9 to 15-16/31. Below Qwen3.5-4B trained (89.8) by 23 points.
+
+### Stage 7a/7b: seed noise, and 343 more pairs on the 0.8B
+
+Same recipe as the stage 6b card arm (per-language card, cap 8, LoRA r=16, 2 epochs).
+7a changes only the seed. 7b keeps seed 17 and appends the selector-first pilot's 343
+engine-verified pairs (T1-T4, gemma-worded, wording not back-translation filtered;
+workspace/sfgen/pairs/accepted-sf-p1.jsonl).
+
+| 0.8B arm | e1 | e2 | e2 T1 | T2 | T3 | T4 |
+|---|---|---|---|---|---|---|
+| 820 pairs, seed 17 (6b) | 69.4 | 81.5 | 19/21 | 16/25 | 25/31 | 28/31 |
+| 820 pairs, seed 18 (7a) | 78.7 | **82.4** | 19/21 | 17/25 | 25/31 | 28/31 |
+| 820 + 343 pairs, seed 17 (7b) | 74.1 | 79.6 | 19/21 | 17/25 | 24/31 | 26/31 |
+
+- **Seed noise is large after one epoch and small after two**: the seeds differ by 9.3
+  at e1 and by 1 pair at e2. Single-run e1 comparisons in stages 6b-6e are not
+  evidence of anything; e2 comparisons within ~2 points are not either.
+- **The 343 pairs did not help**: e2 is 1.9 below the same seed (+5 -7 flips) and 2.8
+  below seed 18 (+4 -7), losing T3/T4 pairs. That is within about two pairs of noise,
+  so "no gain" is the safe reading rather than "harm". The pilot pairs are the same
+  T1-T4 shapes the 820 already cover, so more of the same may simply be saturated at
+  this size; the tier-5 suite tests whether new shapes do better.
+
+### Stage 7c: tier-5 baselines before any tier-5 training
+
+The 55 tier-5 eval pairs (eval_t5, t5-b1 + t5-b2), asked with card_t5.md (card v1c + the
+tier-5 vocabulary block). The trained adapters are the stage 6b/6c/7a ones: they never
+saw a tier-5 selector or the tier-5 block. Pending pairs are scored by documented semantics.
+
+| model | tier-5 match | exact | med s |
+|---|---|---|---|
+| Qwen3.5-0.8B untuned | 7.3 | 3.6 | 0.20 |
+| Qwen3.5-0.8B trained, seed 17 / seed 18 | 34.5 / 30.9 | 10.9 / 9.1 | 0.24 |
+| Qwen3.5-2B trained | 38.2 | 14.5 | 0.34 |
+| Qwen3.5-4B NF4 trained | **67.3** | 34.5 | 0.84 |
+| Qwen3.5-9B NF4 untuned | 60.0 | 38.2 | 0.83 |
+
+- **Tier 5 separates sizes far more than tiers 1-4 do**: on the 108 pairs the trained
+  0.8B/2B/4B score 81.5/82.4/89.8; on tier 5 they score 31-35/38/67. The untuned 9B
+  (64.8 on the 108 with the card) is within 7 points of the trained 4B here. New
+  vocabulary read from a card is what the small models cannot do yet.
+- **The longer card costs the trained 0.8B 8.3 points on the 108 pairs** (82.4 -> 74.1,
+  +1 -10 flips, losses in every tier) with the same adapter. A model trained on one card
+  is brittle to prompt drift, so the tier-5 training runs must train with the card they
+  are asked with (train/cards/v2 = card + tier-5 block) and be scored on both evals with
+  that card; the 82.4 baseline was measured with card v1c and is not directly comparable.
+
+### Stage 7d: training with the tier-5 card, no tier-5 pairs (0.8B)
+
+Stage 6b's recipe and 820 pairs (pre-audit), seed 17, with train/cards/v2 (card + tier-5 block)
+as the system prompt in training; asked with card_t5.md (identical to the v2 python card).
+
+| 0.8B, e2 | trained with | asked with | 108 pairs | T1 | T2 | T3 | T4 | tier 5 |
+|---|---|---|---|---|---|---|---|---|
+| 6b | card v1 | card v1c | **81.5** | 19/21 | 16/25 | 25/31 | 28/31 | -- |
+| 7c | card v1 | card_t5 | 74.1 | 18/21 | 16/25 | 22/31 | 24/31 | 34.5 |
+| 7d | v2 (card + tier-5 block) | card_t5 | 75.9 | 16/21 | 17/25 | 22/31 | 27/31 | 29.1 |
+
+- **The tier-5 vocabulary in the card does not teach tier 5 to the 0.8B**: 29.1 is no better
+  than the adapters that never saw the block (34.5 / 30.9). Reading new syntax off a card is
+  what the 0.8B can't do (7c); training on the card doesn't change that without examples.
+- **And the block costs the basic tiers ~6 points** (81.5 -> 75.9, mostly T1 and T3), about 6
+  pairs against ~1 pair of e2 seed noise. The extra ~700 tokens of vocabulary compete with
+  the vocabulary the 108 pairs use.
+- So the tier-5 run should not simply swap in the v2 card. Arms worth running once the suite
+  is filtered: card v1 + tier-5 pairs (vocabulary from examples only), v2 card + tier-5 pairs,
+  and a short tier-5 block. The 108-pair score is the guard against losing the basic tiers.
+
+## From the generation pilot (device models write training pairs from source files)
+
+gemma-4-26B-A4B-it was given one training-fixture file at a time (10 Python, 10 Rust, 10
+JavaScript; 2-12 KB each) with the language card, the brief's rules, the fixture's name
+inventory and a tier mix weighted to T3/T4, and asked for 8 candidates per file.
+Wording failures went back to it twice with the exact shared words. Survivors went
+through pilot.py's training gates, then Qwen3-Coder-30B-Turbo translated each request
+back to a selector from the card alone. Scripts: workspace/gen_pilot.py (gitignored).
+
+| stage | candidates left | share |
+|---|---|---|
+| generated | 238 | 100 % |
+| pass the wording gates as generated | 50 | 21 % |
+| ... after two repair rounds | 103 | 43 % |
+| pass the engine gates | 30 | 13 % |
+| Coder reproduces the node set from the request or a paraphrase | 26 | 11 % |
+
+By tier: T2 18/77, T3 7/50, **T4 5/111**. Device time 2,590 s (generation 1,257,
+repair 1,333) plus 1,128 s of verification: ~2.5 min per surviving pair.
+
+- **Below the 30 % bar set for scaling, and the survivors are the easy shapes.** 16 of
+  the 30 are `.fn#name` or `.call#name`; 12 distinct shapes in all, 4 of them new to
+  the training set (`.fn#_ .var`, `.fn .call#_`, `.if:has(.call#_)`, `.fn#_ .member`).
+  The candidates had 77 shapes; the hard ones are what the gates removed.
+- **Wording is the largest loss.** 188 of 238 as generated reuse the name and the noun
+  in all three texts ("the Hole class" / "find the Hole class"); repair with the
+  shared words listed recovers 53, and 135 still fail.
+- **The model cannot see match counts.** Bounds rejected 36: common names across the
+  whole fixture (`.call#get` 106, `.call#getattr` 141), generic T4s
+  (`.fn:not(:has(.try))` 139), and selectors that match nothing (`.if:has(.assignment)`,
+  `.fn#copy .call#copy`). Generic T4s also collide with the eval: 11 candidates were
+  exactly an eval answer (`.fn:has(.try)`, `.fn:has(.call#print)`, `.fn:has(.loop)`),
+  and 17 duplicated node sets already in training.
+- **Back-translation is a real semantic check.** It flagged `.call#parse_query` asked as
+  "the parse_query function" -- a request/selector mismatch no execution gate can see --
+  along with three that read correctly (`.fn .call#json`, "functions that call json").
+- Implication: generate the selector deterministically from the engine (names and
+  shapes with 1-50 matches, load-bearing steps and no eval or training collision checked
+  before any model call) and ask the model only for the wording. That removes every
+  engine-stage loss above and lets the shape mix be chosen instead of hoped for.
+
+## From tier 5 and the larger training suite (2026-09-15)
+
+**Documented semantics as the reference (`oracle.py`).** Tier 5 needs features the engine
+gets wrong today, and the decision (Teague) is to write pairs against the documented meaning
+and patch the engine later. `oracle.py` computes that meaning in Python over the engine's own
+node table, with class membership taken from `ast_select_from` per class. Validation: all 343
+engine-verified selector-first references (T1-T4, every combinator) reproduce exactly; 11
+documented cases from the filed issues' repro file all match. Where the engine disagrees, a
+pair is `pending_engine:<issue>` only if a filed issue explains the difference, otherwise it
+is rejected -- which is how #152 was found (`:called-by` looking through lambdas).
+
+**Tier-5 eval (`eval_t5/`, 47 pairs).** Several constraints on one node, receivers,
+`:calls` / `:called-by` / `:is-called`, references and exports, `:scope(selector)`,
+decorators and return types, on the two eval fixtures; 35 selectors generated, 12 picked by
+hand; wordings hand-written under the strict paraphrase rule. 34 are engine-verified; 13 are
+pending on #145, #147, #148, #150 and #152 and scored by the documented semantics
+(`qualify.py --pairs-dir eval_t5`). Kept outside `pairs/` so the 108-pair numbers stay
+comparable. Teague's example query (`.class#UserService .fn:has(.call#execute):not(:has(.try))`)
+could not be a pair: on this fixture the `:not(:has(.try))` step changes nothing.
+
+**Suite 1 (`tune/gen_pairs.py`).** 4,601 candidates over all 20 training fixtures and nine
+languages (T5 2,299; 1,847 distinct shapes, 3,986 new to training). SQL and Bash get few tier-5
+families: no receivers, call graph or modifiers there.
+
+**How well device-model wordings read back.** Qwen3.6-27B translated 635 gemma wordings of 215
+selector-first pairs back to selectors (the run was stopped before the end): 148 of 215 pairs
+(69 %) had at least one wording come back to the same node set; per wording 62-66 %. Names and
+prefix filters 52/52; siblings and `>` 50/72; `:has` over node types 36/72; bare node types 1/7.
+The misses read correctly ("loops that contain at least one continue statement"): these are the
+shapes even the strongest reader gets wrong, not bad wordings.
+
+**Node to selector (`Tree.selector_for`).** A DevTools-style "copy selector": the node's classes,
+type, name, receiver, parameter count and return type, plus two-step selectors anchored on the
+nearest named function or class; exactly-one-match first. On 40 sampled named nodes per fixture
+a unique selector exists for 82 % (py-variety), 70 % (rs-magic), 62 % (py-blq), 58 % (js-messe);
+11 of 12 unique selectors return exactly that node on the engine (the miss: bare type prefix
+match, #151). What stays ambiguous is repetition inside one scope (`append` x66 in one function):
+two steps and no file or line attribute cannot separate them.
+
+**Running long jobs.** Claude Code's background-task guard killed every long job at 09:05-09:07
+for "low memory" while the kernel reported ~100 GB available, no cgroup limits, no OOM events and
+near-zero memory pressure; committed memory was ~85 of 87 GB (many MCP servers, OCR workers,
+CUDA reservations). The one real memory fault was ours: `verify_batch` ran engine checks across
+many fixtures per process (fixed: one fixture at a time). Long chains now run as systemd user
+units (`astcss-stage7`, `astcss-suite1`; `systemctl --user stop <unit>`), logging to
+`workspace/logs/unit-*.log`.
+
+## Request audit: requests that don't determine their selector (2026-09-15)
+
+The verifier checks a selector against its fixture, never whether the request carries what
+the selector needs. The 0.8B's misses showed the cost: it answered "starts with add" as
+`[name^="_add_"]` and "start with get_" as `^="_get_"` (4 eval pairs, 3.7 points), and
+python-b1 had taught it, e.g. "functions whose names start with cmd" verified as
+`.fn[name^="_cmd_"]` because the fixture's functions are `_cmd_*`. The drafting brief's
+paraphrase rule (no two texts share half their content words) pushed drafters to drop the
+name from paraphrases, and nothing checked that the request still named it.
+
+`audit_pairs.py` runs three passes over every set (training, the sf-p1 pilot, both evals, and
+suite1's generated wordings):
+
+| defect (audit_pairs.request_reasons) | training pairs | texts | example |
+|---|---|---|---|
+| prefix/suffix claim that isn't the filter value: falsified | 6 | 12 | "start with parse" for `^="_parse_"` |
+| the same, separator missing ("narrower") | 9 | 15 | "end in bind" for `$="_bind"` |
+| name filter value stated in no form | 37 | 59 | "which functions implement parsing?" for `^="_parse_"` |
+| a name defined in the fixture described only by its role | 47 | 112 | "the function that deletes a path" for `.fn#do_rm` |
+| "right after"/"immediately" worded against `~` | 3 | 4 | "which fields come right after a status field?" |
+| a request pointing outside itself | 2 | 2 | "which fields does that table define?" |
+
+90 training pairs (202 texts) were affected; a pair can carry more than one defect. Well-known APIs described by role
+("write to the console" for `print`, "set up command line arguments" for `add_argument`)
+are not defects: the eval asks them the same way, and a reader who can't see the fixture
+still recovers the name. Substring matches don't count as naming a literal ("deletion" does
+not name `del`, "reconciling" does not name `recon`).
+
+- **Eval (text 0, the text the model is asked):** one flag, t2-p24 "the update functions"
+  for `.fn[name^="update_"]` (exact name or prefix?). Teague's convention for such
+  ambiguity: return both, as a CSS/jQuery selector would, so the reference is the union of
+  `.fn#update` and `.fn[name^="update_"]`. On repo-small-py no function is named `update`
+  (update_file, update_index, update_sql_macro, update_test_file), so the union is the
+  current node set and the pair stands unchanged; `.fn#update` selects nothing and stays wrong. Paraphrases the eval never
+  asks have ~20 role-only texts. eval_t5: none.
+- **sf-p1:** two generated questions with inverted polarity ("Do any raise statements contain
+  a loop?" for `.throw:not(:has(.loop))`); sf-p1 is not in any planned dataset.
+- **suite1 wordings:** no prefix/suffix or literal defects (the glosses quote the value); one
+  selector worded "immediately following" for `~` in all three texts.
+
+Fixes:
+- `train/audit/reword-r1.json` rewords the 202 texts to state the literal (typed or spoken:
+  "the do_rm function", "where is the run user function defined?");
+  `train/audit/apply_reword.py` retires the 90 originals to `train/pairs/retired.jsonl` and
+  writes them as `<id>-a1` in `train/candidates/audit-r1.jsonl`.
+- `train/audit/prefix_contrast.py` adds 184 literal prefix/suffix candidates from real fixture
+  names (150 with no underscore; contrasts on one stem like `^="print"` / `^="print_"`),
+  batch prefix-c1.
+- `audit_pairs.request_reasons` is now a gate: pilot.py rejects training candidates that fail
+  it, and gen_pairs' filter stage drops such wordings before they reach a dataset.
+- The reworded ids change 90 pairs' validation membership (the split hashes the id).
 
 ## Taxonomy observations (no defect claimed)
 

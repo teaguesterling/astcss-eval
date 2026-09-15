@@ -51,10 +51,20 @@ CHAT_TYPES = ("Text Generation", "Image-Text-to-Text")
 # Pairs
 # ---------------------------------------------------------------------------
 
+# --pairs-dir: which eval to run. Default the original 108 pairs (pairs/accepted-*).
+# eval_t5 loads accepted AND pending pairs: pending tier-5 pairs carry references computed
+# from the documented semantics (oracle.py) and are scored that way, since the engine's
+# own answer for them is the filed defect.
+PAIRS_DIR = None
+
+
 def load_pairs():
+    root = os.path.join(HERE, PAIRS_DIR, "pairs") if PAIRS_DIR else os.path.join(HERE, "pairs")
+    kinds = ("accepted", "pending") if PAIRS_DIR else ("accepted",)
     pairs = []
-    for path in sorted(glob.glob(os.path.join(HERE, "pairs", "accepted-*.jsonl"))):
-        pairs.extend(json.loads(line) for line in open(path) if line.strip())
+    for kind in kinds:
+        for path in sorted(glob.glob(os.path.join(root, "%s-*.jsonl" % kind))):
+            pairs.extend(json.loads(line) for line in open(path) if line.strip())
     return pairs
 
 
@@ -388,15 +398,29 @@ def extract(text):
 
 def score(rows, pairs_by_id):
     """rows: [{"model", "id", "prediction", ...}] -> rows with executes / exec_match / exact added."""
+    documented = lambda p: (p.get("reference") or {}).get("source") == "oracle"  # noqa: E731
     uniq = {}
     for r in rows:
-        if r.get("prediction"):
+        if r.get("prediction") and not documented(pairs_by_id[r["id"]]):
             uniq.setdefault((pairs_by_id[r["id"]]["fixture"], r["prediction"]), "q%d" % len(uniq))
     got = V.execute([(qid, fx, sel) for (fx, sel), qid in uniq.items()]) if uniq else {}
+    trees = {}
     out = []
     for r in rows:
         p = pairs_by_id[r["id"]]
         r = dict(r, tier=p["tier"], reference=p["css"])
+        if documented(p):
+            # Scored by the documented semantics the reference was computed with.
+            import oracle as O
+            s = O.parse(r.get("prediction") or "")
+            t = trees.setdefault(p["fixture"], O.Tree(p["fixture"])) if s else None
+            r["scored_by"] = "oracle"
+            r["executes"] = s is not None
+            r["exec_error"] = None if s else "unparseable or refused selector"
+            r["exec_match"] = bool(s) and t.digest(t.select(s)) == p["reference"]["sha256"]
+            r["exact"] = r.get("prediction") == p["css"]
+            out.append(r)
+            continue
         res = got.get(uniq.get((p["fixture"], r.get("prediction"))), {"error": "empty prediction"})
         r["executes"] = "error" not in res
         r["exec_error"] = res.get("error")
@@ -634,7 +658,10 @@ def main():
     ap.add_argument("--per-tier", type=int, default=10)
     ap.add_argument("--seed", default="qualify-v1")
     ap.add_argument("--out")
+    ap.add_argument("--pairs-dir", help="eval to run: default pairs/ (the 108-pair eval); eval_t5 for tier 5")
     args = ap.parse_args()
+    global PAIRS_DIR
+    PAIRS_DIR = args.pairs_dir
     if args.command == "oracle":
         cmd_oracle(args)
     elif args.command == "run":

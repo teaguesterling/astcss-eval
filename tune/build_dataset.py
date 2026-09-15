@@ -30,6 +30,8 @@ import sys
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, HERE)
 import pilot  # noqa: E402
+sys.path.insert(0, os.path.join(HERE, "tune"))
+import prompting  # noqa: E402
 
 
 def shape(css):
@@ -55,15 +57,25 @@ def main():
     ap.add_argument("--cap-template", type=int, default=0)
     ap.add_argument("--val-frac", type=float, default=0.1)
     ap.add_argument("--train-frac", type=float, default=1.0, help="keep this fraction of training pairs (learning curves)")
+    ap.add_argument("--lang-tag", action="store_true", help="prefix each request with its language (prompting.tag_request)")
+    ap.add_argument("--extra-pairs", action="append", default=[],
+                    help="glob (relative to the repo) of more verified pair files, e.g. workspace/sfgen/pairs/accepted-sf-p1.jsonl")
+    ap.add_argument("--cards-dir", default="train/cards", help="per-language cards; train/cards/v2 adds the tier-5 vocabulary")
     ap.add_argument("--seed", default="astcss-train-v1")
     args = ap.parse_args()
 
     langs = set(args.langs.split(",")) if args.langs else None
-    pairs = []
-    for path in sorted(glob.glob(os.path.join(HERE, "train/pairs/accepted-*.jsonl"))):
+    pairs, seen_ids = [], set()
+    paths = sorted(glob.glob(os.path.join(HERE, "train/pairs/accepted-*.jsonl")))
+    for g in args.extra_pairs:
+        paths += sorted(p for p in glob.glob(os.path.join(HERE, g)) if not os.path.basename(p).startswith("rejected-"))
+    for path in paths:
         for line in open(path):
             if line.strip():
                 p = json.loads(line)
+                if p["id"] in seen_ids:
+                    continue
+                seen_ids.add(p["id"])
                 p["lang"] = p["id"].split("-")[1]
                 if not langs or p["lang"] in langs:
                     pairs.append(p)
@@ -106,7 +118,7 @@ def main():
     elif args.system == "per-language":
         for p in pairs:
             if p["lang"] not in cards:
-                cards[p["lang"]] = open(os.path.join(HERE, "train/cards/card_%s.md" % p["lang"])).read()
+                cards[p["lang"]] = open(os.path.join(HERE, args.cards_dir, "card_%s.md" % p["lang"])).read()
 
     out_dir = os.path.join(HERE, "workspace", "datasets", args.name)
     os.makedirs(out_dir, exist_ok=True)
@@ -119,7 +131,8 @@ def main():
             system = cards.get(None) if args.system == "card" else cards.get(p["lang"])
             for req in requests:
                 msgs = ([{"role": "system", "content": system}] if system else []) + [
-                    {"role": "user", "content": req}, {"role": "assistant", "content": p["css"]}]
+                    {"role": "user", "content": prompting.tag_request(p["lang"] if args.lang_tag else None, req)},
+                    {"role": "assistant", "content": p["css"]}]
                 row = {"messages": msgs, "pair_id": p["id"], "lang": p["lang"], "tier": p["tier"], "fixture": p["fixture"]}
                 (va if split == "val" else tr).write(json.dumps(row, ensure_ascii=False) + "\n")
                 counts[split] += 1

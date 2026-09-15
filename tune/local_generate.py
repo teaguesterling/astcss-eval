@@ -33,6 +33,8 @@ def main():
     ap.add_argument("--name", required=True, help="model label written to every row")
     ap.add_argument("--out", required=True)
     ap.add_argument("--card", default="card_v1c.md", help="system prompt file, or 'none'")
+    ap.add_argument("--lang-tag", help="name the request's language (prompting.tag_request); match the adapter's dataset")
+    ap.add_argument("--pairs-dir", help="eval to ask: default pairs/ (108 pairs); eval_t5 for tier 5 (score with the same flag)")
     ap.add_argument("--retrieve", type=int, default=0)
     ap.add_argument("--retrieve-portable", action="store_true")
     ap.add_argument("--per-tier", type=int, default=0)
@@ -40,6 +42,8 @@ def main():
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--max-new-tokens", type=int, default=48)
     ap.add_argument("--embed-cpu", action="store_true")
+    ap.add_argument("--quant", choices=("4bit", "none"), default="4bit",
+                    help="4bit (NF4, the 9B) or none (float16 weights, small models)")
     args = ap.parse_args()
 
     import torch
@@ -47,6 +51,7 @@ def main():
     from train_qlora import load_model
 
     card = None if args.card == "none" else open(os.path.join(HERE, args.card)).read()
+    qualify.PAIRS_DIR = args.pairs_dir
     pairs = qualify.sample(qualify.load_pairs(), args.per_tier, args.seed)
     contexts = {p["id"]: (card, []) for p in pairs}
     if args.retrieve:
@@ -69,12 +74,13 @@ def main():
                    "pair_ids": [p["id"] for p in pairs], "card": args.card,
                    "card_sha256": hashlib.sha256(card.encode()).hexdigest() if card else None,
                    "retrieve": args.retrieve, "retrieve_portable": args.retrieve_portable,
-                   "leaked_ids": leaks, "prompt_format": prompting.FORMAT_VERSION, "embed_cpu": args.embed_cpu},
+                   "leaked_ids": leaks, "prompt_format": prompting.FORMAT_VERSION, "embed_cpu": args.embed_cpu,
+                   "lang_tag": args.lang_tag},
                   open(meta_path, "w"), indent=2)
 
     tok = AutoTokenizer.from_pretrained(args.base)
     tok.padding_side = "left"
-    model, dev = load_model(args.base, args.embed_cpu)
+    model, dev = load_model(args.base, args.embed_cpu, args.quant)
     if args.adapter:
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, args.adapter)
@@ -83,14 +89,22 @@ def main():
     todo = [p for p in pairs if p["id"] not in done]
     print("%s: %d of %d pairs to ask" % (args.name, len(todo), len(pairs)), flush=True)
     pad = tok.pad_token_id if tok.pad_token_id is not None else tok.eos_token_id
+    stop_ids = sorted({i for i in (tok.convert_tokens_to_ids(prompting.end_of_turn(tok)), tok.eos_token_id,
+                                   getattr(model.generation_config, "eos_token_id", None)) if isinstance(i, int)})
+    print("stopping on token ids %s" % stop_ids, flush=True)
     with open(resp_path, "a") as fh:
         for i in range(0, len(todo), args.batch):
             chunk = todo[i:i + args.batch]
-            texts = [prompting.prompt_text(tok, contexts[p["id"]][0], p["nl"]) for p in chunk]
+            texts = [prompting.prompt_text(tok, contexts[p["id"]][0], prompting.tag_request(args.lang_tag, p["nl"]))
+                     for p in chunk]
             enc = tok(texts, return_tensors="pt", padding=True, add_special_tokens=False).to(dev)
             t0 = time.time()
             with torch.no_grad():
-                out = model.generate(**enc, max_new_tokens=args.max_new_tokens, do_sample=False, pad_token_id=pad)
+                # Qwen3.5's config.json names <|endoftext|> as eos, but a chat turn ends with
+                # <|im_end|>: without both, generation ran past the turn to max_new_tokens
+                # (decoded as "\nuser\nuser...") -- first line unchanged, latency inflated.
+                out = model.generate(**enc, max_new_tokens=args.max_new_tokens, do_sample=False, pad_token_id=pad,
+                                     eos_token_id=stop_ids)
             dt = (time.time() - t0) / len(chunk)
             for p, seq in zip(chunk, out):
                 gen = seq[enc["input_ids"].shape[1]:]

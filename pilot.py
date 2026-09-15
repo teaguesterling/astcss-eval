@@ -1,6 +1,9 @@
 """Verify a batch of candidate pairs and split it into accepted and rejected.
 
-usage: pilot.py <candidates.jsonl> <batch-id> [root]
+usage: pilot.py <candidates.jsonl> <batch-id> [root] [--paraphrases=strict|distinct]
+
+--paraphrases=distinct relaxes the content-word overlap rule for training batches
+(paraphrases need only differ); the eval keeps the strict default.
 
 `root` (default: this directory) holds pairs/ and batches/; training batches use
 `train`, so they never write into, or deduplicate against, the eval's pairs/.
@@ -40,7 +43,15 @@ def content_words(text):
     return {w for w in re.findall(r"[a-z0-9_]+", text.lower()) if w not in STOP}
 
 
-def static_reasons(p):
+PARAPHRASE_RULES = ("strict", "distinct")
+
+
+def static_reasons(p, paraphrase_rule="strict"):
+    """paraphrase_rule "strict" (the eval's rule, SPEC.md §5): no two of nl+paraphrases share
+    more than half their content words. "distinct" (training batches, Teague 2026-09-15:
+    paraphrases may overlap): the texts need only differ after case and whitespace."""
+    if paraphrase_rule not in PARAPHRASE_RULES:
+        raise ValueError("paraphrase_rule must be one of %s" % (PARAPHRASE_RULES,))
     reasons = []
     if SELECTOR_SYNTAX.search(p.get("nl", "")):
         reasons.append("nl contains selector syntax")
@@ -52,6 +63,10 @@ def static_reasons(p):
         if i and SELECTOR_SYNTAX.search(texts[i]):
             reasons.append("paraphrase %d contains selector syntax" % i)
         for j in range(i + 1, len(texts)):
+            if paraphrase_rule == "distinct":
+                if " ".join(texts[i].lower().split()) == " ".join(texts[j].lower().split()):
+                    reasons.append("texts %d and %d are the same request" % (i, j))
+                continue
             a, b = content_words(texts[i]), content_words(texts[j])
             shared = a & b
             if a and b and len(shared) > min(len(a), len(b)) / 2:
@@ -114,6 +129,23 @@ def has_truth_mismatches(rows):
     return bad
 
 
+def request_defects(rows):
+    """Training gate (2026-09-15 audit, FINDINGS.md): every request text must determine its selector
+    without the fixture. python-b1 verified "functions whose names start with cmd" as
+    `.fn[name^="_cmd_"]`, and the trained 0.8B learned to wrap prefixes in underscores.
+    audit_pairs.request_reasons lists the rules."""
+    import audit_pairs
+    bad = {}
+    for r in rows:
+        hits = []
+        for k, t in enumerate([r.get("nl", "")] + (r.get("paraphrases") or [])):
+            for why in audit_pairs.request_reasons(r.get("css", ""), t, r.get("fixture")):
+                hits.append("text %d %s" % (k, why))
+        if hits:
+            bad[r["id"]] = "request does not determine the selector: " + "; ".join(hits)
+    return bad
+
+
 def eval_overlap(rows):
     """Training gate: the held-out eval must stay held out.
 
@@ -124,7 +156,8 @@ def eval_overlap(rows):
     allowed. Eval pairs are pairs/{accepted,pending,retired}*.jsonl."""
     norm = lambda s: " ".join(s.lower().split())  # noqa: E731
     ev_nl, ev_css = {}, {}
-    for path in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl"))):
+    # The tier-5 eval (eval_t5/, 2026-09-15) is held out too.
+    for path in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl")) + glob.glob(os.path.join(HERE, "eval_t5", "pairs", "*.jsonl"))):
         if os.path.basename(path).startswith("rejected-"):
             continue
         for line in open(path):
@@ -147,7 +180,7 @@ def eval_overlap(rows):
     return bad
 
 
-def main(path, batch, root=HERE):
+def main(path, batch, root=HERE, paraphrase_rule="strict"):
     rows = [json.loads(line) for line in open(path) if line.strip()]
     for r in rows:
         r["selector"] = r["css"]
@@ -155,6 +188,7 @@ def main(path, batch, root=HERE):
     # Training batches only: the eval's pairs were audited by hand (FINDINGS.md).
     has_bad = has_truth_mismatches(rows) if os.path.abspath(root) != HERE else {}
     overlap_bad = eval_overlap(rows) if os.path.abspath(root) != HERE else {}
+    request_bad = request_defects(rows) if os.path.abspath(root) != HERE else {}
     engine = V.engine_identity()
 
     accepted, rejected, held, seen, prior_ids = [], [], [], {}, {}
@@ -172,11 +206,13 @@ def main(path, batch, root=HERE):
             seen[(p["fixture"], p["reference"]["sha256"])] = p["id"]
     for r in rows:
         v = report[r["id"]]
-        reasons = static_reasons(r) + list(v["reasons"])
+        reasons = static_reasons(r, paraphrase_rule) + list(v["reasons"])
         if r["id"] in has_bad:
             reasons.append(has_bad[r["id"]])
         if r["id"] in overlap_bad:
             reasons.append(overlap_bad[r["id"]])
+        if r["id"] in request_bad:
+            reasons.append(request_bad[r["id"]])
         if r["id"] in prior_ids:
             reasons.append("id already frozen in %s" % prior_ids[r["id"]])
         ref = v.get("reference")
@@ -222,6 +258,7 @@ def main(path, batch, root=HERE):
         by_tier[row["tier"]] = by_tier.get(row["tier"], 0) + 1
     meta = {"batch": batch, "source": os.path.relpath(path, HERE),
             "when": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "engine": engine,
+            "paraphrase_rule": paraphrase_rule,
             "candidates": len(rows), "accepted": len(accepted), "rejected": len(rejected),
             "pending": len(held), "accepted_by_tier": by_tier}
     dest = os.path.join(root, "batches", "%s.json" % batch)
@@ -242,4 +279,6 @@ def main(path, batch, root=HERE):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], os.path.join(HERE, sys.argv[3]) if len(sys.argv) > 3 else HERE)
+    rule = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--paraphrases=")), "strict")
+    argv = [a for a in sys.argv[1:] if not a.startswith("--paraphrases=")]
+    main(argv[0], argv[1], os.path.join(HERE, argv[2]) if len(argv) > 2 else HERE, rule)

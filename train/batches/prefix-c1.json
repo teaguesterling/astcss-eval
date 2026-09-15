@@ -1,0 +1,21 @@
+{
+  "accepted": 127,
+  "accepted_by_tier": {
+    "2": 127
+  },
+  "batch": "prefix-c1",
+  "candidates": 184,
+  "engine": {
+    "cli": "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-20260914-1835/build/release/duckdb",
+    "extension": "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-20260914-1835/build/release/extension/sitting_duck/sitting_duck.duckdb_extension",
+    "extension_mtime": 1789436127.8191583,
+    "macros": "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-20260914-1835/css_selectors-fix127.sql",
+    "macros_sha256": "28c60f39605c039b0c40f9dd44ca5bcb0aded4cab38c39dc98ef828ce2a5f3c6",
+    "sitting_duck_checkout_head": "c5ff5a1eb8dcd5a2f40e2a47699caec3aa1abcce"
+  },
+  "paraphrase_rule": "distinct",
+  "pending": 0,
+  "rejected": 57,
+  "source": "train/candidates/prefix-c1.jsonl",
+  "when": "2026-09-15T15:03:35-0700"
+}

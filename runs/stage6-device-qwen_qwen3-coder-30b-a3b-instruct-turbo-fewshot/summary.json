@@ -1,0 +1,31 @@
+[
+  {
+    "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct-Turbo",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 105,
+    "exec_match": 85,
+    "exact": 80,
+    "by_tier": {
+      "1": [
+        18,
+        21
+      ],
+      "2": [
+        21,
+        25
+      ],
+      "3": [
+        20,
+        31
+      ],
+      "4": [
+        26,
+        31
+      ]
+    },
+    "median_latency_s": 0.555,
+    "mean_completion_tokens": 6.314814814814815,
+    "thinking": "none"
+  }
+]

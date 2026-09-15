@@ -1,0 +1,31 @@
+[
+  {
+    "model": "local:Qwen3-4B-Instruct-2507-nf4",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 100,
+    "exec_match": 60,
+    "exact": 50,
+    "by_tier": {
+      "1": [
+        12,
+        21
+      ],
+      "2": [
+        21,
+        25
+      ],
+      "3": [
+        9,
+        31
+      ],
+      "4": [
+        18,
+        31
+      ]
+    },
+    "median_latency_s": 0.24,
+    "mean_completion_tokens": 6.685185185185185,
+    "thinking": "off"
+  }
+]

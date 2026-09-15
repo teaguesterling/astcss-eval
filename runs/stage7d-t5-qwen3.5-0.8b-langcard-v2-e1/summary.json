@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:Qwen3.5-0.8B-fp16",
+    "n": 55,
+    "request_errors": 0,
+    "executes": 53,
+    "exec_match": 16,
+    "exact": 3,
+    "by_tier": {
+      "5": [
+        16,
+        55
+      ]
+    },
+    "median_latency_s": 0.27,
+    "mean_completion_tokens": 8.254545454545454,
+    "thinking": "off"
+  }
+]
