@@ -244,6 +244,21 @@ download` (CLI v0.0.3) deadlocks on that failure event (`fatal error: all gorout
 are asleep`, a goroutine blocked on a channel send in `DownloadModel.func1`) instead of
 printing the error. The stock 9B stays local-only.
 
+Store downloads fail for every model tried, not just the 9B. `Qwen/Qwen3-4B-Instruct-2507`,
+the only store chat model at or under 4B, failed the same way at 21:03 (all models
+unloaded first): `downloading` at 0/0 bytes, then after ~11 s `status: error`, "download
+failed", nothing else. Ruled out, each checked: device storage (545 GB free), device
+internet (the import inspect still fetches Hugging Face metadata), loaded models (none),
+the local API key and the account session (`tiiny auth info` answers). What remains is
+the device's store/catalog service -- the same side that reports the import toolkit
+catalog `unavailable`. Worth a beta report together with the CLI deadlock.
+
+**Small model on the device, untuned.** `Qwen/Qwen3-8B` (already downloaded), card v1c,
+thinking off: **51.9 %** on 108 pairs (T1 14/21, T2 18/25, T3 6/31, T4 18/31), 0.51 s
+median. One request stalled ~103 s and returned empty; the retry answered in 0.36 s.
+Its 83.3 % "exec" is inflated: prose and malformed first lines still execute, because
+unknown selector parts are ignored silently (sitting_duck #128).
+
 ## Taxonomy observations (no defect claimed)
 
 - `.loop` includes comprehension `for_in_clause`, and `.if` includes `if_clause`,
