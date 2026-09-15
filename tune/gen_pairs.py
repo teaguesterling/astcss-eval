@@ -549,7 +549,7 @@ def taken_node_sets(extra_roots=()):
                 shapes[shape(p["css"])] += 1
                 if p.get("reference"):
                     taken.add(p["reference"]["sha256"])
-    for f in glob.glob(os.path.join(HERE, "pairs", "*.jsonl")):
+    for f in glob.glob(os.path.join(HERE, "pairs", "*.jsonl")) + glob.glob(os.path.join(HERE, "eval_t5", "pairs", "*.jsonl")):
         if not os.path.basename(f).startswith("rejected-"):
             for line in open(f):
                 p = json.loads(line)

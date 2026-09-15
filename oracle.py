@@ -56,7 +56,7 @@ DEF_NAME_CONTEXTS = {"in_function_definition", "in_class_definition", "in_parame
 CHAINED_OBJECT_TYPES = {"attribute", "member_expression", "field_expression", "field_access", "call",
                         "call_expression", "method_invocation", "scoped_identifier", "subscript"}
 ISSUES = {"scope-selector": 145, "calls-scope": 146, "is-referenced": 147, "exported": 148,
-          "chained-receiver": 149, "attr-in-has": 150, "has-keyword-tokens": 133}
+          "chained-receiver": 149, "attr-in-has": 150, "has-keyword-tokens": 133, "called-by-lambda": 152}
 _extra_fixtures = {}
 
 
@@ -192,6 +192,8 @@ def features(c):
                 fs.add("scope-selector")
             elif k == "calls":
                 fs.add("calls-scope")
+            elif k == "called-by":
+                fs.add("called-by-lambda")   # the engine's nearest-function test skips lambdas (#152)
             elif k in ("is-referenced", "exported"):
                 fs.add(k)
             elif k in ("has", "not-has"):

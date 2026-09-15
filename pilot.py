@@ -139,7 +139,8 @@ def eval_overlap(rows):
     allowed. Eval pairs are pairs/{accepted,pending,retired}*.jsonl."""
     norm = lambda s: " ".join(s.lower().split())  # noqa: E731
     ev_nl, ev_css = {}, {}
-    for path in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl"))):
+    # The tier-5 eval (eval_t5/, 2026-09-15) is held out too.
+    for path in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl")) + glob.glob(os.path.join(HERE, "eval_t5", "pairs", "*.jsonl"))):
         if os.path.basename(path).startswith("rejected-"):
             continue
         for line in open(path):

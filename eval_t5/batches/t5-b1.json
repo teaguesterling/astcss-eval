@@ -1,0 +1,22 @@
+{
+  "accepted": 34,
+  "batch": "t5-b1",
+  "candidates": 47,
+  "engine": {
+    "cli": "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-20260914-1835/build/release/duckdb",
+    "extension": "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-20260914-1835/build/release/extension/sitting_duck/sitting_duck.duckdb_extension",
+    "extension_mtime": 1789436127.8191583,
+    "macros": "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-20260914-1835/css_selectors-fix127.sql",
+    "macros_sha256": "28c60f39605c039b0c40f9dd44ca5bcb0aded4cab38c39dc98ef828ce2a5f3c6",
+    "sitting_duck_checkout_head": "c5ff5a1eb8dcd5a2f40e2a47699caec3aa1abcce"
+  },
+  "paraphrase_rule": "strict",
+  "pending": 13,
+  "rejected": 0,
+  "tier_verdicts": {
+    "5:pending": 13,
+    "5:verified": 34
+  },
+  "verifier": "oracle.py documented semantics; engine agreement recorded",
+  "when": "2026-09-15T08:44:00-0700"
+}
