@@ -419,8 +419,11 @@ its language (`[python] calls to sleep`; tune/prompting.tag_request), asked with
   (16 -> 22-25/31): about half of the card's gain. The card's content is worth the rest
   (-7.4 for the tag against the card, +4/-12 flips at e2).
 - A tag costs ~3 tokens and the card ~700, so where latency or context matter the tag is
-  the cheaper half; where they don't, the card still wins on the 0.8B. The 9B tag and
-  card runs follow in stage 6e.
+  the cheaper half; where they don't, the card still wins on the 0.8B.
+- **Qwen3.5-9B NF4 with the language tag: 75.0 / 77.8** (e1 / e2; T1 18/21, T2 18/25, T3 25/31,
+  T4 23/31 at e2), +3.7 over the 9B no-card adapter at e2 (74.1) and only 3.7 above the 0.8B
+  tag arm (74.1) for 11x the parameters; below the 0.8B trained with the card (81.5). The 9B
+  card run was paused on 2026-09-15 to give the GPU to the 0.8B work.
 - Generation stops at `<|im_end|>` in these runs: 0.08 s per answer on the 0.8B.
 
 ### Stage 6c: the Qwen3.5 size ladder, trained with the per-language card
@@ -434,7 +437,7 @@ switched from the no-card format to this one before it started, on the stage 6b 
 | Qwen3.5-0.8B float16 | 0.0 | 26.9 | 69.4 / 81.5 | 27 min, 1.8 GiB |
 | Qwen3.5-2B float16 | 0.0 | 30.6 | 80.6 / 82.4 | 27 min, 4.1 GiB |
 | Qwen3.5-4B NF4 | 0.0 | 57.4 | 86.1 / **89.8** | 49 min, 3.8 GiB |
-| Qwen3.5-9B NF4 | 0.0 | 64.8 | stage 6e | ~75 min (probe), 8.5 GiB |
+| Qwen3.5-9B NF4 | 0.0 | 64.8 | paused (language tag: 75.0 / 77.8) | ~75 min (probe), 8.5 GiB |
 
 - **The trained 4B (89.8; T1 21/21, T2 21/25, T3 28/31, T4 27/31) is within 3.7 of the
   best device result**, Qwen3.6-27B with retrieval (93.5). Pair by pair: 94 both right,
