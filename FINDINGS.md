@@ -394,6 +394,26 @@ and return no answer after ~142 s, on the retry too.
   match is unaffected; latency is inflated in every local run before 2026-09-15 05:10.
   local_generate.py now stops on both ids (a 4-pair check: 3-9 tokens per answer).
 
+### Stage 6e: naming the language instead of sending the card (0.8B)
+
+Same 820 pairs and schedule as the 0.8B no-card adapter, with every request prefixed by
+its language (`[python] calls to sleep`; tune/prompting.tag_request), asked with
+`[python]` and no card:
+
+| 0.8B arm | e1 | e2 | e3 |
+|---|---|---|---|
+| no prompt (6b) | 63.9 | 65.7 | 69.4 |
+| language tag | 66.7 | **74.1** | 74.1 |
+| per-language card (6b) | 69.4 | **81.5** | -- |
+
+- The tag is worth +4.6 to +8.3 over the bare request at the same epoch, mostly T4
+  (16 -> 22-25/31): about half of the card's gain. The card's content is worth the rest
+  (-7.4 for the tag against the card, +4/-12 flips at e2).
+- A tag costs ~3 tokens and the card ~700, so where latency or context matter the tag is
+  the cheaper half; where they don't, the card still wins on the 0.8B. The 9B tag and
+  card runs follow in stage 6e.
+- Generation stops at `<|im_end|>` in these runs: 0.08 s per answer on the 0.8B.
+
 ### Stage 6c: the Qwen3.5 size ladder, trained with the per-language card
 
 Same 820 pairs and card format as the 0.8B arm above (train/cards/card_<lang>.md in
