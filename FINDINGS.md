@@ -25,7 +25,7 @@ PR #129 selector macros), on the `py-variety` fixture unless stated.
 | #149 | `[receiver=X]` collapses chained receivers to the last segment: `self.db.execute()` has receiver `db` | pairs use single-segment receivers where the two meanings agree |
 | #150 | the tutorial's capstone selector errors: attribute filters inside `:has` are refused | tier-5 pairs may use them under `pending_engine:attr-in-has` |
 | #128 (comment) | captures (`.fn@f`) and unknown class aliases (`.nosuchclass`, `.with_statement`) return 0 without error | captures stay out of pairs |
-| #152 | `semantic_type = 'DEFINITION_FUNCTION'` is false for lambdas (code 241 renders as DEFINITION_FUNCTION, 240 is the literal), so `:called-by`'s nearest-function check looks through lambdas | `pending_engine:called-by-lambda` (tier-5 eval `.call:called-by(update_file)`: 13 documented, 15 engine) |
+| #152 | `semantic_type = 'DEFINITION_FUNCTION'` is false for lambdas (code 241 renders as DEFINITION_FUNCTION, 240 is the literal), so `:called-by`'s nearest-function check looks through lambdas. Same for calls (comment): Rust `macro_invocation` (211) and JS `new_expression` (210) are not `= 'COMPUTATION_CALL'`, so `::callees` drops them (`.fn#test_glob_pattern_exact::callees` 0 vs 3) and `::callers` / `:calls` / `:is-called` can miss them | `pending_engine:called-by-lambda`, `pending_engine:call-code-literal` (6 of 35 generated `::callees` differ, all refined-code calls; all 25 `::callers` agree) |
 | #151 (filed elsewhere) | a bare type selector is a prefix match (`with` selects `with_item`, `with_statement`) | oracle.py matches types exactly; generated pairs use full type names, which agreed with the engine on all 343 regression selectors |
 
 ## Not filed
