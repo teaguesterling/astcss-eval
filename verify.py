@@ -214,7 +214,25 @@ def relaxations(selector, nodes, base, end_adj):
 # ---------------------------------------------------------------------------
 
 def execute(queries):
-    """queries: [(qid, fixture, selector)] -> {qid: {"nodes": [...]} | {"error": str}}"""
+    """queries: [(qid, fixture, selector)] -> {qid: {"nodes": [...]} | {"error": str}}
+
+    ASTCSS_EXEC_JOBS=N splits the queries across N CLI processes. Measured 2026-09-14 on
+    the sd-20260914-1835 engine: parsing a fixture costs ~5 s, each ast_select_from ~16 s,
+    so one process scoring 165 predictions takes ~45 min and sharding is near-linear.
+    Each shard parses its own fixtures; results are identical to a single process."""
+    jobs = int(os.environ.get("ASTCSS_EXEC_JOBS", "1"))
+    if jobs > 1 and len(queries) > 1:
+        import concurrent.futures
+        shards = [queries[i::jobs] for i in range(min(jobs, len(queries)))]
+        res = {}
+        with concurrent.futures.ThreadPoolExecutor(len(shards)) as ex:
+            for part in ex.map(_execute_one, shards):
+                res.update(part)
+        return res
+    return _execute_one(queries)
+
+
+def _execute_one(queries):
     lines = []
     for fx in sorted({f for _, f, _ in queries}):
         pattern = os.path.join(HERE, FIXTURES[fx])
