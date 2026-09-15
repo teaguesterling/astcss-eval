@@ -133,6 +133,8 @@ def rpseudo(p):
         return ":has(%s)" % rstep(arg)
     if kind == "not-has":
         return ":not(:has(%s))" % rstep(arg)
+    if kind == "not":
+        return ":not(%s)" % rpseudo(arg)
     if arg is None:
         return ":" + kind
     return ":%s(%s)" % (kind, rstep(arg) if isinstance(arg, dict) else arg)
@@ -183,6 +185,8 @@ def features(c):
             if a[0] == "receiver":
                 fs.add("chained-receiver")
         for p in st.get("pseudos") or []:
+            while p["kind"] == "not":
+                p = p["arg"]
             k, arg = p["kind"], p.get("arg")
             if k == "scope" and isinstance(arg, dict):
                 fs.add("scope-selector")
@@ -219,6 +223,150 @@ def relaxed(c):
         r["steps"], r["op"] = [r["steps"][1]], None
         out.append(r)
     return out
+
+
+# ---------------------------------------------------------------- parsing selector text
+
+_SEL = re.compile(r"\*|\.?[A-Za-z_][\w-]*")
+_ID = re.compile(r"#([A-Za-z_][\w]*)")
+_ATTR = re.compile(r"\[\s*([\w-]+)\s*(\^=|\$=|\*=|=)\s*(?:\"([^\"]*)\"|'([^']*)'|([^\]\s]*))\s*\]")
+_PSEUDO = re.compile(r":([\w-]+)")
+PSEUDO_KINDS = {"has", "not", "calls", "called-by", "is-called", "is-referenced", "exported", "scope", "decorated",
+                "async", "typed"}
+
+
+def _balanced(s, i):
+    """s[i] == '(' -> index just past its matching ')' (quotes respected), or -1."""
+    depth, quote = 0, None
+    for j in range(i, len(s)):
+        ch = s[j]
+        if quote:
+            quote = None if ch == quote else quote
+        elif ch in "\"'":
+            quote = ch
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                return j + 1
+    return -1
+
+
+def _parse_pseudo(text):
+    m = _PSEUDO.match(text)
+    if not m or m.group(1) not in PSEUDO_KINDS:
+        return None, 0
+    kind, i = m.group(1), m.end()
+    arg = None
+    if i < len(text) and text[i] == "(":
+        j = _balanced(text, i)
+        if j < 0:
+            return None, 0
+        arg, i = text[i + 1:j - 1].strip(), j
+    if kind == "has":
+        st = parse_step(arg or "")
+        return ({"kind": "has", "arg": st} if st else None), i
+    if kind == "not":
+        if arg and arg.startswith(":has("):
+            inner, k = _parse_pseudo(arg)
+            if inner and k == len(arg):
+                return {"kind": "not-has", "arg": inner["arg"]}, i
+            return None, 0
+        inner, k = _parse_pseudo(arg or "")
+        return ({"kind": "not", "arg": inner} if inner and k == len(arg) else None), i
+    if kind == "scope" and arg:
+        if arg.startswith(".") or "#" in arg or "[" in arg or ":" in arg:
+            st = parse_step(arg)
+            return ({"kind": "scope", "arg": st} if st else None), i
+        return {"kind": "scope", "arg": arg}, i
+    if kind in ("calls", "called-by"):
+        return {"kind": kind, "arg": arg.strip("\"'") if arg else None}, i
+    if arg:
+        return None, 0
+    return {"kind": kind, "arg": None}, i
+
+
+def parse_step(text):
+    text = text.strip()
+    m = _SEL.match(text)
+    if not m:
+        return None
+    st, i = {"sel": m.group(0), "name": None, "attrs": [], "pseudos": []}, m.end()
+    while i < len(text):
+        rest = text[i:]
+        if rest[0] == "#":
+            mm = _ID.match(rest)
+            if not mm or st["name"] is not None:
+                return None
+            st["name"], i = mm.group(1), i + mm.end()
+        elif rest[0] == "[":
+            mm = _ATTR.match(rest)
+            if not mm:
+                return None
+            val = next(g for g in (mm.group(3), mm.group(4), mm.group(5)) if g is not None)
+            if mm.group(1) == "params":
+                if mm.group(2) != "=" or not val.isdigit():
+                    return None
+                val = int(val)
+            st["attrs"].append([mm.group(1), mm.group(2), val])
+            i += mm.end()
+        elif rest[0] == ":":
+            p, k = _parse_pseudo(rest)
+            if not p:
+                return None
+            st["pseudos"].append(p)
+            i += k
+        else:
+            return None
+    return st
+
+
+def parse(css):
+    """Selector text -> struct, or None where the engine would refuse or the grammar here
+    does not cover it (three steps, filters on the first step, unknown pseudo-classes)."""
+    s = (css or "").strip()
+    parts, ops, depth, quote, cur, i = [], [], 0, None, "", 0
+    while i < len(s):
+        ch = s[i]
+        if quote:
+            quote = None if ch == quote else quote
+            cur += ch
+        elif ch in "\"'":
+            quote = ch
+            cur += ch
+        elif ch in "([":
+            depth += 1
+            cur += ch
+        elif ch in ")]":
+            depth -= 1
+            cur += ch
+        elif depth == 0 and (ch.isspace() or ch in ">~+"):
+            j = i
+            op = " "
+            while j < len(s) and (s[j].isspace() or s[j] in ">~+"):
+                if s[j] in ">~+":
+                    op = s[j]
+                j += 1
+            if cur:
+                parts.append(cur)
+                ops.append(op)
+                cur = ""
+            i = j
+            continue
+        else:
+            cur += ch
+        i += 1
+    if cur:
+        parts.append(cur)
+    if not parts or len(parts) > 2 or len(ops) != len(parts) - 1:
+        return None
+    steps = [parse_step(p) for p in parts]
+    if any(st is None for st in steps):
+        return None
+    if len(steps) == 2 and (steps[0]["attrs"] or steps[0]["pseudos"]):
+        return None
+    return {"steps": steps, "op": ops[0] if ops else None}
 
 
 # ---------------------------------------------------------------- the tree
@@ -335,6 +483,9 @@ class Tree:
     def pseudo(self, s, p):
         kind, arg = p["kind"], p.get("arg")
         n = self.node
+        if kind == "not":
+            # :not(:is-called), :not(:decorated), ...: the complement within s
+            return s - self.pseudo(s, arg)
         if kind in ("has", "not-has"):
             anc = self.containing(arg)
             return {k for k in s if (k in anc) == (kind == "has")}
