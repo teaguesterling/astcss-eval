@@ -73,8 +73,14 @@ def _table(fixture):
     return "fx_" + fixture.replace("-", "_")
 
 
-def _run_script(lines, timeout=3600):
-    """Run a CLI script; stdout and stderr MERGED so errors stay in order."""
+def _run_script(lines, timeout=None):
+    """Run a CLI script; stdout and stderr MERGED so errors stay in order.
+
+    timeout: seconds, default ASTCSS_SCRIPT_TIMEOUT or 3600. A 90-pair training batch with
+    c-duckhts combinators ran past an hour in one process (2026-09-15); shard it with
+    ASTCSS_EXEC_JOBS rather than only raising this."""
+    if timeout is None:
+        timeout = int(os.environ.get("ASTCSS_SCRIPT_TIMEOUT", "3600"))
     # A per-process cap (2026-09-15): one suite-1 verify process reached 35 GB on c-duckhts and the
     # kernel OOM-killed the run. With a cap, a runaway selector query fails as that query's error.
     limits = ["SET memory_limit='%s';" % os.environ.get("ASTCSS_DUCKDB_MEMORY", "6GB"),
