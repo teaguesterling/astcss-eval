@@ -219,6 +219,24 @@ with float16 compute on the 2080 Ti, card v1c, greedy, thinking off
 directly comparable with the device's uncensored 9B (67.6 %): different weights,
 quantization and runtime.
 
+**Context arms on the local stock 9B** (same prompts as the device arms, greedy, NF4):
+
+| arm | match | T1 | T2 | T3 | T4 | +flip | -flip |
+|---|---|---|---|---|---|---|---|
+| no card | 0.0 | 0/21 | 0/25 | 0/31 | 0/31 | | |
+| card v1c | 64.8 | 15/21 | 20/25 | 14/31 | 21/31 | | |
+| static 10 | **75.9** | 15/21 | 22/25 | 21/31 | 24/31 | 15 | 3 |
+| retrieve 8 | 75.0 | 15/21 | 22/25 | 19/31 | 25/31 | 14 | 3 |
+
+- Without the card the stock 9B answers in prose ("I don't have access to any class...");
+  the card is what makes it answer with selectors at all.
+- Both example arms add ~10 points, mostly two-step selectors (T3 14 -> 19-21):
+  invented syntax goes (`.call:has(ancestor(.try))` -> `.try .call`), `:has` wraps the
+  right node (`.class .fn#speak` -> `.class:has(.fn#speak)`), and the dotted-node-type and
+  `.call#json.dumps` errors are fixed. The losses are `+`/`~` and an added `.try` step.
+- Unlike the device's larger models, the stock 9B gains as much from static examples as
+  from retrieval.
+
 **Prompt format facts, verified.**
 - Thinking is off in both runners. Locally the chat template is rendered with
   `enable_thinking=False` (an empty `<think></think>` block); no stock-9B response
