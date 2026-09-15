@@ -332,6 +332,34 @@ Same model, untuned: no card 0.0 (it answers in prose), card v1c 64.8, static 10
 - Next: name the language in the request (`[python] ...`; sitting_duck's classifier can
   supply it when serving) on the same pairs, and see whether the vocabulary losses go.
 
+### Stage 6b: Qwen3.5-0.8B (float16 weights + LoRA), same 820 pairs
+
+| arm | match | T1 | T2 | T3 | T4 | med s |
+|---|---|---|---|---|---|---|
+| untuned, no card | 0.0 | 0/21 | 0/25 | 0/31 | 0/31 | 0.21 |
+| untuned, card v1c | 26.9 | 10/21 | 12/25 | 5/31 | 2/31 | 0.27 |
+| LoRA, no system prompt, e1 / e2 / e3 | 63.9 / 65.7 / 69.4 | 17/21 | 17/25 | 25/31 | 16/31 | 0.37 |
+| LoRA, per-language card as system prompt, e1 / e2 | 69.4 / **81.5** | 19/21 | 16/25 | 25/31 | 28/31 | 0.17 |
+
+(tier columns are the last epoch)
+
+- **The 0.8B trained with its language's card beats every local 9B arm** (81.5 vs 75.9 for
+  the untuned 9B with card + examples, 74.1 for the 9B no-card adapter), at 1.8 GiB
+  peak and 0.72 s/row training. It is below the best device arm (gemma-4-26B, card +
+  examples, 91.7). One run per arm; no noise measurement.
+- The card arm trains on all nine languages with train/cards/card_<lang>.md and is asked
+  with card_v1c.md (identical to card_python.md), so the card also tells the model
+  which language it is answering. Card vs no card on the same pairs is +12.1 at the best
+  epoch and T4 16 -> 28/31 -- consistent with the stage 6 language-vocabulary losses,
+  but it confounds the card's content with the language cue. Stage 6e's `[python]` tag
+  separates them.
+- Training speed was the same with and without the card on the 0.8B (~27 min per epoch
+  for 2,205 rows).
+- The no-card 0.8B adapters often do not stop: after the selector they continue with
+  `assistant` / `user` fragments to the 48-token limit (e.g. `.try\nassistant\n.try\nuser...`).
+  Scoring takes the first line, so match is unaffected, but latency doubles. The card
+  adapter and the 9B no-card adapter stop after the selector (3-7 tokens).
+
 ## Taxonomy observations (no defect claimed)
 
 - `.loop` includes comprehension `for_in_clause`, and `.if` includes `if_clause`,
