@@ -34,6 +34,7 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--card", default="card_v1c.md", help="system prompt file, or 'none'")
     ap.add_argument("--lang-tag", help="name the request's language (prompting.tag_request); match the adapter's dataset")
+    ap.add_argument("--pairs-dir", help="eval to ask: default pairs/ (108 pairs); eval_t5 for tier 5 (score with the same flag)")
     ap.add_argument("--retrieve", type=int, default=0)
     ap.add_argument("--retrieve-portable", action="store_true")
     ap.add_argument("--per-tier", type=int, default=0)
@@ -50,6 +51,7 @@ def main():
     from train_qlora import load_model
 
     card = None if args.card == "none" else open(os.path.join(HERE, args.card)).read()
+    qualify.PAIRS_DIR = args.pairs_dir
     pairs = qualify.sample(qualify.load_pairs(), args.per_tier, args.seed)
     contexts = {p["id"]: (card, []) for p in pairs}
     if args.retrieve:
