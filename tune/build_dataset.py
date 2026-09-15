@@ -54,6 +54,7 @@ def main():
     ap.add_argument("--no-paraphrases", action="store_true")
     ap.add_argument("--cap-template", type=int, default=0)
     ap.add_argument("--val-frac", type=float, default=0.1)
+    ap.add_argument("--train-frac", type=float, default=1.0, help="keep this fraction of training pairs (learning curves)")
     ap.add_argument("--seed", default="astcss-train-v1")
     args = ap.parse_args()
 
@@ -88,6 +89,16 @@ def main():
             kept.extend(members[:args.cap_template])
             dropped_by_cap += max(0, len(members) - args.cap_template)
         pairs = sorted(kept, key=lambda p: p["id"])
+    # Learning-curve subsets: a seeded fraction of the CAPPED training pairs, chosen by hash
+    # of the pair id (not file order, which is sorted by language). Applied after the cap so
+    # the cap never depends on the fraction: subsets nest (25 % of pairs inside 50 % inside
+    # the full set) and validation pairs are untouched, the same 85 in every subset.
+    dropped_by_frac = 0
+    if args.train_frac < 1.0:
+        keep = [p for p in pairs if p["split"] == "val"
+                or int(rank(args.seed + ":frac", p["id"])[:8], 16) / 0x100000000 < args.train_frac]
+        dropped_by_frac = len(pairs) - len(keep)
+        pairs = keep
 
     cards = {}
     if args.system == "card":
@@ -115,7 +126,8 @@ def main():
                 by[split][p["lang"]] += 1
             counts[split + "_pairs"] += 1
 
-    manifest = {"name": args.name, "args": vars(args), "pairs": len(pairs), "dropped_by_template_cap": dropped_by_cap,
+    manifest = {"name": args.name, "args": vars(args), "pairs": len(pairs), "dropped_by_train_frac": dropped_by_frac,
+                "dropped_by_template_cap": dropped_by_cap,
                 "rows": dict(counts), "rows_by_lang": {k: dict(v) for k, v in by.items()},
                 "cards_sha256": {str(k): hashlib.sha256(v.encode()).hexdigest() for k, v in cards.items()},
                 "distinct_selector_shapes": len({shape(p["css"]) for p in pairs})}

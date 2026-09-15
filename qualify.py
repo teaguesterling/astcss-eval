@@ -496,6 +496,19 @@ def cmd_run(args):
     card = open(card_path).read()
     pairs = sample(load_pairs(), args.per_tier, args.seed)
     by_id = {p["id"]: p for p in pairs}
+    # Per-request context: {pair id: (system prompt, example ids)}. Without --retrieve every
+    # request gets the card unchanged, as before.
+    contexts = {p["id"]: (card, []) for p in pairs}
+    if args.retrieve:
+        if args.models and any(m.startswith("claude-") for m in args.models.split(",")):
+            sys.exit("--retrieve is device-only: the cloud path sends the card file as-is")
+        sys.path.insert(0, os.path.join(HERE, "tune"))
+        import context as ctx
+        retriever = ctx.Retriever(langs=("python",), other_portable=args.retrieve_portable)
+        for p in pairs:
+            ex = retriever.nearest(p["nl"], args.retrieve, exclude_css={p["css"]})
+            contexts[p["id"]] = (ctx.with_examples(card, ex), [e["id"] for e in ex])
+    per_pair_leaks = sorted({i for p in pairs for i in leaked_ids(contexts[p["id"]][0], [p])})
     cat = catalog(key)
     types = model_types(key)
     models = args.models.split(",") if args.models else sorted(cat)
@@ -525,7 +538,8 @@ def cmd_run(args):
                    "per_tier": args.per_tier, "seed": args.seed, "pair_ids": [p["id"] for p in pairs],
                    "card": os.path.relpath(card_path, HERE),
                    "card_sha256": hashlib.sha256(card.encode()).hexdigest(),
-                   "leaked_ids": leaked_ids(card, load_pairs()),
+                   "leaked_ids": sorted(set(leaked_ids(card, load_pairs())) | set(per_pair_leaks)),
+                   "retrieve": args.retrieve, "retrieve_portable": args.retrieve_portable,
                    "catalog_thinking": {m: cat.get(m, "cloud") for m in models}, "engine": V.engine_identity()},
                   open(meta_path, "w"), indent=2)
 
@@ -556,8 +570,11 @@ def cmd_run(args):
                     continue
                 strikes = 0
                 for p in todo:
-                    body, mode = request_body(model, cat[model], card, p["nl"])
+                    system, context_ids = contexts[p["id"]]
+                    body, mode = request_body(model, cat[model], system, p["nl"])
                     row = {"model": model, "id": p["id"], "thinking": mode, "nl": p["nl"]}
+                    if context_ids:
+                        row["context_ids"] = context_ids
                     try:
                         if pause:
                             pause.renew()
@@ -608,6 +625,10 @@ def main():
     ap.add_argument("command", choices=("oracle", "run", "score"))
     ap.add_argument("--models")
     ap.add_argument("--card", help="vocabulary card for the system prompt (default card.md)")
+    ap.add_argument("--retrieve", type=int, default=0, metavar="K",
+                    help="append the K training pairs nearest each request to the card (tune/context.py)")
+    ap.add_argument("--retrieve-portable", action="store_true",
+                    help="with --retrieve, also consider other languages' pairs that use only semantic classes")
     ap.add_argument("--no-embed-pause", action="store_true",
                     help="don't pause the NPU embedding job during device runs")
     ap.add_argument("--per-tier", type=int, default=10)

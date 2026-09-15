@@ -166,6 +166,117 @@ On all 108 pairs with card v1c: gemma 88.0 %, Coder 77.8 %, the 9B 70.4 %.
   stock 9B cannot be put on the device either way (beta #070, #071). It was
   removed from the device; the stock weights are on longbottom for tuning.
 
+## From stage 5 (context construction on the device, 108 pairs)
+
+**Engine.** Every stage-5 arm is scored with a pinned copy of the 2026-09-14 18:35
+sitting_duck build (`workspace/engine/sd-20260914-1835`, provenance in its
+PROVENANCE.md) and the `fix/127-combinator-steps` macros (28c60f39), the pairing
+`qualify.py oracle` scores at 100 % with every first distractor at 0 %. The same build
+with main's `css_selectors.sql` (16785fe1) returns 0 rows for every two-step selector
+(`.try .call` 0 of 11, `.class#Animal .fn` 0 of 5), so an early stage-5 summary showing
+T3 0/31 was the engine, not the models. The extension had also changed since stage 4,
+so stage-5 numbers are compared only with the same-session card v1c control below,
+never with stages 1-4.
+
+**Arms**, all card v1c plus: nothing (control); ten static examples from verified
+Python training pairs, one per FINDINGS error class (`card_v1c_fewshot.md`); the
+eight Python training pairs nearest each request by TF-IDF (`--retrieve 8`); the
+same with other languages' semantic-class-only pairs admitted (`--retrieve-portable`).
+No arm shows any eval pair its own answer (`meta.leaked_ids` empty).
+
+| model | control | static 10 | retrieve 8 | retrieve 8, portable |
+|---|---|---|---|---|
+| gemma-4-26B-A4B-it | 88.0 | **91.7** (+5 -1) | 90.7 (+7 -4) | 85.2 (+4 -7) |
+| Qwen3-Coder-30B-A3B-Instruct | 76.9 | **83.3** (+14 -7) | 80.6 (+8 -4) | 75.0 (+9 -11) |
+| qwen3.5-9b-uncensored | 67.6 | 68.5 (+7 -6) | **71.3** (+10 -6) | 68.5 (+12 -11) |
+
+(+gained -lost match flips against the control.)
+
+- **Read against measured noise** (stage 3: gemma 1 flip in 98, Coder 6). gemma's
+  gains from either Python-only arm are outside noise. Coder's +6.5 from static
+  examples comes with 21 flips, so its direction is likely but its size is not
+  settled. The 9B's +3.7 from retrieval has no noise measurement to be judged
+  against. No arm is best for every model, as with the stage-2 cards.
+- **What examples fix** is the FINDINGS list: `.call#json.dumps` -> `.call#dumps`,
+  `.class .fn#speak` -> `.class:has(.fn#speak)`, `.loop :has(...)` losing its space,
+  dotted node types losing the dot. **What they break** is structure: an added step
+  (`.class#User .fn#reset` for "the reset function"), `>` for a descendant, and once
+  a node type for a class (Coder: `.if` -> `if_statement`).
+- **Other languages' examples mislead, even restricted to semantic classes.** The
+  portable pool fills 721 of 864 example slots and costs gemma 2.8 and Coder 1.9
+  points: `.fn#constructor` for `__init__` (JavaScript/Java), `[name^="print"]` for
+  `#print`, `+` where `~` is meant. Example pools stay per language; routing a
+  request to its language's examples or card via sitting_duck's language detection
+  is acceptable (Teague, 2026-09-14).
+- **Scoring cost.** On this build one `ast_select_from` takes ~16 s on these small
+  fixtures and a fixture parse ~5 s, so scoring 165 predictions single-process took
+  ~45 min. `verify.execute` now shards across `ASTCSS_EXEC_JOBS` processes.
+
+**Local baseline for tuning.** Stock `Qwen/Qwen3.5-9B` (the tuning base), NF4 4-bit
+with float16 compute on the 2080 Ti, card v1c, greedy, thinking off
+(`tune/local_generate.py`): **64.8 %** (T1 15/21, T2 20/25, T3 14/31, T4 21/31), median
+3.97 s per request in batches of 8. Two-step selectors are its weak tier. It is not
+directly comparable with the device's uncensored 9B (67.6 %): different weights,
+quantization and runtime.
+
+**Prompt format facts, verified.**
+- Thinking is off in both runners. Locally the chat template is rendered with
+  `enable_thinking=False` (an empty `<think></think>` block); no stock-9B response
+  contains think tags and 88 of 108 answers are 3-10 tokens. On the device
+  `chat_template_kwargs.enable_thinking=false` is honoured: gemma and the uncensored
+  9B return 0 reasoning characters at ~0.56 s median.
+- The Qwen3.5 chat template trims every message's content, so card_v1c.md's trailing
+  newline never reaches the prompt. `tune/prompting.py` renders each prompt shape once
+  and substitutes stripped text, checked byte-identical to `apply_chat_template` on 36
+  cases (dataset rows from all three variants, padding, quotes, unicode).
+
+**Device.** The broken store entry for `Qwen/Qwen3.5-9B` (status `error`, 0 %,
+`toolkit_size` 0, no import metadata) was removed with `tiiny rm` after unloading
+every model; the imported `qwen3.5-9b-uncensored` (its own HF weights and
+`qwen3.5-9b` toolkit) loaded and answered afterwards, so nothing it depends on was
+shared. The clean re-download still fails, device-side: calling
+`POST /api/v1/models/Qwen%2FQwen3.5-9B/download/stream` directly shows `init`, then
+`downloading` with `total_bytes` 0, then after ~11 s `status: error`,
+`stage: failed`, "Model Qwen/Qwen3.5-9B download failed." and no other detail. The
+package size is never learned, so the store fetch fails before any bytes move (beta
+#070 again); unloading every model first does not change it. Separately, `tiiny
+download` (CLI v0.0.3) deadlocks on that failure event (`fatal error: all goroutines
+are asleep`, a goroutine blocked on a channel send in `DownloadModel.func1`) instead of
+printing the error. The stock 9B stays local-only.
+
+Store downloads fail for every model tried, not just the 9B. `Qwen/Qwen3-4B-Instruct-2507`,
+the only store chat model at or under 4B, failed the same way at 21:03 (all models
+unloaded first): `downloading` at 0/0 bytes, then after ~11 s `status: error`, "download
+failed", nothing else. Ruled out, each checked: device storage (545 GB free), device
+internet (the import inspect still fetches Hugging Face metadata), loaded models (none),
+the local API key and the account session (`tiiny auth info` answers). What remains is
+the device's store/catalog service -- the same side that reports the import toolkit
+catalog `unavailable`. Worth a beta report together with the CLI deadlock.
+
+**Small model on the device, untuned.** `Qwen/Qwen3-8B` (already downloaded), card v1c,
+thinking off: **51.9 %** on 108 pairs (T1 14/21, T2 18/25, T3 6/31, T4 18/31), 0.51 s
+median. One request stalled ~103 s and returned empty; the retry answered in 0.36 s.
+Its 83.3 % "exec" is inflated: prose and malformed first lines still execute, because
+unknown selector parts are ignored silently (sitting_duck #128).
+
+Context arms on the same Qwen3-8B (store downloads failing, it is the smallest chat model
+on the device), same session and engine, flips against its card v1c control:
+
+| arm | match | T1 | T2 | T3 | T4 | +flip | -flip |
+|---|---|---|---|---|---|---|---|
+| card v1c | 51.9 | 14/21 | 18/25 | 6/31 | 18/31 | | |
+| static 10 | 57.4 | 10/21 | 20/25 | 10/31 | 22/31 | 11 | 5 |
+| retrieve 8 | **64.8** | 15/21 | 21/25 | 10/31 | 24/31 | 16 | 2 |
+
+- Without examples Qwen3-8B anchors selectors at the module (`.mod > .try > .call`,
+  `.mod > .import`) -- the stage-1 `.mod >` habit. Both arms mostly remove it.
+- Retrieval also fixes `:has` placement (`.fn .call#rglob` -> `.fn:has(.call#rglob)`,
+  `.class[name*="speak"]` -> `.class:has(.fn#speak)`) and `.call#json.dumps` ->
+  `.call#dumps`, and its two losses are both T4. Static examples cost four T1 pairs by
+  decorating plain classes (`.comp` -> `.comp#list`).
+- Retrieval's +13.0 (16/2) is the largest context effect measured in stage 5 or 6, on
+  the weakest device model. No run-to-run noise measurement exists for Qwen3-8B.
+
 ## Taxonomy observations (no defect claimed)
 
 - `.loop` includes comprehension `for_in_clause`, and `.if` includes `if_clause`,
