@@ -1,6 +1,6 @@
 """Build a supervised NL -> selector dataset from the verified training pairs.
 
-usage: python3 tune/build_dataset.py NAME [--langs python,rust] [--system none|card|per-language]
+usage: python3 tune/build_dataset.py NAME [--langs python,rust] [--system none|card|per-language|mixed]
            [--card card_v1c.md] [--no-paraphrases] [--cap-template N] [--val-frac 0.1] [--seed S]
 
 Writes workspace/datasets/NAME/{train,val}.jsonl as chat rows
@@ -51,7 +51,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("name")
     ap.add_argument("--langs", help="comma-separated (default: all)")
-    ap.add_argument("--system", choices=("none", "card", "per-language"), default="none")
+    ap.add_argument("--system", choices=("none", "card", "per-language", "mixed"), default="none")
     ap.add_argument("--card", default="card_v1c.md", help="system prompt for --system card")
     ap.add_argument("--no-paraphrases", action="store_true")
     ap.add_argument("--cap-template", type=int, default=0)
@@ -115,7 +115,7 @@ def main():
     cards = {}
     if args.system == "card":
         cards = {None: open(os.path.join(HERE, args.card)).read()}
-    elif args.system == "per-language":
+    elif args.system in ("per-language", "mixed"):
         for p in pairs:
             if p["lang"] not in cards:
                 cards[p["lang"]] = open(os.path.join(HERE, args.cards_dir, "card_%s.md" % p["lang"])).read()
@@ -129,9 +129,21 @@ def main():
             split = p["split"]
             requests = [p["nl"]] + ([] if args.no_paraphrases else list(p.get("paraphrases") or []))
             system = cards.get(None) if args.system == "card" else cards.get(p["lang"])
-            for req in requests:
+            for i, req in enumerate(requests):
+                tag = p["lang"] if args.lang_tag else None
+                if args.system == "mixed":
+                    # Prompt variety, per request rather than per pair, so the same selector is
+                    # learned behind the card, behind a bare language tag and behind nothing at
+                    # all. Stage 7c measured the cost of not doing this: the same adapter lost
+                    # 8.3 points when the card it was trained with grew. The form is a seeded
+                    # hash of (pair id, request index), so a rebuild reproduces it exactly.
+                    r = int(rank(args.seed + ":prompt", "%s#%d" % (p["id"], i))[:8], 16) / 0x100000000
+                    form = "card" if r < 0.5 else ("tag" if r < 0.75 else "bare")
+                    system = cards.get(p["lang"]) if form == "card" else None
+                    tag = p["lang"] if form == "tag" else None
+                    counts["form_" + form] += 1
                 msgs = ([{"role": "system", "content": system}] if system else []) + [
-                    {"role": "user", "content": prompting.tag_request(p["lang"] if args.lang_tag else None, req)},
+                    {"role": "user", "content": prompting.tag_request(tag, req)},
                     {"role": "assistant", "content": p["css"]}]
                 row = {"messages": msgs, "pair_id": p["id"], "lang": p["lang"], "tier": p["tier"], "fixture": p["fixture"]}
                 (va if split == "val" else tr).write(json.dumps(row, ensure_ascii=False) + "\n")
