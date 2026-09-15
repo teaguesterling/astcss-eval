@@ -92,6 +92,10 @@ specific node type instead (no leading dot).
   `ternary_expression`, `catch_clause`, `field_access`.
 - `.fn` is `method_declaration`, `lambda_expression`, `constructor_declaration`;
   `.call` is `method_invocation` plus `object_creation_expression`.
+- **An import's `name` is the whole statement text** (`import java.util.BitSet;`), so
+  `.import[name*="util"]` works (19) but `[name^="java"]` and `[name$="Scanner"]` match
+  nothing (the name starts with `import ` and ends with `;`). Use `*=` on imports.
+  (Found by the Java drafting agent; checked by reading the name column.)
 
 ## Go — fixture go-rosetta
 
