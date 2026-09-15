@@ -590,6 +590,80 @@ def cmd_enumerate(out, fixtures, per_fixture, seed, extra_roots=(), families=Non
         sum(1 for r in rows if not shapes[shape(r["css"])])))
 
 
+def cmd_siblings(out, src, src_batch, seed):
+    """Near-miss siblings as pairs of their own. Every verified pair in <src> carries
+    distractors that the oracle already showed select a different node set: the other
+    combinator, :has vs :not(:has), another name or receiver, a dropped constraint. Each one
+    that passes the same gates (1-50 nodes, load-bearing, a node set new to training, not an
+    eval answer) becomes a candidate, with a note of the pair it must not be confused with so
+    the wording names the difference."""
+    logf = lambda m: log(out, m)  # noqa: E731
+    shapes, taken, eval_css = taken_node_sets(extra_roots=(os.path.join(HERE, "workspace", "sfgen"), src))
+    pairs = []
+    for name in ("accepted", "pending"):
+        f = os.path.join(src, "pairs", "%s-%s.jsonl" % (name, src_batch))
+        pairs += [json.loads(l) for l in open(f)] if os.path.exists(f) else []
+    by_fx = collections.defaultdict(list)
+    for p in pairs:
+        by_fx[p["fixture"]].append(p)
+    rows, seen = [], set()
+    stats = collections.Counter()
+    for fi, fx in enumerate(sorted(by_fx)):
+        lang = lang_of(fx)
+        t = O.Tree(fx)
+        rng = random.Random("%s:%s" % (seed, fx))
+        en = Enumerator(t, lang, rng, shapes, taken, eval_css)
+        j = 0
+        for p in by_fx[fx]:
+            for d_css in p.get("distractors") or []:
+                c = O.parse(d_css)
+                stats["distractors"] += 1
+                if c is None or O.render(c) != d_css or (fx, d_css) in seen:
+                    stats["unparseable or repeated"] += 1
+                    continue
+                seen.add((fx, d_css))
+                lst = c["steps"][-1]
+                if any(q["kind"] in ("has", "not-has") and q["arg"]["sel"] in (lst["sel"], ".fn") for q in lst.get("pseudos") or []):
+                    stats["keyword-token leak shape"] += 1
+                    continue
+                if tier(c) >= 2 and d_css in eval_css:
+                    stats["eval answer"] += 1
+                    continue
+                ref = t.select(c)
+                if not 1 <= len(ref) <= 50:
+                    stats["out of bounds"] += 1
+                    continue
+                if any(t.select(x) == ref for x in O.relaxed(c)):
+                    stats["not load-bearing"] += 1
+                    continue
+                dg = t.digest(ref)
+                if dg in taken:
+                    stats["node set taken"] += 1
+                    continue
+                dis = en.distractors(c, ref)
+                if len(dis) < 2:
+                    stats["no distractors"] += 1
+                    continue
+                taken.add(dg)
+                ex = sorted(ref)
+                ex = [ex[i] for i in sorted(rng.sample(range(len(ex)), min(2, len(ex))))]
+                rows.append({"id": "tr-%s-t%d-n%02d%05d" % (lang, tier(c), fi, j), "tier": tier(c), "fixture": fx,
+                             "lang": lang, "family": "sibling", "sibling_of": p["id"], "css": d_css, "struct": c,
+                             "distractor_structs": dis, "distractors": [render(d) for d in dis], "gloss": gloss(c, lang),
+                             "contrast": {"css": p["css"], "gloss": gloss(p["struct"], lang)},
+                             "pred": {"count": len(ref), "sha256": dg},
+                             "examples": ["%s:%s  %s" % (os.path.basename(f), t.node[(f, nid)]["start_line"],
+                                                         source_line(f, t.node[(f, nid)]["start_line"])) for f, nid in ex]})
+                j += 1
+                stats["kept"] += 1
+    os.makedirs(os.path.join(out, "candidates"), exist_ok=True)
+    with open(os.path.join(out, "candidates", "selectors.jsonl"), "w") as fh:
+        for r in rows:
+            fh.write(json.dumps(r, ensure_ascii=False) + "\n")
+    logf("siblings: %d candidates from %d source pairs; %s; tiers %s" % (
+        len(rows), len(pairs), dict(stats), dict(collections.Counter(r["tier"] for r in rows))))
+
+
 # ---------------------------------------------------------------- device helpers
 
 def card_v2(lang):
@@ -695,8 +769,10 @@ def cmd_word(out, chunk=6):
                     for i in range(0, len(items), chunk):
                         group = items[i:i + chunk]
                         user = "Fixture `%s` (%s).\n\n%s" % (fx, items[0]["lang"], "\n\n".join(
-                            "k=%d\n  selector: %s\n  meaning: %s\n  %d matches, e.g.\n    %s" % (
-                                k, c["css"], c["gloss"], c["pred"]["count"], "\n    ".join(c["examples"]))
+                            "k=%d\n  selector: %s\n  meaning: %s\n  %d matches, e.g.\n    %s%s" % (
+                                k, c["css"], c["gloss"], c["pred"]["count"], "\n    ".join(c["examples"]),
+                                ("\n  not to be confused with: %s (%s) -- the wording must make the difference clear"
+                                 % (c["contrast"]["css"], c["contrast"]["gloss"])) if c.get("contrast") else "")
                             for k, c in enumerate(group)))
                         if rnd == 2:
                             user += "\n\nAn earlier answer for these broke the rules; follow them exactly."
@@ -879,7 +955,9 @@ def cmd_report(out, batch):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("stage", choices=("enumerate", "word", "verify", "back", "filter", "report"))
+    ap.add_argument("stage", choices=("enumerate", "siblings", "word", "verify", "back", "filter", "report"))
+    ap.add_argument("--source", help="siblings: the generation directory whose verified pairs to take near misses from")
+    ap.add_argument("--source-batch", help="siblings: that directory's batch id")
     ap.add_argument("--risky-only", action="store_true", help="back: only pairs with ~ + > or :scope")
     ap.add_argument("--batch", default="gp-1")
     ap.add_argument("--out", required=True)
@@ -894,6 +972,8 @@ def main():
         cmd_enumerate(out, args.fixtures.split(","), args.per_fixture, args.seed,
                       extra_roots=(os.path.join(HERE, "workspace", "sfgen"),),
                       families=set(args.families.split(",")) if args.families else None, id_prefix=args.id_prefix)
+    elif args.stage == "siblings":
+        cmd_siblings(out, os.path.join(HERE, args.source), args.source_batch, args.seed)
     elif args.stage == "word":
         cmd_word(out)
     elif args.stage == "verify":
