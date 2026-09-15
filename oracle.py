@@ -677,7 +677,15 @@ def verify_batch(rows, batch, root, paraphrase_rule="distinct", check_eval_overl
         prepared.append((r, t, c, ref, t.digest(ref)))
     got = {}
     if engine:
-        got = V.execute([(r["id"], r["fixture"], render(c)) for r, t, c, ref, dg in prepared])
+        # One fixture at a time: V.execute shards queries over ASTCSS_EXEC_JOBS processes and
+        # each materializes every fixture in its shard, so a many-fixture batch held N copies
+        # of every AST at once (2026-09-15: the 12-candidate smoke batch across 12 fixtures
+        # ran the machine out of memory).
+        by_fx = collections.defaultdict(list)
+        for r, t, c, ref, dg in prepared:
+            by_fx[r["fixture"]].append((r["id"], r["fixture"], render(c)))
+        for fx in sorted(by_fx):
+            got.update(V.execute(by_fx[fx]))
     out = {"accepted": [], "pending": [], "rejected": []}
     agreement = collections.Counter()
     for r, t, c, ref, dg in prepared:
