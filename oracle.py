@@ -147,11 +147,16 @@ def rstep(st):
     return s + "".join(rattr(a) for a in st.get("attrs") or []) + "".join(rpseudo(p) for p in st.get("pseudos") or [])
 
 
+ELEMENTS = ("callers", "callees")
+
+
 def render(c):
     steps = c["steps"]
     if len(steps) == 1:
-        return rstep(steps[0])
-    return rstep(steps[0]) + (" " if c["op"] == " " else " %s " % c["op"]) + rstep(steps[1])
+        s = rstep(steps[0])
+    else:
+        s = rstep(steps[0]) + (" " if c["op"] == " " else " %s " % c["op"]) + rstep(steps[1])
+    return s + ("::" + c["element"] if c.get("element") else "")
 
 
 def last(c):
@@ -164,7 +169,7 @@ def tier(c):
     annotation or modifier test. T1-T4 keep their original meaning."""
     lst = last(c)
     ps, attrs = lst.get("pseudos") or [], lst.get("attrs") or []
-    if len(ps) >= 2 or (len(c["steps"]) == 2 and (ps or attrs)):
+    if c.get("element") or len(ps) >= 2 or (len(c["steps"]) == 2 and (ps or attrs)):
         return 5
     if any(p["kind"] not in ("has", "not-has") for p in ps) or any(a[0] not in ("name", "params") for a in attrs):
         return 5
@@ -223,6 +228,10 @@ def relaxed(c):
     if len(c["steps"]) == 2:
         r = copy.deepcopy(c)
         r["steps"], r["op"] = [r["steps"][1]], None
+        out.append(r)
+    if c.get("element"):
+        r = copy.deepcopy(c)
+        r["element"] = None
         out.append(r)
     return out
 
@@ -328,6 +337,14 @@ def parse(css):
     """Selector text -> struct, or None where the engine would refuse or the grammar here
     does not cover it (three steps, filters on the first step, unknown pseudo-classes)."""
     s = (css or "").strip()
+    element = None
+    m = re.search(r"::([\w-]+)$", s)
+    if m:
+        if m.group(1) not in ELEMENTS:
+            return None
+        element, s = m.group(1), s[:m.start()].strip()
+    if "::" in s:
+        return None
     parts, ops, depth, quote, cur, i = [], [], 0, None, "", 0
     while i < len(s):
         ch = s[i]
@@ -368,7 +385,10 @@ def parse(css):
         return None
     if len(steps) == 2 and (steps[0]["attrs"] or steps[0]["pseudos"]):
         return None
-    return {"steps": steps, "op": ops[0] if ops else None}
+    out = {"steps": steps, "op": ops[0] if ops else None}
+    if element:
+        out["element"] = element
+    return out
 
 
 # ---------------------------------------------------------------- the tree
@@ -598,6 +618,32 @@ class Tree:
         return [{"selector": css, "matches": cnt, "unique": not amb} for amb, cnt, _, css, _ in ranked[:limit]]
 
     def select(self, c):
+        base = self._select_steps(c)
+        el = c.get("element")
+        if not el:
+            return base
+        n = self.node
+        if el == "callers":
+            # Documented: the functions that call the matched function -- for every call
+            # to its name in the same file, the function that call sits in directly.
+            names = {(k[0], n[k]["name"]) for k in base if n[k]["name"]}
+            out = set()
+            for call in self.by_sem["COMPUTATION_CALL"]:
+                if (call[0], n[call]["name"]) in names and call not in base:
+                    f = self.nearest(call, FN)
+                    if f is not None:
+                        out.add(f)
+            return out
+        # callees: the named calls inside the matched function, nested functions included
+        out = set()
+        for call in self.by_sem["COMPUTATION_CALL"]:
+            if not n[call]["name"]:
+                continue
+            if any(p in base for p in self.ancestors_of(call)):
+                out.add(call)
+        return out
+
+    def _select_steps(self, c):
         steps = c["steps"]
         if len(steps) == 1:
             return self.step(steps[0])
@@ -791,6 +837,9 @@ def selftest():
              ["get_user@8"]),
             (C(S(".fn", pseudos=[P("has", S(".call", attrs=[["receiver", "=", "db"]]))])),
              ["inner@24", "outer@23", "record@19"]),
+            # pseudo-elements; the engine returned the same on this file (2026-09-15)
+            (dict(C(S(".fn", "get_user")), element="callers"), ["main@37"]),
+            (dict(C(S(".fn", "main")), element="callees"), ["UserService@38", "connect@38", "get_user@39", "outer@40"]),
         ]
         for c, want in cases:
             got = names(c)
