@@ -30,6 +30,8 @@ import sys
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, HERE)
 import pilot  # noqa: E402
+sys.path.insert(0, os.path.join(HERE, "tune"))
+import prompting  # noqa: E402
 
 
 def shape(css):
@@ -55,6 +57,7 @@ def main():
     ap.add_argument("--cap-template", type=int, default=0)
     ap.add_argument("--val-frac", type=float, default=0.1)
     ap.add_argument("--train-frac", type=float, default=1.0, help="keep this fraction of training pairs (learning curves)")
+    ap.add_argument("--lang-tag", action="store_true", help="prefix each request with its language (prompting.tag_request)")
     ap.add_argument("--seed", default="astcss-train-v1")
     args = ap.parse_args()
 
@@ -119,7 +122,8 @@ def main():
             system = cards.get(None) if args.system == "card" else cards.get(p["lang"])
             for req in requests:
                 msgs = ([{"role": "system", "content": system}] if system else []) + [
-                    {"role": "user", "content": req}, {"role": "assistant", "content": p["css"]}]
+                    {"role": "user", "content": prompting.tag_request(p["lang"] if args.lang_tag else None, req)},
+                    {"role": "assistant", "content": p["css"]}]
                 row = {"messages": msgs, "pair_id": p["id"], "lang": p["lang"], "tier": p["tier"], "fixture": p["fixture"]}
                 (va if split == "val" else tr).write(json.dumps(row, ensure_ascii=False) + "\n")
                 counts[split] += 1

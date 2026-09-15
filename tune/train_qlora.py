@@ -52,14 +52,22 @@ def encode(tok, row, max_len):
     return ids, n_answer
 
 
-def load_model(base, embed_cpu):
-    """4-bit base for training or generation; returns (model, device for input ids)."""
+def load_model(base, embed_cpu, quant="4bit"):
+    """Base model for training or generation; returns (model, device for input ids).
+
+    quant="4bit": NF4 with double quantization, float16 compute (the 9B).
+    quant="none": plain float16 weights, no bitsandbytes -- for small models (Qwen3.5-0.8B
+    is ~1.6 GiB in float16), where LoRA on the full-precision base is cheaper and exact.
+    """
     import torch
     from transformers import AutoModelForCausalLM, BitsAndBytesConfig
-    bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.float16,
-                             bnb_4bit_use_double_quant=True, llm_int8_enable_fp32_cpu_offload=embed_cpu)
     device_map = {"model.embed_tokens": "cpu", "": 0} if embed_cpu else {"": 0}
-    model = AutoModelForCausalLM.from_pretrained(base, quantization_config=bnb, dtype=torch.float16, device_map=device_map)
+    if quant == "none":
+        model = AutoModelForCausalLM.from_pretrained(base, dtype=torch.float16, device_map=device_map)
+    else:
+        bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.float16,
+                                 bnb_4bit_use_double_quant=True, llm_int8_enable_fp32_cpu_offload=embed_cpu)
+        model = AutoModelForCausalLM.from_pretrained(base, quantization_config=bnb, dtype=torch.float16, device_map=device_map)
     return model, ("cpu" if embed_cpu else "cuda:0")
 
 
@@ -79,6 +87,8 @@ def main():
     ap.add_argument("--limit", type=int, default=0, help="first N training rows (smoke runs)")
     ap.add_argument("--seed", type=int, default=17)
     ap.add_argument("--embed-cpu", action="store_true", help="embedding table on the CPU (long prompts only; ~3x slower)")
+    ap.add_argument("--quant", choices=("4bit", "none"), default="4bit",
+                    help="4bit (NF4, the 9B) or none (float16 base, small models)")
     args = ap.parse_args()
 
     import torch
@@ -103,7 +113,7 @@ def main():
     lens = sorted(len(i) for i, _ in train)
     say("train rows %d (median %d tokens, max %d), val rows %d" % (len(train), lens[len(lens) // 2], lens[-1], len(val)))
 
-    model, dev = load_model(args.base, args.embed_cpu)
+    model, dev = load_model(args.base, args.embed_cpu, args.quant)
     model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     model.enable_input_require_grads()
     model = get_peft_model(model, LoraConfig(r=args.rank, lora_alpha=args.alpha, lora_dropout=args.dropout,

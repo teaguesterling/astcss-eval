@@ -33,6 +33,7 @@ def main():
     ap.add_argument("--name", required=True, help="model label written to every row")
     ap.add_argument("--out", required=True)
     ap.add_argument("--card", default="card_v1c.md", help="system prompt file, or 'none'")
+    ap.add_argument("--lang-tag", help="name the request's language (prompting.tag_request); match the adapter's dataset")
     ap.add_argument("--retrieve", type=int, default=0)
     ap.add_argument("--retrieve-portable", action="store_true")
     ap.add_argument("--per-tier", type=int, default=0)
@@ -40,6 +41,8 @@ def main():
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--max-new-tokens", type=int, default=48)
     ap.add_argument("--embed-cpu", action="store_true")
+    ap.add_argument("--quant", choices=("4bit", "none"), default="4bit",
+                    help="4bit (NF4, the 9B) or none (float16 weights, small models)")
     args = ap.parse_args()
 
     import torch
@@ -69,12 +72,13 @@ def main():
                    "pair_ids": [p["id"] for p in pairs], "card": args.card,
                    "card_sha256": hashlib.sha256(card.encode()).hexdigest() if card else None,
                    "retrieve": args.retrieve, "retrieve_portable": args.retrieve_portable,
-                   "leaked_ids": leaks, "prompt_format": prompting.FORMAT_VERSION, "embed_cpu": args.embed_cpu},
+                   "leaked_ids": leaks, "prompt_format": prompting.FORMAT_VERSION, "embed_cpu": args.embed_cpu,
+                   "lang_tag": args.lang_tag},
                   open(meta_path, "w"), indent=2)
 
     tok = AutoTokenizer.from_pretrained(args.base)
     tok.padding_side = "left"
-    model, dev = load_model(args.base, args.embed_cpu)
+    model, dev = load_model(args.base, args.embed_cpu, args.quant)
     if args.adapter:
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, args.adapter)
@@ -86,7 +90,8 @@ def main():
     with open(resp_path, "a") as fh:
         for i in range(0, len(todo), args.batch):
             chunk = todo[i:i + args.batch]
-            texts = [prompting.prompt_text(tok, contexts[p["id"]][0], p["nl"]) for p in chunk]
+            texts = [prompting.prompt_text(tok, contexts[p["id"]][0], prompting.tag_request(args.lang_tag, p["nl"]))
+                     for p in chunk]
             enc = tok(texts, return_tensors="pt", padding=True, add_special_tokens=False).to(dev)
             t0 = time.time()
             with torch.no_grad():

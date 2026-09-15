@@ -55,6 +55,15 @@ def check(tok, pairs):
     return sum(1 for s, r in pairs if prompt_text(tok, s, r) != prompt_text_slow(tok, s, r))
 
 
+def tag_request(lang, request):
+    """The request with its language named, for prompts without a card. Stage 6: a
+    no-card adapter trained on nine languages answered Python requests with Java node
+    types (`catch_clause`), JavaScript calls (`.call#log`) and Rust names (`.fn#new`),
+    because nothing in the prompt said which language. sitting_duck's language
+    classifier can supply `lang` at serving time. Training and generation both call this."""
+    return "[%s] %s" % (lang, request) if lang else request
+
+
 _eot = {}
 
 

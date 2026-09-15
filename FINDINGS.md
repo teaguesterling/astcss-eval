@@ -295,6 +295,43 @@ on the device), same session and engine, flips against its card v1c control:
 - Retrieval's +13.0 (16/2) is the largest context effect measured in stage 5 or 6, on
   the weakest device model. No run-to-run noise measurement exists for Qwen3-8B.
 
+## From stage 6 (local QLoRA learning curve, Qwen3.5-9B NF4, 108 pairs)
+
+LoRA r=16 on all linear layers, 2 epochs, no system prompt: the request goes in bare and
+the selector comes out. Training data is every verified training pair in all nine
+languages, capped at 8 per (request template, selector shape); the 25 % and 50 % subsets
+nest inside the full set and share its 85 validation pairs. 1.05-1.13 s per row on the
+2080 Ti, 8.1 GiB peak; the full set is ~40 min per epoch. Scored with the pinned engine.
+
+| training pairs (incl. 85 val) | shapes | val loss e1 / e2 | match e1 | match e2 |
+|---|---|---|---|---|
+| 278 (25 %) | 147 | 0.882 / 0.719 | 43.5 | 54.6 |
+| 457 (50 %) | 212 | 0.557 / 0.554 | 61.1 | 70.4 |
+| 820 (100 %) | 297 | 0.378 / 0.363 | **74.1** | 70.4 |
+
+Same model, untuned: no card 0.0 (it answers in prose), card v1c 64.8, static 10 examples
+75.9, retrieval 8 75.0.
+
+- The adapter with a 7-token prompt (74.1) matches the untuned model carrying the
+  ~2.5 KB card plus examples (75.9; +16/-18 flips), at half the latency (0.27 s vs 0.56 s
+  median). Against the card alone it is +9.3 (+26/-16).
+- The curve is still rising at the full set (43.5 -> 61.1 -> 74.1 at epoch 1), so more
+  verified pairs should still help. The second epoch helps small sets and not the full
+  one (74.1 -> 70.4, 4 pairs, one run each, no noise measurement).
+- Gains are structure the card never taught: `:has` versus a descendant step
+  (`.loop :has(.jump)` -> `.loop .jump`, `.if .jump` -> `.if:has(.jump)`), bare callee
+  names (`.call#json.dumps` -> `.call#dumps`), naming the enclosing function
+  (`.fn:has(.call#rename)`); T3 goes 14 -> 23/31.
+- **Most losses are other languages' vocabulary.** Of the 16 lost pairs, 9 use another
+  language's node types or names: `catch_clause` and `throw_statement` (Java),
+  `if_statement` (Java/Bash/Go), `.call#log` (JavaScript's `console.log`, three pairs),
+  `.fn#new` (Rust). Python is 297 of the 2,205 training rows, and nothing in a bare
+  request says which language it is. Python's training rows contain no `.call#print`,
+  no `.catch` and no `[params=N]` (the other two losses, card features the adapter never
+  saw); two more are raw `comprehension` for `.comp`. T4 drops 21 -> 19/31.
+- Next: name the language in the request (`[python] ...`; sitting_duck's classifier can
+  supply it when serving) on the same pairs, and see whether the vocabulary losses go.
+
 ## Taxonomy observations (no defect claimed)
 
 - `.loop` includes comprehension `for_in_clause`, and `.if` includes `if_clause`,
