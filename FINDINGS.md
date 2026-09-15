@@ -494,6 +494,53 @@ repair 1,333) plus 1,128 s of verification: ~2.5 min per surviving pair.
   before any model call) and ask the model only for the wording. That removes every
   engine-stage loss above and lets the shape mix be chosen instead of hoped for.
 
+## From tier 5 and the larger training suite (2026-09-15)
+
+**Documented semantics as the reference (`oracle.py`).** Tier 5 needs features the engine
+gets wrong today, and the decision (Teague) is to write pairs against the documented meaning
+and patch the engine later. `oracle.py` computes that meaning in Python over the engine's own
+node table, with class membership taken from `ast_select_from` per class. Validation: all 343
+engine-verified selector-first references (T1-T4, every combinator) reproduce exactly; 11
+documented cases from the filed issues' repro file all match. Where the engine disagrees, a
+pair is `pending_engine:<issue>` only if a filed issue explains the difference, otherwise it
+is rejected -- which is how #152 was found (`:called-by` looking through lambdas).
+
+**Tier-5 eval (`eval_t5/`, 47 pairs).** Several constraints on one node, receivers,
+`:calls` / `:called-by` / `:is-called`, references and exports, `:scope(selector)`,
+decorators and return types, on the two eval fixtures; 35 selectors generated, 12 picked by
+hand; wordings hand-written under the strict paraphrase rule. 34 are engine-verified; 13 are
+pending on #145, #147, #148, #150 and #152 and scored by the documented semantics
+(`qualify.py --pairs-dir eval_t5`). Kept outside `pairs/` so the 108-pair numbers stay
+comparable. Teague's example query (`.class#UserService .fn:has(.call#execute):not(:has(.try))`)
+could not be a pair: on this fixture the `:not(:has(.try))` step changes nothing.
+
+**Suite 1 (`tune/gen_pairs.py`).** 4,601 candidates over all 20 training fixtures and nine
+languages (T5 2,299; 1,847 distinct shapes, 3,986 new to training). SQL and Bash get few tier-5
+families: no receivers, call graph or modifiers there.
+
+**How well device-model wordings read back.** Qwen3.6-27B translated 635 gemma wordings of 215
+selector-first pairs back to selectors (the run was stopped before the end): 148 of 215 pairs
+(69 %) had at least one wording come back to the same node set; per wording 62-66 %. Names and
+prefix filters 52/52; siblings and `>` 50/72; `:has` over node types 36/72; bare node types 1/7.
+The misses read correctly ("loops that contain at least one continue statement"): these are the
+shapes even the strongest reader gets wrong, not bad wordings.
+
+**Node to selector (`Tree.selector_for`).** A DevTools-style "copy selector": the node's classes,
+type, name, receiver, parameter count and return type, plus two-step selectors anchored on the
+nearest named function or class; exactly-one-match first. On 40 sampled named nodes per fixture
+a unique selector exists for 82 % (py-variety), 70 % (rs-magic), 62 % (py-blq), 58 % (js-messe);
+11 of 12 unique selectors return exactly that node on the engine (the miss: bare type prefix
+match, #151). What stays ambiguous is repetition inside one scope (`append` x66 in one function):
+two steps and no file or line attribute cannot separate them.
+
+**Running long jobs.** Claude Code's background-task guard killed every long job at 09:05-09:07
+for "low memory" while the kernel reported ~100 GB available, no cgroup limits, no OOM events and
+near-zero memory pressure; committed memory was ~85 of 87 GB (many MCP servers, OCR workers,
+CUDA reservations). The one real memory fault was ours: `verify_batch` ran engine checks across
+many fixtures per process (fixed: one fixture at a time). Long chains now run as systemd user
+units (`astcss-stage7`, `astcss-suite1`; `systemctl --user stop <unit>`), logging to
+`workspace/logs/unit-*.log`.
+
 ## Taxonomy observations (no defect claimed)
 
 - `.loop` includes comprehension `for_in_clause`, and `.if` includes `if_clause`,
