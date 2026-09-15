@@ -166,6 +166,58 @@ On all 108 pairs with card v1c: gemma 88.0 %, Coder 77.8 %, the 9B 70.4 %.
   stock 9B cannot be put on the device either way (beta #070, #071). It was
   removed from the device; the stock weights are on longbottom for tuning.
 
+## From stage 5 (context construction on the device, 108 pairs)
+
+**Engine.** Every stage-5 arm is scored with a pinned copy of the 2026-09-14 18:35
+sitting_duck build (`workspace/engine/sd-20260914-1835`, provenance in its
+PROVENANCE.md) and the `fix/127-combinator-steps` macros (28c60f39), the pairing
+`qualify.py oracle` scores at 100 % with every first distractor at 0 %. The same build
+with main's `css_selectors.sql` (16785fe1) returns 0 rows for every two-step selector
+(`.try .call` 0 of 11, `.class#Animal .fn` 0 of 5), so an early stage-5 summary showing
+T3 0/31 was the engine, not the models. The extension had also changed since stage 4,
+so stage-5 numbers are compared only with the same-session card v1c control below,
+never with stages 1-4.
+
+**Arms**, all card v1c plus: nothing (control); ten static examples from verified
+Python training pairs, one per FINDINGS error class (`card_v1c_fewshot.md`); the
+eight Python training pairs nearest each request by TF-IDF (`--retrieve 8`); the
+same with other languages' semantic-class-only pairs admitted (`--retrieve-portable`).
+No arm shows any eval pair its own answer (`meta.leaked_ids` empty).
+
+| model | control | static 10 | retrieve 8 | retrieve 8, portable |
+|---|---|---|---|---|
+| gemma-4-26B-A4B-it | 88.0 | **91.7** (+5 -1) | 90.7 (+7 -4) | 85.2 (+4 -7) |
+| Qwen3-Coder-30B-A3B-Instruct | 76.9 | **83.3** (+14 -7) | 80.6 (+8 -4) | 75.0 (+9 -11) |
+| qwen3.5-9b-uncensored | 67.6 | 68.5 (+7 -6) | **71.3** (+10 -6) | 68.5 (+12 -11) |
+
+(+gained -lost match flips against the control.)
+
+- **Read against measured noise** (stage 3: gemma 1 flip in 98, Coder 6). gemma's
+  gains from either Python-only arm are outside noise. Coder's +6.5 from static
+  examples comes with 21 flips, so its direction is likely but its size is not
+  settled. The 9B's +3.7 from retrieval has no noise measurement to be judged
+  against. No arm is best for every model, as with the stage-2 cards.
+- **What examples fix** is the FINDINGS list: `.call#json.dumps` -> `.call#dumps`,
+  `.class .fn#speak` -> `.class:has(.fn#speak)`, `.loop :has(...)` losing its space,
+  dotted node types losing the dot. **What they break** is structure: an added step
+  (`.class#User .fn#reset` for "the reset function"), `>` for a descendant, and once
+  a node type for a class (Coder: `.if` -> `if_statement`).
+- **Other languages' examples mislead, even restricted to semantic classes.** The
+  portable pool fills 721 of 864 example slots and costs gemma 2.8 and Coder 1.9
+  points: `.fn#constructor` for `__init__` (JavaScript/Java), `[name^="print"]` for
+  `#print`, `+` where `~` is meant. Example pools stay per language; routing a
+  request to its language's examples or card via sitting_duck's language detection
+  is acceptable (Teague, 2026-09-14).
+- **Scoring cost.** On this build one `ast_select_from` takes ~16 s on these small
+  fixtures and a fixture parse ~5 s, so scoring 165 predictions single-process took
+  ~45 min. `verify.execute` now shards across `ASTCSS_EXEC_JOBS` processes.
+
+**Device.** The broken store entry for `Qwen/Qwen3.5-9B` (status `error`, 0 %,
+`toolkit_size` 0, no import metadata) was removed with `tiiny rm` after unloading
+every model; the imported `qwen3.5-9b-uncensored` (its own HF weights and
+`qwen3.5-9b` toolkit) loaded and answered afterwards, so nothing it depends on was
+shared. A clean re-download of the stock 9B is being retried.
+
 ## Taxonomy observations (no defect claimed)
 
 - `.loop` includes comprehension `for_in_clause`, and `.if` includes `if_clause`,
