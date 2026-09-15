@@ -212,11 +212,37 @@ No arm shows any eval pair its own answer (`meta.leaked_ids` empty).
   fixtures and a fixture parse ~5 s, so scoring 165 predictions single-process took
   ~45 min. `verify.execute` now shards across `ASTCSS_EXEC_JOBS` processes.
 
+**Local baseline for tuning.** Stock `Qwen/Qwen3.5-9B` (the tuning base), NF4 4-bit
+with float16 compute on the 2080 Ti, card v1c, greedy, thinking off
+(`tune/local_generate.py`): **64.8 %** (T1 15/21, T2 20/25, T3 14/31, T4 21/31), median
+3.97 s per request in batches of 8. Two-step selectors are its weak tier. It is not
+directly comparable with the device's uncensored 9B (67.6 %): different weights,
+quantization and runtime.
+
+**Prompt format facts, verified.**
+- Thinking is off in both runners. Locally the chat template is rendered with
+  `enable_thinking=False` (an empty `<think></think>` block); no stock-9B response
+  contains think tags and 88 of 108 answers are 3-10 tokens. On the device
+  `chat_template_kwargs.enable_thinking=false` is honoured: gemma and the uncensored
+  9B return 0 reasoning characters at ~0.56 s median.
+- The Qwen3.5 chat template trims every message's content, so card_v1c.md's trailing
+  newline never reaches the prompt. `tune/prompting.py` renders each prompt shape once
+  and substitutes stripped text, checked byte-identical to `apply_chat_template` on 36
+  cases (dataset rows from all three variants, padding, quotes, unicode).
+
 **Device.** The broken store entry for `Qwen/Qwen3.5-9B` (status `error`, 0 %,
 `toolkit_size` 0, no import metadata) was removed with `tiiny rm` after unloading
 every model; the imported `qwen3.5-9b-uncensored` (its own HF weights and
 `qwen3.5-9b` toolkit) loaded and answered afterwards, so nothing it depends on was
-shared. A clean re-download of the stock 9B is being retried.
+shared. The clean re-download still fails, device-side: calling
+`POST /api/v1/models/Qwen%2FQwen3.5-9B/download/stream` directly shows `init`, then
+`downloading` with `total_bytes` 0, then after ~11 s `status: error`,
+`stage: failed`, "Model Qwen/Qwen3.5-9B download failed." and no other detail. The
+package size is never learned, so the store fetch fails before any bytes move (beta
+#070 again); unloading every model first does not change it. Separately, `tiiny
+download` (CLI v0.0.3) deadlocks on that failure event (`fatal error: all goroutines
+are asleep`, a goroutine blocked on a channel send in `DownloadModel.func1`) instead of
+printing the error. The stock 9B stays local-only.
 
 ## Taxonomy observations (no defect claimed)
 
