@@ -42,6 +42,13 @@ def check(tok, pairs):
     return sum(1 for s, r in pairs if prompt_text(tok, s, r) != prompt_text_slow(tok, s, r))
 
 
+_eot = {}
+
+
 def end_of_turn(tok):
     # Qwen chat templates close every turn with <|im_end|>; fall back to eos elsewhere.
-    return "<|im_end|>" if "<|im_end|>" in tok.get_vocab() else tok.eos_token
+    # Cached: get_vocab() rebuilds a 248k-entry dict on every call (~0.2 s per row).
+    key = id(tok)
+    if key not in _eot:
+        _eot[key] = "<|im_end|>" if "<|im_end|>" in tok.get_vocab() else tok.eos_token
+    return _eot[key]
