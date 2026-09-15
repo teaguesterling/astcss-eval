@@ -51,7 +51,10 @@ FN_LIKE = {".fn", "function_definition", "function_item", "method_declaration", 
            "function_declaration", "arrow_function"}
 OPS = [" ", ">", "~", "+"]
 QUOTA = {"t1": 0.03, "name": 0.05, "attr": 0.07, "params": 0.03, "t3": 0.12, "t4": 0.15,
-         "chain": 0.12, "scoped": 0.10, "receiver": 0.08, "graph": 0.10, "refs": 0.06, "scope": 0.05, "mods": 0.04}
+         "chain": 0.12, "scoped": 0.10, "receiver": 0.08, "graph": 0.10, "refs": 0.06, "scope": 0.05, "mods": 0.04,
+         # ::callers / ::callees (2026-09-15, "show me all the functions that call X", "what does Y call");
+         # enumerated as its own batch after suite 1, so it takes no share of suite 1's quotas
+         "callgraph": 0.0}
 IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{2,39}$")
 NOUNS = {
     ".fn": ("functions", "function"), ".class": ("classes", "class"), ".var": ("variable definitions", "variable definition"),
@@ -156,6 +159,16 @@ def gloss_step(st, lang, plural=True, the=False):
 
 
 def gloss(c, lang):
+    if c.get("element"):
+        base = gloss({"steps": c["steps"], "op": c["op"]}, lang)
+        st = c["steps"][-1]
+        if st.get("name") is not None and len(c["steps"]) == 1 and not st.get("attrs") and not st.get("pseudos"):
+            target = "%s" % st["name"]
+        else:
+            target = "any of the %s" % base
+        return ("the functions that call %s (the function each such call sits in, in the same file)" % target
+                if c["element"] == "callers" else
+                "the named calls %s makes, including calls in its nested functions" % target)
     if len(c["steps"]) == 1:
         return gloss_step(c["steps"][0], lang)
     a, b = c["steps"]
@@ -366,6 +379,16 @@ class Enumerator:
             if tgt == ".call" and rng.random() < 0.4 and self.call_names:
                 st["name"] = self.pick(self.call_names)
             return C(st)
+        if fam == "callgraph":
+            if not self.fn_sel or not self.fn_names or ".call" not in self.classes:
+                return None
+            if rng.random() < 0.55:
+                # callers of a function that is called somewhere in the fixture
+                called = [nm for nm in self.fn_names if nm in self.call_names]
+                if not called:
+                    return None
+                return dict(C(S(self.fn_sel, rng.choice(called))), element="callers")
+            return dict(C(S(self.fn_sel, self.pick(self.fn_names, limit=3))), element="callees")
         if fam == "mods":
             if not self.fn_sel:
                 return None
@@ -387,6 +410,18 @@ class Enumerator:
         rng, alts = self.rng, []
         lst = len(c["steps"]) - 1
         st = c["steps"][lst]
+        if c.get("element"):
+            other = dict(copy.deepcopy(c), element="callees" if c["element"] == "callers" else "callers")
+            alts.append(other)
+            if c["element"] == "callers" and st.get("name") is not None:
+                # functions that contain a call to X anywhere, nested functions included
+                alts.append(C(S(st["sel"], pseudos=[P("has", S(".call", st["name"]))])))
+            if st.get("name") is not None and self.fn_names:
+                nm = self.pick(self.fn_names)
+                if nm and nm != st["name"]:
+                    x = copy.deepcopy(c)
+                    x["steps"][lst]["name"] = nm
+                    alts.append(x)
         for j, p in enumerate(st.get("pseudos") or []):
             swap = {"has": "not-has", "not-has": "has"}.get(p["kind"])
             if swap:
@@ -474,7 +509,11 @@ class Enumerator:
         return (out + empty)[:2]
 
     def run(self, n_total, families=None):
-        quota = {f: q for f, q in QUOTA.items() if not families or f in families}
+        if families:
+            # an explicitly requested family gets a share even if its default quota is 0
+            quota = {f: (q if q > 0 else 1.0) for f, q in QUOTA.items() if f in families}
+        else:
+            quota = {f: q for f, q in QUOTA.items() if q > 0}
         total = sum(quota.values())
         want = {f: max(1, round(n_total * q / total)) for f, q in quota.items()}
         pools, seen = collections.defaultdict(list), set()
