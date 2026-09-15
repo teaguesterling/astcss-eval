@@ -1,0 +1,31 @@
+[
+  {
+    "model": "Qwen/Qwen3-30B-A3B-Instruct",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 105,
+    "exec_match": 80,
+    "exact": 70,
+    "by_tier": {
+      "1": [
+        16,
+        21
+      ],
+      "2": [
+        20,
+        25
+      ],
+      "3": [
+        21,
+        31
+      ],
+      "4": [
+        23,
+        31
+      ]
+    },
+    "median_latency_s": 0.41,
+    "mean_completion_tokens": 6.268518518518518,
+    "thinking": "none"
+  }
+]

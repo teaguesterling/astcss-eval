@@ -332,6 +332,38 @@ Same model, untuned: no card 0.0 (it answers in prose), card v1c 64.8, static 10
 - Next: name the language in the request (`[python] ...`; sitting_duck's classifier can
   supply it when serving) on the same pairs, and see whether the vocabulary losses go.
 
+### Stage 6: every other chat model on the device, three context arms
+
+Same 108 pairs, pinned engine, one model at a time with arms back to back (2026-09-14
+21:29 -> 09-15 04:09). Thinking off where it can be switched off; gpt-oss at
+`reasoning_effort` low (4,000-token budget); Qwen3-30B-A3B-Thinking always thinks
+(8,000), so it ran the control only.
+
+| model | card v1c | static 10 | retrieve 8 | med s (control) |
+|---|---|---|---|---|
+| **Qwen/Qwen3.6-27B** | 88.9 | 92.6 (+5 -1) | **93.5** (+6 -1) | 2.1 |
+| Qwen/Qwen3-30B-A3B-Thinking | 83.3 | -- | -- | 35.5 |
+| Qwen/Qwen3-30B-A3B-Instruct | 74.1 | 76.9 (+7 -4) | 78.7 (+9 -4) | 0.41 |
+| Qwen/Qwen3.5-35B-A3B | 75.0 | 77.8 (+8 -5) | 77.8 (+10 -7) | 0.57 |
+| Qwen/Qwen3-Coder-30B-A3B-Instruct-Turbo | 71.3 | 78.7 (+16 -8) | 76.9 (+11 -5) | 0.57 |
+| openai/gpt-oss-20b | 65.0* | 65.7* | 75.2* | 6.4 |
+| openai/gpt-oss-120b | 66.7 | 68.5 (+12 -10) | 73.1 (+13 -6) | 10.2 |
+| zai-org/GLM-4.7-Flash | 55.6 | 71.3 (+20 -3) | 70.4 (+20 -4) | 1.17 |
+
+\* over 103-105 answered pairs: 3-5 requests per arm spend the whole reasoning budget
+and return no answer after ~142 s, on the retry too.
+
+- **Qwen3.6-27B with retrieval (93.5) is the best result so far**, above gemma-4-26B
+  (91.7, static examples, stage 5): T2 25/25, T3 29/31, T4 29/31. It is also the
+  slowest non-reasoning model (2-2.7 s per answer; gemma ~0.5 s).
+- Examples help every model; the weaker the control, the larger the gain (GLM +15.7,
+  Qwen3.6 +4.6). Retrieval is never worse than static examples by more than 2 points.
+- Reasoning does not pay here: gpt-oss-120b at low effort is below the non-thinking
+  30B-A3B-Instruct at 25x the latency, and the always-thinking 30B-A3B (83.3) is 9 points
+  above its Instruct sibling at ~85x the latency.
+- The Turbo Coder is not the stage-5 Coder (`Qwen3-Coder-30B-A3B-Instruct`, 76.9 control):
+  71.3 control here, different package, so not a noise estimate.
+
 ### Stage 6b: Qwen3.5-0.8B (float16 weights + LoRA), same 820 pairs
 
 | arm | match | T1 | T2 | T3 | T4 | med s |

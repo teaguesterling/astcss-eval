@@ -1,0 +1,31 @@
+[
+  {
+    "model": "openai/gpt-oss-20b",
+    "n": 105,
+    "request_errors": 3,
+    "executes": 97,
+    "exec_match": 69,
+    "exact": 65,
+    "by_tier": {
+      "1": [
+        11,
+        21
+      ],
+      "2": [
+        16,
+        25
+      ],
+      "3": [
+        23,
+        31
+      ],
+      "4": [
+        19,
+        28
+      ]
+    },
+    "median_latency_s": 6.12,
+    "mean_completion_tokens": 284.65714285714284,
+    "thinking": "low"
+  }
+]

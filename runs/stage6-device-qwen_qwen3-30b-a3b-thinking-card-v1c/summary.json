@@ -1,0 +1,31 @@
+[
+  {
+    "model": "Qwen/Qwen3-30B-A3B-Thinking",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 105,
+    "exec_match": 90,
+    "exact": 82,
+    "by_tier": {
+      "1": [
+        17,
+        21
+      ],
+      "2": [
+        22,
+        25
+      ],
+      "3": [
+        27,
+        31
+      ],
+      "4": [
+        24,
+        31
+      ]
+    },
+    "median_latency_s": 35.485,
+    "mean_completion_tokens": 1607.462962962963,
+    "thinking": "on"
+  }
+]
