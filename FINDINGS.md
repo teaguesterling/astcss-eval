@@ -720,3 +720,41 @@ Replay of three batches on the engine that verified them, same verdicts and same
 | audit-r1 | 90 | 16 m 41 s | 4 m 57 s | 252 of 288 |
 | prefix-c1 | 184 | 41 m 52 s | 4 m 36 s | 658 of 658 |
 
+
+### Stage 8: what the prompt is still worth to a trained 0.8B (2026-09-15)
+
+No training: the stage 6b (seed 17) and 7a (seed 18) adapters, asked with different prompts.
+`train/cards/card_python.md` is byte-identical to `card_v1c.md`, so the controls were asked with
+exactly the prompt they were trained with. The k-NN rows are not a model: for each eval request,
+the nearest training request by TF-IDF (tune/context.Retriever) and its selector copied verbatim.
+
+| arm | 108 pairs | vs control | flips | T1 | T2 | T3 | T4 |
+|---|---|---|---|---|---|---|---|
+| card v1c, seed 17 (6b control) | **81.5** | -- | -- | 19/21 | 16/25 | 25/31 | 28/31 |
+| card v1c, seed 18 (7a control) | **82.4** | -- | -- | 19/21 | 17/25 | 25/31 | 28/31 |
+| card_v1c_fewshot, seed 17 | 79.6 | -1.9 | +2 -4 | 19/21 | 16/25 | 25/31 | 26/31 |
+| card_v1c_fewshot, seed 18 | 82.4 | +0.0 | +2 -2 | 19/21 | 16/25 | 27/31 | 27/31 |
+| card v1c + retrieve 8 | 79.6 | -1.9 | +3 -5 | 18/21 | 16/25 | 25/31 | 27/31 |
+| no card | 0.0 | -81.5 | 0 -88 | 0/21 | 0/25 | 0/31 | 0/31 |
+| language tag only (`[python]`) | 0.0 | -81.5 | 0 -88 | 0/21 | 0/25 | 0/31 | 0/31 |
+| copy nearest training pair (k-NN) | 10.2 | -- | -- | 7/21 | 2/25 | 2/31 | 0/31 |
+| same, excluding the pair's own reference | 3.7 | -- | -- | 0/21 | 2/25 | 2/31 | 0/31 |
+
+- **Examples are worth nothing to an adapter, static or retrieved**: -1.9 / +0.0 / -1.9, all inside
+  the ~1-pair e2 seed noise (7a). On untuned models the same context was worth +3.7 to +11.1
+  (stage 5). The k-NN control rules out a bad retrieval pool: copying the nearest training pair
+  scores 10.2 %, so the examples are relevant but not answers -- the adapter already knows what
+  they teach, and re-showing them only perturbs T4.
+- **The card is a task trigger, not reference material.** Without it the trained model does not
+  write bad selectors; it stops doing the task and reverts to base chat ("Here is a list of every
+  `try` block in your code:", "In SQL, the `EXCEPT` clause is used to ..."), and a bare `[python]`
+  tag does not substitute. 0.0 % in every tier, against 65.7 % for the adapter TRAINED without a
+  card (6b). Two epochs on 820 rows that all carried the card taught "card present -> emit a
+  selector" as part of the task.
+- **Exec rate is not a quality signal.** Those prose fragments scored 94-95 % "executes": bare
+  words like `raise` parse as type selectors. Only `match` means anything when the format breaks.
+- So there is no prompt-side headroom to buy at inference on this model, and a real fragility to
+  fix: `build_dataset.py --system mixed` varies the prompt per request (card 50 %, `[lang]` tag
+  25 %, nothing 25 %) so the request, not the card, triggers the task. That is an arm of the next
+  training run; if it holds the 108-pair score, the 700-token card becomes optional at inference.
+
