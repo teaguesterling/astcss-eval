@@ -971,3 +971,36 @@ filters inside `:has` (#150), refined call codes (#152), chained receivers (#149
 (#146), `:exported` (#148) -- plus 12 sibling pairs that carry one of those *alongside* a fixed one,
 so the fix alone does not free them.
 
+
+### The dotted node type is a habit, not an information gap (2026-09-16)
+
+Stage 9's first models miss the SAME five tier-1 pairs, and tier 1 is the easiest tier -- one
+semantic class or one node type. Qwen3.5-9B with the card, Qwen3.5-9B with ten examples, and
+Qwen3.6-27B-Turbo with the card all fail exactly t1-p20, p21, p22, p23, p25:
+
+| pair | request | reference | what they answer |
+|---|---|---|---|
+| t1-p20 | every with block | `with_statement` | `.with_statement` (all three) |
+| t1-p21 | anonymous functions | `lambda` | `.lambdas`, `.lambda` |
+| t1-p22 | definitions that carry decorators | `decorated_definition` | `.decorated_definition` (all three) |
+| t1-p23 | continue statements | `continue_statement` | `.jump#continue`, `.continue`, `.continue_statement` |
+| t1-p25 | while loops | `while_statement` | `.loop#while`, `.while`, `.loop` |
+
+Every miss is the same move: take a node type and dot it, or invent a class-plus-name filter
+(`.jump#continue`, `.loop#while`) rather than write the bare type.
+
+**This is not missing information.** card_v1c lists `with_statement`, `while_statement`,
+`continue_statement`, `decorated_definition` and `lambda` by name, under a heading that says
+"PYTHON NODE TYPES (exact tree-sitter names, when no class fits)". card_v1c_fewshot adds two worked
+examples of exactly this shape (`every assert statement -> assert_statement`, `every ternary
+conditional expression -> conditional_expression`). The models read both and still dot the type. CSS
+priors pull every token toward a class selector, and neither a vocabulary list nor a positive example
+overrides that.
+
+It is worth about 4.6 points on the 108-pair eval (5 of 21 tier-1 pairs) for every model measured so
+far, so it is the largest single error class left in the prompt-side results. The obvious fix -- an
+explicit negative line, "write `with_statement`, never `.with_statement`" -- is a HYPOTHESIS, not a
+change to make: stages 2-4 showed every added prose rule hurt the models that did well without it
+(card v2's type rules cost gemma 18 regressions). Test it as an arm, per model, against the 108
+pairs, the way the card arms were tested.
+
