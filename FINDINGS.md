@@ -1342,3 +1342,37 @@ insertBefore/After) the argument is code a human authored; mining them teaches t
 judgement. Under Teague's architecture that gap closes, because the large model supplies the content
 and the small model only has to place it -- so the corpus needs to teach placement and form, which
 IS minable, with the request back-translated from the diff by the existing wording model.
+
+## Stage 10 arm 1: the tier-5 corpus (6,053 pairs), and why one eval hid the result (2026-09-16)
+
+Qwen3.5-0.8B, per-language card, cap 8, 2 epochs, seed 18. 6,053 pairs / 15,928 rows / 2,599
+selector shapes, against the 820 / 2,205 / 297 of the corpus behind the 82.4% baseline.
+Val loss 0.0833 (e1) -> 0.0557 (e2). Adapter: `workspace/adapters/t5-langcard/epoch{1,2}`.
+
+| | 108-pair eval | eval_t5 (55) |
+|---|---|---|
+| epoch 1 | 82.4% | **83.6%** |
+| epoch 2 | 82.4% | 80.0% |
+| baseline (820-pair corpus) | 82.4% | 34.5% |
+
+**The 108-pair eval is saturated for this model size and hid the entire result.** Three different
+training configurations land on exactly 89/108 = 82.4%: the old baseline, t5 epoch 1 and t5 epoch 2.
+Only the tier distribution moves (baseline 19/17/25/28, e1 17/20/28/24, e2 17/19/27/26). Reading
+that eval alone, the 7.4x corpus scale-up bought nothing.
+
+**On the eval the corpus was built for it bought +49 points.** Same model size, same card, only the
+corpus differs: `stage7c-t5-qwen3.5-0.8b-langcard-e2` 34.5% -> `stage10-t5-t5-langcard-e1` 83.6%.
+For scale, on that same eval a 4B trained on the OLD corpus scores 67.3% and an untuned 9B 60.0% --
+so a 0.8B on tier-5 beats a 4B on the old corpus. That is a claim about corpora, not architectures:
+neither the 4B nor the 9B has been trained on tier-5, and doing so is the obvious next experiment.
+
+**Epoch 2 is the worse checkpoint despite the better val loss** (0.0557 vs 0.0833): 83.6% -> 80.0%
+on eval_t5, identical on the 108. Two pairs out of 55 is within noise, but val loss is clearly not
+tracking eval here, and epoch 1 is what should be carried forward.
+
+Method note for anyone reading these numbers: the epoch-2 val loss is NOT comparable to the
+baseline's 0.3548 -- different and larger validation set (733 pairs). Only the e1->e2 movement
+within this run is meaningful.
+
+Arm 2 (`t5-mixed`, `--system mixed`, aimed at the 0.0%-without-a-card cliff) was queued behind
+arm 1 and has NOT run; the unit exited after arm 1's scoring.
