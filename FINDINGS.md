@@ -1109,3 +1109,23 @@ Note for whoever picks this up: the merged build is text-only. `save_pretrained`
 class drops the base's vision tower (153 `model.visual.*`) and multi-token-prediction head (15
 `mtp.*`). That is recorded in the model card.
 
+
+## A mutator tier (proposal, 2026-09-16)
+
+Scoped but not started: `docs/mutator-tier.md` — jQuery-style mutations (`rename`, `wrap`, `insertAfter`
+...) as a new tier on this same execution-verified frame. Three things found while scoping it that are
+facts rather than proposal, so they belong here too:
+
+- pluckit already implements **14 mutation ops** with a documented chain grammar and a sound safety
+  gate, and all 14 lower onto just **four** `ast_patch` edit kinds. The API was not the blocker it
+  looked like.
+- sitting_duck `feat/ast-patch` (100b9e1) has `ast_patch`/`ast_replace`: byte-exact and pure, returning
+  patched text without writing. This makes a *second* oracle available for mutations, so the
+  oracle-first split that reproduced 581/581 selector verdicts carries over directly.
+- **In-place mutation would void the result cache.** `_fixture_key()` hashes fixture files by
+  `st.st_mtime_ns`; `MutationEngine` writes and restores content but not mtime. Anything that verifies
+  through pluckit rather than `ast_patch` silently discards the 16m41s -> 4m57s cache win, and cannot
+  shard (its rollback is best-effort against a shared fixture tree).
+
+Unbuilt and deliberately so: the cheapest test is 20-30 hand-built pairs through the stage-9 harness to
+find whether these models emit a well-formed chain at all, before any corpus exists.
