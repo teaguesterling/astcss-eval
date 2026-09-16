@@ -845,3 +845,32 @@ The first attempt failed twice, and both failures are worth keeping:
   loading a second model, so the rule is scheduling: device qualification and the generation chain's
   wording stages must not overlap.
 
+
+### Recovering the suite's "rejected" tier-5 candidates (2026-09-15)
+
+Suite 1 rejected 553 candidates, but only 31 on merit: 522 were engine failures. Two passes and one
+harness fix got 277 of them back, and the remaining 246 turned out to be a real engine limit.
+
+| pass | settings | verified | pending | still rejected |
+|---|---|---|---|---|
+| suite1 (original) | 8 shards, 6 GB each | -- | -- | 522 |
+| suite1r | 4 shards, 8 GB each | 60 | 56 | 408 |
+| suite1r2 | per-query retry, 16 GB | 101 | 60 | 246 (+1 eval overlap) |
+
+The diagnosis came from running one failing selector by hand: `.call:called-by(kvsprintf)` on the
+40-file c-duckhts fixture takes **59 s** when it succeeds and exhausts a **24 GB** memory limit when
+it does not ("could not allocate block of size 1.5 GiB"; the recovery unit peaked at 47 GB). The
+failures clustered because a CLI process that dies mid-script takes the REST of its shard with it,
+and every one of those queries is reported as "no output for query" -- so one explosive selector
+rejected dozens of sound pairs. `verify.execute` now retries lost queries one process each
+(`ASTCSS_RETRY_LOST=0` disables), which is what the second pass recovered 161 pairs with.
+
+What remains is the engine, not us: 198 process deaths, 45 IO/internal errors and 3 explicit
+out-of-memory errors, all call-graph shapes (`:called-by`, `:calls`, `:is-called`) given a whole
+process and 16 GB. Worth reporting upstream, and worth knowing before `:in-scope(...)` ships: if it
+shares that containment machinery, the tier-5 suite will find its limits too.
+
+Kept after filtering, across the three batches: **4,302 pairs, 2,039 of them tier 5** (kept-suite1
+4,025/1,762, kept-suite1r 116/116, kept-suite1r2 161/161). The training corpus today is 1,052 pairs
+with no tier 5 at all.
+
