@@ -1021,3 +1021,47 @@ than as part of a type name. An explicit negative line ("write `with_statement`,
 stages 2-4 showed every added prose rule hurt the models that did well without it (card v2's type
 rules cost gemma 18 regressions). Test it as an arm, per model, the way the card arms were tested.
 
+
+## From stage 9 (seven new device models, plain / card / few-shot, 2026-09-16)
+
+The device's model store recovered, so seven chat models that had never been scored became
+available -- including `Qwen/Qwen3.5-9B`, which stage 6 recorded as impossible to download and which
+is the base we fine-tune. Three arms each, the stage 5/6 arms so the numbers join that table:
+**plain** (no system message at all), **card** (card_v1c.md), **few** (card_v1c_fewshot.md, v1c plus
+ten examples).
+
+| model | plain | card | few-shot | few - card | s/answer | tokens |
+|---|---|---|---|---|---|---|
+| Qwen3.6-27B-Turbo | 0.0 | 87.0 | **92.6** | +5.6 | 1.88 | 6 |
+| Ornith-1.0-35B | 0.0 | 84.8 * | 91.6 * | +6.8 | 6.78 | 283 |
+| Qwen3-Coder-Next | 0.0 | 81.5 | 84.3 | +2.8 | 0.86 | 6 |
+| Qwen3.6-35B-A3B | 0.0 | 77.8 | 83.3 | +5.6 | 0.84 | 6 |
+| Qwen3.6-35B-A3B-Turbo | 0.0 | 76.9 | 80.6 | +3.7 | 0.89 | 7 |
+| Qwen3.5-9B | 0.0 * | 69.4 | 73.1 | +3.7 | 0.89 | 5 |
+| Qwen3-4B-Instruct-2507 | 0.0 | 49.1 | 64.8 | **+15.7** | 0.49 | 6 |
+
+\* Ornith card 105 and few 107 answered (empty responses); the 9B's plain arm 107 (stopped by the
+contention guard). Every other arm answered all 108.
+
+- **The floor is zero, unanimously.** Seven models from 4B to 35B -- general, coder and reasoning --
+  score **0.0 % with no card**, in every tier. They do not write wrong selectors; they answer the
+  request as a chat turn: "Here are the most effective ways to find...", "Could you clarify what you
+  mean by...", "Since you didn't specify a language or context...". A coder-specialised model is no
+  exception, which is the strongest evidence yet that the card supplies genuinely novel vocabulary
+  rather than cueing something the models already half-know.
+- **Plain arms are expensive as well as useless**: 189-1513 mean completion tokens against 5-7 with a
+  card, and up to 113 minutes per arm (Ornith) against ~2 minutes. Exec rate is meaningless there --
+  it ranged from 46 % to 100 % across the plain arms while match stayed at 0 -- because prose
+  fragments parse as type selectors.
+- **Few-shot beats the card for every model measured, without exception**, +2.8 to +15.7. The gain is
+  largest where the model is weakest (4B +15.7), matching stage 5: examples fix structure, and the
+  models with the most structural errors have the most to gain.
+- **Active parameters matter more than total.** The 35B-A3B pair (~3B active) sits at 77-83 while the
+  27B-Turbo reaches 87-93. Turbo variants are a latency choice, not a quality one, except for the 27B
+  where Turbo is the one we measured highest.
+- **Ornith is the accuracy/latency trade in one row**: second best at 91.6, at 6.8 s and 283 tokens
+  per answer -- roughly seven times the 27B-Turbo's latency for 1 point less.
+- Device-vs-local, same weights, same card: **Qwen3.5-9B scores 69.4 on the device against 64.8
+  locally under NF4**, the first time we could measure that gap, since the 9B could not previously be
+  downloaded to the device.
+
