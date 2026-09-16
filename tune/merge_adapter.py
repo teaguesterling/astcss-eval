@@ -35,12 +35,21 @@ CARRY = ("preprocessor_config.json", "chat_template.json", "chat_template.jinja"
 
 
 def load_base(path, dtype):
-    """The base in its own class: a text-only checkpoint loads as CausalLM, the Qwen3.5 layout
-    the device expects is an image-text-to-text model and must keep that class to import."""
+    """Load the base the SAME WAY TRAINING DID, or the adapter binds to nothing.
+
+    train_qlora.py uses AutoModelForCausalLM, so every adapter key is
+    `base_model.model.model.layers.<n>...`. Loading the same checkpoint as
+    AutoModelForImageTextToText puts the text stack at `model.language_model.layers.<n>`
+    instead, PEFT finds none of those keys, and merge_and_unload() returns the base
+    unchanged with only a UserWarning (2026-09-16: all 372 adapter tensors reported
+    missing, max|delta| against the base 2.98e-08 — fp16 round-trip noise — including on
+    embed_tokens, which the adapter never touched).
+
+    So: CausalLM first, and verify_merge() below proves the deltas landed."""
     import torch
     import transformers
     kinds = [getattr(transformers, n, None) for n in
-             ("AutoModelForImageTextToText", "AutoModelForCausalLM", "AutoModel")]
+             ("AutoModelForCausalLM", "AutoModelForImageTextToText", "AutoModel")]
     errors = []
     for cls in filter(None, kinds):
         try:
@@ -51,6 +60,39 @@ def load_base(path, dtype):
         except Exception as e:                      # wrong head for this checkpoint
             errors.append("%s: %s: %s" % (cls.__name__, type(e).__name__, str(e)[:120]))
     sys.exit("could not load %s\n  " % path + "\n  ".join(errors))
+
+
+def verify_merge(base, out, adapter):
+    """A merge that applied nothing is the failure this script exists to catch, and it is silent.
+    Compare the written tensors against the base: modules the adapter targeted must differ by far
+    more than fp16 round-trip noise, and a module it never touched must not."""
+    import glob
+    from safetensors import safe_open
+    targets = set(json.load(open(os.path.join(adapter, "adapter_config.json")))["target_modules"])
+    src = {}
+    for f in sorted(glob.glob(os.path.join(base, "*.safetensors"))):
+        with safe_open(f, framework="pt") as h:
+            for k in h.keys():
+                src[k] = f
+    written = sorted(glob.glob(os.path.join(out, "*.safetensors")))
+    touched, untouched, missing = [], [], 0
+    for f in written:
+        with safe_open(f, framework="pt") as hm:
+            for k in hm.keys():
+                if k not in src:
+                    continue
+                with safe_open(src[k], framework="pt") as hb:
+                    d = (hb.get_tensor(k).float() - hm.get_tensor(k).float()).abs().max().item()
+                (touched if any(".%s." % t in k for t in targets) else untouched).append((k, d))
+    missing = len(set(src) - {k for f in written for k in safe_open(f, framework="pt").keys()})
+    t_max = max((d for _, d in touched), default=0.0)
+    u_max = max((d for _, d in untouched), default=0.0)
+    print("verify: %d targeted tensors, max|delta| %.6g; %d untouched, max|delta| %.6g; %d base tensors not written"
+          % (len(touched), t_max, len(untouched), u_max, missing))
+    if t_max <= max(u_max, 1e-6):
+        sys.exit("MERGE DID NOT APPLY: targeted weights are indistinguishable from the base. "
+                 "Check that the adapter's key prefix matches how the base was loaded.")
+    return t_max, u_max, missing
 
 
 def main(argv=None):
@@ -92,6 +134,7 @@ def main(argv=None):
     print("wrote %d files, %.1f GB%s" % (len(os.listdir(out)), total / 1e9,
                                          ("; carried " + ", ".join(carried)) if carried else ""))
     print("architectures:", json.load(open(os.path.join(out, "config.json"))).get("architectures"))
+    verify_merge(base, out, adapter)
     print("\nre-score it before shipping -- an NF4-trained adapter merged into float16 is not identity:")
     print("  tune/local_generate.py --base %s --name local:merged --quant none --card <card> --out runs/<name>"
           % os.path.relpath(out, HERE))
