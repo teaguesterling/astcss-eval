@@ -1065,3 +1065,47 @@ contention guard). Every other arm answered all 108.
   locally under NF4**, the first time we could measure that gap, since the 9B could not previously be
   downloaded to the device.
 
+
+### Deployment: our half works, the device's import toolkit is down (2026-09-16)
+
+The first tuned model is published: **https://huggingface.co/teaguesterling/qwen3.5-0.8b-astcss**
+(Qwen3.5-0.8B + the seed-18 LoRA, merged, 752,393,024 F16 parameters, 1.5 GB, public).
+
+Getting there caught a bug worth remembering. **The first merge applied nothing and said so only in a
+UserWarning.** `train_qlora.py` loads the base with `AutoModelForCausalLM`, so every adapter key is
+`base_model.model.model.layers.<n>...`; `merge_adapter.py` tried `AutoModelForImageTextToText` first,
+which puts the text stack at `model.language_model.layers.<n>`. PEFT matched none of the 372 adapter
+tensors, `merge_and_unload()` returned the base unchanged, and the output looked plausible -- 1.7 GB
+of safetensors with the right architecture string. Max|delta| against the base was 2.98e-08 on every
+tensor, including `embed_tokens`, which the adapter never touches. One step from publishing a base
+model labelled as a tuned one.
+
+`merge_adapter.py` now loads the base the way training did and `verify_merge()` EXITS if the targeted
+modules are indistinguishable from the base. The corrected merge reports 186 targeted tensors at
+max|delta| 4.6e-3 against 4.9e-4 for untouched ones -- and that 4.9e-4 is itself one fp16 ulp at
+norm-weight magnitudes, not a modification. The merged weights then re-scored at **82.4 %**: T1 19/21,
+T2 17/25, T3 25/31, T4 28/31, identical to the adapter tier for tier.
+
+The device will not take it yet:
+
+```
+tiiny import https://huggingface.co/teaguesterling/qwen3.5-0.8b-astcss
+  -> not supported: Toolkit catalog is unavailable. (TOOLKIT_CATALOG_UNAVAILABLE)
+tiiny import https://huggingface.co/Qwen/Qwen3.5-0.8B          # control
+  -> not supported: Toolkit catalog is unavailable. (TOOLKIT_CATALOG_UNAVAILABLE)
+```
+
+**The control is the point**: Qwen's own official repo fails identically, so this is a device-side
+outage in the import toolkit, not a rejection of our model, its size, or its text-only
+`Qwen3_5ForCausalLM` layout. The store catalog is healthy the whole time (33 entries, management API
+responding, models load and serve). Stage 6 recorded the same subsystem reporting `invalid`.
+
+So the open question -- whether custom import accepts anything other than a 9B-shaped multimodal
+model, which is the only custom entry on that device -- stays open, and re-shaping the upload to match
+that layout would be solving a problem the control says we do not have. Retry the import when the
+toolkit recovers; everything on our side is done.
+
+Note for whoever picks this up: the merged build is text-only. `save_pretrained` under the CausalLM
+class drops the base's vision tower (153 `model.visual.*`) and multi-token-prediction head (15
+`mtp.*`). That is recorded in the model card.
+
