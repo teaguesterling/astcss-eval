@@ -948,3 +948,26 @@ Of the 120 pending, **62 are already fixed upstream** and recoverable with the m
 58 are genuinely open: attr-in-has 33 (#150), call-code-literal 22 (#152), chained-receiver 11
 (#149), calls-scope 7 (#146), called-by-lambda 3 (#152), exported 1 (#148).
 
+
+### Recovery roll-up: 230 pairs off the pending list (2026-09-15)
+
+Everything held on a defect that sitting_duck main d706c89 fixes, re-verified against the second pin:
+
+| batch | pairs | what changed |
+|---|---|---|
+| scope-m1 | 172 | `:scope(X)` -> `:in-scope(X)`, 151 renames and 31 argument rewrites |
+| scope-sql1 | 9 | SQL re-routed to `create_table#X column_definition` (#166) |
+| sib-recover | 47 | 29 rewritten, 18 simply re-verified (#133, #151) |
+| sib-sql | 2 | same SQL re-route, from the sibling batch |
+| **total** | **230** | **208 of them tier 5** |
+
+`workspace/recovered.json` is the manifest: batch, path, selector, tier, fixture and node count per
+pair, plus how to consume them (`--extra-pairs` on each batch path, skipping those ids wherever the
+pending files are read). The originals are deliberately left in place -- the generation chain reads
+those pending files for node-set dedupe while it runs.
+
+What is still genuinely pending, after this: the defects that remain open upstream -- attribute
+filters inside `:has` (#150), refined call codes (#152), chained receivers (#149), `:calls` scope
+(#146), `:exported` (#148) -- plus 12 sibling pairs that carry one of those *alongside* a fixed one,
+so the fix alone does not free them.
+
