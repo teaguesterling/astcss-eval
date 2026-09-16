@@ -30,6 +30,7 @@ import os
 import random
 import re
 import signal
+import socket
 import statistics
 import subprocess
 import sys
@@ -215,10 +216,17 @@ PAUSE_LEASE = "~/astcss-tune/npu-pause.lease"
 
 
 def _ssh(cmd, timeout=40):
-    out = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", EMBED_HOST, cmd],
-                         capture_output=True, text=True, timeout=timeout)
+    """Run a pause command on the embedding host -- through a local shell when that host IS this
+    machine (2026-09-15: the ssh hop failed host key verification from an unattended session, so
+    every device run had to pass --no-embed-pause and then met the contention the pause prevents)."""
+    if EMBED_HOST in ("localhost", "127.0.0.1", socket.gethostname(), socket.gethostname().split(".")[0]):
+        argv = ["bash", "-lc", cmd]
+    else:
+        argv = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", EMBED_HOST, cmd]
+    out = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
     if out.returncode != 0:
-        raise RuntimeError("ssh %s exit %s: %s" % (EMBED_HOST, out.returncode, (out.stderr or out.stdout)[:200]))
+        raise RuntimeError("%s %s exit %s: %s" % (argv[0], EMBED_HOST, out.returncode,
+                                                  (out.stderr or out.stdout)[:200]))
     return out.stdout.strip()
 
 

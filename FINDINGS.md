@@ -822,3 +822,26 @@ Speed, same engine and same batch: audit-r1 16m41s -> 4m57s, prefix-c1 41m52s ->
 run of an already-verified batch costs seconds, because every reference query is a cache hit --
 the class-form batch re-verified in 7 s after a text change.
 
+
+### Stage 9: the device's new models, and what one model at a time really means (2026-09-15)
+
+The device's store recovered: 33 entries, 19 chat-capable, and seven never scored here -- Ornith-1.0-35B,
+Qwen3-Coder-Next, Qwen3.6-35B-A3B and its Turbo, Qwen3.6-27B-Turbo, Qwen3-4B-Instruct-2507, and
+**Qwen/Qwen3.5-9B**, which stage 6 recorded as impossible to download. That last one is the tuning base,
+so it gives a same-weights device-vs-local reading, and `tiiny ls` shows an existing `Source: Custom`
+entry (the uncensored 9B), so custom import demonstrably works on this device.
+
+The first attempt failed twice, and both failures are worth keeping:
+
+- **`--no-embed-pause` is not free.** `qualify.EmbedPause` ssh'es to the embedding host, which is
+  `longbottom` -- this machine. Host key verification fails from an unattended session, so every device
+  chain has passed `--no-embed-pause`, which disables the protection rather than fixing the hop. `_ssh`
+  now runs the command through a local shell when the embed host is this machine.
+- **The real contention was two chat models, not the embedder.** Stage 9 loaded Qwen3.5-9B while the
+  generation chain's sibling wording stage held gemma-4-26B: `models/running` listed three models
+  resident, and the 9B returned three consecutive empty responses (HTTP 200, `finish_reason=None`, no
+  content) before qualify's guard skipped the rest. The arm's 80-of-108 result is not a score and is not
+  reported as one. `yield_npu` narrows the window between requests but cannot stop another client from
+  loading a second model, so the rule is scheduling: device qualification and the generation chain's
+  wording stages must not overlap.
+
