@@ -1,0 +1,801 @@
+<title>astcss Tuning Notebook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+:root {
+  --ground: #F4F6F4;
+  --surface: #FBFCFB;
+  --tint: #E8EEEB;
+  --ink: #18211E;
+  --muted: #5B6863;
+  --rule: #D5DDD8;
+  --rule-strong: #B7C3BD;
+  --accent: #0B6B69;
+  --accent-soft: #DCEDEA;
+  --amber: #9C5F12;
+  --amber-soft: #F3E7D3;
+  --plus: #2B7445;
+  --minus: #A8402F;
+  --code-bg: #E6ECE9;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #101614;
+    --surface: #151D1A;
+    --tint: #1B2521;
+    --ink: #E2E9E5;
+    --muted: #97A69F;
+    --rule: #2A3632;
+    --rule-strong: #3E4D48;
+    --accent: #5BBDB5;
+    --accent-soft: #173331;
+    --amber: #D9A55B;
+    --amber-soft: #3A2C17;
+    --plus: #71C28E;
+    --minus: #E48472;
+    --code-bg: #1E2926;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #101614;
+  --surface: #151D1A;
+  --tint: #1B2521;
+  --ink: #E2E9E5;
+  --muted: #97A69F;
+  --rule: #2A3632;
+  --rule-strong: #3E4D48;
+  --accent: #5BBDB5;
+  --accent-soft: #173331;
+  --amber: #D9A55B;
+  --amber-soft: #3A2C17;
+  --plus: #71C28E;
+  --minus: #E48472;
+  --code-bg: #1E2926;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.62;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-underline-offset: 0.18em; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-inline: 24px;
+  padding-block: 56px 112px;
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 64px;
+}
+@media (max-width: 980px) {
+  .page { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 32px 80px; }
+}
+@media (max-width: 480px) { .page { padding-inline: 16px; } body { font-size: 16px; } }
+
+/* contents rail */
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 32px); align-self: start; font-family: var(--mono); font-size: 12.5px; }
+nav.toc .label { text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-size: 11px; margin-bottom: 12px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+nav.toc a { display: block; padding: 5px 0 5px 12px; color: var(--muted); text-decoration: none; border-left: 1px solid var(--rule); line-height: 1.35; }
+nav.toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+nav.toc ol ol { margin-left: 12px; }
+@media (max-width: 980px) {
+  nav.toc { position: static; border-block: 1px solid var(--rule); padding-block: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); column-gap: 16px; }
+  nav.toc ol ol { display: none; }
+}
+
+main { min-width: 0; }
+main > section { padding-top: 56px; margin-top: 56px; border-top: 1px solid var(--rule); }
+main > section:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+
+.eyebrow { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+h1, h2, h3, h4 { font-family: var(--display); font-weight: 700; line-height: 1.12; text-wrap: balance; margin: 0; letter-spacing: -0.012em; }
+h1 { font-size: clamp(2.3rem, 5vw, 3.35rem); letter-spacing: -0.025em; }
+h2 { font-size: clamp(1.6rem, 3vw, 2.05rem); margin-bottom: 18px; }
+h3 { font-size: 1.32rem; margin: 40px 0 12px; }
+h4 { font-family: var(--mono); font-weight: 600; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 24px 0 8px; }
+p, ul, ol.prose { max-width: 68ch; margin: 0 0 14px; }
+ul { padding-left: 1.2em; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--rule-strong); }
+strong { font-weight: 600; }
+.dek { font-size: 1.2rem; line-height: 1.5; color: var(--muted); max-width: 60ch; margin-top: 18px; }
+
+code, .sel { font-family: var(--mono); font-size: 0.84em; background: var(--code-bg); padding: 0.08em 0.36em; border-radius: 3px; white-space: nowrap; }
+.sel { color: var(--accent); }
+pre { font-family: var(--mono); font-size: 13.5px; line-height: 1.55; background: var(--surface); border: 1px solid var(--rule); padding: 16px 18px; overflow-x: auto; max-width: 100%; margin: 0 0 16px; }
+pre code { background: none; padding: 0; font-size: inherit; white-space: pre; }
+
+.meta { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 24px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+.meta span b { color: var(--ink); font-weight: 500; }
+
+/* headline readings */
+.readings { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; margin: 40px 0 8px; border-top: 2px solid var(--ink); }
+.reading { padding: 16px 20px 18px 0; border-bottom: 1px solid var(--rule); }
+.reading .num { font-family: var(--display); font-weight: 700; font-size: 2.3rem; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.reading .num small { font-size: 0.5em; color: var(--muted); font-weight: 600; margin-left: 2px; }
+.reading .what { font-size: 14.5px; line-height: 1.42; margin-top: 8px; color: var(--muted); max-width: 30ch; }
+.reading .what b { color: var(--ink); font-weight: 600; }
+
+/* tables */
+.tbl { overflow-x: auto; margin: 18px 0 22px; max-width: 100%; }
+table { border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums lining-nums; min-width: 100%; }
+caption { text-align: left; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-bottom: 8px; caption-side: top; }
+th { font-family: var(--mono); font-weight: 500; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 14px 8px 0; border-bottom: 1px solid var(--rule-strong); white-space: nowrap; }
+td { padding: 8px 14px 8px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+tr.best td { background: var(--accent-soft); }
+tr.best td:first-child { padding-left: 8px; }
+tr.best td:last-child { padding-right: 8px; }
+.note { font-size: 13.5px; color: var(--muted); margin-top: -12px; }
+.plus { color: var(--plus); }
+.minus { color: var(--minus); }
+
+.tier { font-family: var(--mono); font-size: 11px; font-weight: 600; border: 1px solid var(--rule-strong); padding: 0 5px; border-radius: 3px; color: var(--muted); white-space: nowrap; }
+.pill { display: inline-block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; vertical-align: 0.2em; margin-left: 6px; white-space: nowrap; }
+.pill.done { background: var(--accent-soft); color: var(--accent); }
+.pill.run { background: var(--amber-soft); color: var(--amber); }
+.pill.no { background: var(--tint); color: var(--muted); }
+
+/* experiment blocks */
+.exp { margin-top: 44px; }
+.exp:first-of-type { margin-top: 28px; }
+.exp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-bottom: 14px; }
+.exp-head h3 { margin: 0; }
+.exp-head .stage { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+dl.qdr { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px 20px; margin: 0 0 8px; }
+dl.qdr dt { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
+dl.qdr dd { margin: 0; max-width: 68ch; }
+dl.qdr dd p:last-child, dl.qdr dd ul:last-child { margin-bottom: 0; }
+@media (max-width: 560px) { dl.qdr { grid-template-columns: minmax(0, 1fr); gap: 2px; } dl.qdr dd { margin-bottom: 10px; } }
+
+aside.side { background: var(--tint); padding: 16px 20px; margin: 20px 0; max-width: 72ch; font-size: 15.5px; }
+aside.side h4 { margin-top: 0; }
+aside.side p:last-child, aside.side ul:last-child { margin-bottom: 0; }
+
+.formula { font-family: var(--mono); font-size: 15px; background: var(--surface); border: 1px solid var(--rule); padding: 14px 18px; display: inline-block; margin: 4px 0 16px; max-width: 100%; overflow-x: auto; }
+
+/* figures */
+figure { margin: 26px 0 30px; }
+figure .chart { overflow-x: auto; background: var(--surface); border: 1px solid var(--rule); padding: 12px 8px 4px; }
+figure svg { display: block; width: 100%; min-width: 620px; height: auto; }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 10px; max-width: 72ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.k-device { background: var(--accent); }
+.k-trained { background: var(--amber); }
+.k-untuned { background: var(--muted); }
+.k-hollow { border: 2px solid var(--muted); background: var(--surface); }
+
+svg .tick { font-family: var(--mono); font-size: 12px; fill: var(--muted); }
+svg .lab { font-family: var(--mono); font-size: 12.5px; fill: var(--ink); }
+svg .sub { fill: var(--muted); }
+svg .val { font-family: var(--mono); font-size: 12px; fill: var(--ink); font-weight: 500; }
+svg .grid { stroke: var(--rule); stroke-width: 1; }
+svg .stem { stroke: var(--rule-strong); stroke-width: 1.5; }
+svg .d-device { fill: var(--accent); }
+svg .d-trained { fill: var(--amber); }
+svg .d-untuned { fill: var(--muted); }
+svg .hollow { fill: var(--surface); stroke: var(--muted); stroke-width: 2; }
+svg .link { stroke: var(--amber); stroke-width: 3; stroke-linecap: round; opacity: 0.55; }
+svg .pending { font-family: var(--mono); font-size: 12px; fill: var(--amber); }
+
+/* funnel */
+.funnel { display: grid; gap: 8px; margin: 18px 0 8px; max-width: 760px; }
+.funnel .row { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) 4.5rem; gap: 14px; align-items: center; font-size: 14.5px; }
+.funnel .bar { height: 14px; background: var(--tint); position: relative; }
+.funnel .bar span { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+.funnel .bar span.warn { background: var(--minus); opacity: 0.75; }
+.funnel .n { font-family: var(--mono); font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .funnel .row { grid-template-columns: minmax(0, 1fr) 4rem; } .funnel .bar { grid-column: 1 / -1; order: 3; } }
+
+.pipeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; margin: 18px 0 22px; border: 1px solid var(--rule); background: var(--surface); }
+.pipeline div { padding: 12px 14px; border-right: 1px solid var(--rule); font-size: 14px; line-height: 1.4; }
+.pipeline div:last-child { border-right: 0; }
+.pipeline b { display: block; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 4px; }
+@media (max-width: 700px) { .pipeline div { border-right: 0; border-bottom: 1px solid var(--rule); } .pipeline div:last-child { border-bottom: 0; } }
+
+footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--rule); font-family: var(--mono); font-size: 12px; color: var(--muted); max-width: 80ch; }
+</style>
+
+<div class="page">
+  <nav class="toc" aria-label="Contents">
+    <div class="label">Contents</div>
+    <ol>
+      <li><a href="#top">Summary</a></li>
+      <li><a href="#undertaking">The undertaking</a></li>
+      <li><a href="#qlora">QLoRA, from first principles</a></li>
+      <li><a href="#experiments">Experiments</a>
+        <ol>
+          <li><a href="#e-cards">Cards</a></li>
+          <li><a href="#e-context">Context arms</a></li>
+          <li><a href="#e-device">Every device model</a></li>
+          <li><a href="#e-curve">9B learning curve</a></li>
+          <li><a href="#e-small">0.8B: card or not</a></li>
+          <li><a href="#e-tag">Language tag</a></li>
+          <li><a href="#e-ladder">Size ladder</a></li>
+          <li><a href="#e-genpilot">Models write pairs</a></li>
+          <li><a href="#e-sfgen">Selector-first pairs</a></li>
+          <li><a href="#e-audit">The request audit</a></li>
+          <li><a href="#e-seed">Seed noise, more pairs</a></li>
+          <li><a href="#e-t5">Tier 5: baselines, card</a></li>
+          <li><a href="#e-prompt">Prompt on a trained model</a></li>
+          <li><a href="#e-suite">The tier-5 suite</a></li>
+          <li><a href="#e-class">Class-form alternatives</a></li>
+        </ol>
+      </li>
+      <li><a href="#engineering">Engineering notes</a></li>
+      <li><a href="#next">Open questions</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="top">
+      <p class="eyebrow">astcss-eval · main → tune/tier5 · 2026-09-14 → 09-15</p>
+      <h1>astcss Tuning Notebook</h1>
+      <p class="dek">Teaching language models to turn a developer's plain-English request into one astcss selector, and checking every answer by running it against a real code tree.</p>
+      <div class="meta">
+        <span>eval <b>108 pairs</b>, execution-scored</span>
+        <span>training corpus <b>1,052 verified</b></span>
+        <span>device <b>Tiiny NPU</b></span>
+        <span>trainer <b>RTX 2080 Ti, 11 GiB</b></span>
+        <span>engine <b>sitting_duck sd-20260914-1835 + fix/127 macros</b></span>
+      </div>
+
+      <div class="readings">
+        <div class="reading"><div class="num">93.5<small>%</small></div><div class="what"><b>Best overall:</b> Qwen3.6-27B on the device with 8 retrieved examples</div></div>
+        <div class="reading"><div class="num">89.8<small>%</small></div><div class="what"><b>Best trained:</b> Qwen3.5-4B, LoRA with each language's card, under 4 GiB</div></div>
+        <div class="reading"><div class="num">81.5<small>%</small></div><div class="what"><b>Smallest that works:</b> Qwen3.5-0.8B trained with the card; <b>0.0 %</b> when that card is removed</div></div>
+        <div class="reading"><div class="num">1,416</div><div class="what"><b>Tier-5 pairs verified</b> in one suite run, against none in the training corpus today</div></div>
+      </div>
+    </section>
+
+    <section id="undertaking">
+      <p class="eyebrow">Context</p>
+      <h2>The undertaking</h2>
+      <p>astcss is a CSS-style query language over abstract syntax trees, executed by sitting_duck's <code>ast_select</code>. A request like “methods of the Parser class” has one right selector, <span class="sel">.class#Parser .fn</span>, and the only honest test of a model's answer is to run it and compare node sets, not strings. This project builds an execution-verified eval and training set for that translation, then measures how far prompting, context and fine-tuning each get.</p>
+
+      <h3>What a pair is</h3>
+      <p>Each pair is a request, two paraphrases, a selector, a fixture it runs on, and distractors: near-miss selectors that must return a different node set. Pairs come in four tiers.</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>tier</th><th>shape</th><th>example</th><th class="n">eval pairs</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tier">T1</span></td><td>one semantic class or node type</td><td><span class="sel">.loop</span> · <span class="sel">with_statement</span></td><td class="n">21</td></tr>
+            <tr><td><span class="tier">T2</span></td><td>one step plus a name or attribute filter</td><td><span class="sel">.call#sleep</span> · <span class="sel">.fn[name^="test_"]</span></td><td class="n">25</td></tr>
+            <tr><td><span class="tier">T3</span></td><td>exactly two steps joined by a combinator</td><td><span class="sel">.class#User .fn</span> · <span class="sel">.import ~ .class</span></td><td class="n">31</td></tr>
+            <tr><td><span class="tier">T4</span></td><td><code>:has</code> or <code>:not(:has)</code> on a step</td><td><span class="sel">.fn:not(:has(.throw))</span></td><td class="n">31</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The verifier decides what is kept</h3>
+      <p>sitting_duck fails silently in both directions (unknown selector parts are ignored, some filters match nothing without error), so no pair enters either set on trust. Every candidate passes these gates:</p>
+      <ul>
+        <li><strong>Bounds:</strong> the selector returns 1–50 nodes on its fixture.</li>
+        <li><strong>Load-bearing:</strong> dropping any filter or combinator step changes the node set.</li>
+        <li><strong>Distractors:</strong> each parses, runs, and returns a different node set.</li>
+        <li><strong><code>:has</code> ground truth:</strong> the engine's answer must match a containment query computed directly on the tree (sitting_duck #133 leaks keyword tokens into <code>:has</code>).</li>
+        <li><strong>Held-out eval:</strong> no training pair repeats an eval request, or an eval answer from T2 up.</li>
+        <li><strong>No duplicates:</strong> no two pairs on a fixture select the same nodes.</li>
+      </ul>
+
+      <h3>Data, hardware, goals</h3>
+      <ul>
+        <li><strong>Eval:</strong> 108 Python pairs on two held-out fixtures, scored by execution match.</li>
+        <li><strong>Training:</strong> 918 verified pairs in nine languages on 20 training fixtures. Capped at 8 per (request template, selector shape), that is 820 pairs, 297 shapes, 2,205 training rows with paraphrases, and 85 validation pairs.</li>
+        <li><strong>Tiiny device:</strong> an NPU box serving chat models through an OpenAI-compatible API; one model resident at a time; thinking switched off per request.</li>
+        <li><strong>longbottom:</strong> an RTX 2080 Ti (Turing, no bfloat16) for QLoRA and local evaluation.</li>
+        <li><strong>Plan:</strong> evaluate on the device through prompt and context construction; fine-tune locally; import a tuned model to the device last. The import path is currently blocked on the device side.</li>
+      </ul>
+      <aside class="side">
+        <h4>Pinned engine</h4>
+        <p>Every number from stage 5 on is scored with one frozen sitting_duck build and the <code>fix/127-combinator-steps</code> macros. With main's macros the same build returns 0 rows for every two-step selector, which briefly made T3 look like 0 of 31 for every model. <code>qualify.py oracle</code> confirms the pinned pairing: references 100 %, first distractors 0 %.</p>
+      </aside>
+    </section>
+
+    <section id="qlora">
+      <p class="eyebrow">Primer · adapted from the session's lesson, updated with what later runs measured</p>
+      <h2>QLoRA, from first principles</h2>
+      <p><strong>QLoRA</strong> stands for <strong>Quantized Low-Rank Adaptation</strong>: learn a small correction to a model's weights (LoRA, Hu et al. 2021) while the frozen base sits in 4 bits (Dettmers et al. 2023). Together they fit a 9-billion-parameter fine-tune on one consumer GPU.</p>
+
+      <h3>Why full fine-tuning is out of reach</h3>
+      <div class="tbl">
+        <table>
+          <caption>Memory per parameter with Adam, before activations</caption>
+          <thead><tr><th>item</th><th class="n">bytes / param</th><th class="n">for 9B params</th></tr></thead>
+          <tbody>
+            <tr><td>weights, fp16</td><td class="n">2</td><td class="n">~17 GiB</td></tr>
+            <tr><td>gradients, fp16</td><td class="n">2</td><td class="n">~17 GiB</td></tr>
+            <tr><td>Adam moments, fp32</td><td class="n">8</td><td class="n">~67 GiB</td></tr>
+            <tr><td><strong>total</strong></td><td class="n"><strong>12</strong></td><td class="n"><strong>~100 GiB</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The card has 11 GiB, about 1.4 of which the desktop holds. Full fine-tuning needs roughly ten times that.</p>
+
+      <h3>LoRA: learn a small correction</h3>
+      <p>A linear layer computes <code>y = W·x</code>. LoRA freezes <code>W</code> and adds a low-rank update:</p>
+      <div class="formula">y = W·x + (α / r) · B·A·x</div>
+      <ul>
+        <li><code>A</code> is r × d<sub>in</sub>, <code>B</code> is d<sub>out</sub> × r. We use rank <strong>r = 16</strong> and <strong>α = 32</strong>, so updates scale by 2.</li>
+        <li><code>B</code> starts at zero: at step 0 the model is exactly the base.</li>
+        <li>For one 12,288 × 4,096 MLP projection, LoRA trains ~262k numbers instead of ~50M (0.5 %). Across every linear layer of Qwen3.5-9B: 43.3M of 9.0B parameters (0.48 %).</li>
+        <li>After training the correction can be merged (<code>W ← W + (α/r)·B·A</code>) into an ordinary checkpoint, which matters because the Tiiny imports only full safetensors.</li>
+      </ul>
+
+      <h3>Quantization: the frozen base in 4 bits</h3>
+      <ul>
+        <li><strong>NF4:</strong> 16 levels placed at the quantiles of a normal distribution, dense near zero where trained weights cluster.</li>
+        <li><strong>Block-wise scales:</strong> one scale per 64 weights, so an outlier only degrades its block.</li>
+        <li><strong>Double quantization:</strong> the scales themselves stored in 8 bits, ~0.37 bits per parameter saved.</li>
+        <li><strong>Compute dtype:</strong> each 4-bit weight is dequantized for its layer's forward pass. Turing has no bfloat16, so compute is <strong>float16</strong>.</li>
+        <li>Gradients flow through the dequantized weights; only <code>A</code> and <code>B</code> are updated.</li>
+      </ul>
+
+      <h3>What it took on this card</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>decision</th><th>why, as measured</th></tr></thead>
+          <tbody>
+            <tr><td>Embedding table on the GPU</td><td>The lesson moved it to the CPU to save 1.9 GiB. The offload added 478 hooks and made each forward ~3× slower, so it went back.</td></tr>
+            <tr><td>No <code>prepare_model_for_kbit_training</code></td><td>It upcasts every unquantized tensor to fp32; on the 248k-row embedding that is a 3.8 GiB allocation and the first out-of-memory. Gradient checkpointing and input gradients are enabled by hand.</td></tr>
+            <tr><td>No GradScaler</td><td>At its default scale it skipped every step; lowered, it still produced NaN gradients at scale 128. Unscaled fp16 gradients were finite, so the scaler went; a non-finite step is skipped and logged. Smoke validation loss then fell 7.62 → 4.53.</td></tr>
+            <tr><td>Completion-only loss via <code>logits_to_keep</code></td><td>Only the selector tokens are learned, and full logits (sequence × 248,320 × 4 bytes) are never materialized.</td></tr>
+            <tr><td>Pure-PyTorch linear attention</td><td>The <code>fla</code> Triton kernels compiled for 45+ minutes and gave no speedup here. With OCR contention paused and the embedding on the GPU: <strong>1.05–1.13 s per row</strong> for bare requests at 8.1 GiB peak, <strong>2.04 s per row</strong> with the ~641-token card at 8.45 GiB.</td></tr>
+            <tr><td>One prompt function for training and generation</td><td><code>tune/prompting.py</code> renders the chat template once per shape. Qwen3.5's template trims message text, Qwen3-4B-Instruct's does not; trimming is detected per tokenizer and checked byte-identical.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The data side</h3>
+      <pre><code>system:    [card for the pair's language]   (per arm: card, tag, or nothing)
+user:      methods of the Collector class
+assistant: .class#Collector .fn                ← loss computed only here</code></pre>
+      <ul>
+        <li><strong>Split by pair, not row:</strong> paraphrases are near-duplicates; splitting rows would measure memorization.</li>
+        <li><strong>Template cap of 8:</strong> “calls to N” appears 57 times; uncapped, the model mostly learns that one shape.</li>
+        <li><strong>Train and serve prompts match:</strong> an adapter is always asked in exactly the format it was trained on.</li>
+        <li><strong>Judge checkpoints by execution match on the eval</strong>, not validation loss. Stage 6 shows why: the 9B's loss kept falling from epoch 1 to 2 while its score dropped.</li>
+      </ul>
+
+      <h3>From adapter to device, later</h3>
+      <p>Merge into the full-precision base, save in the base's original <code>Qwen3_5ForConditionalGeneration</code> layout (vision tower and preprocessor configs included, since the device toolkit matches on it), re-run the eval on the merged weights, then <code>tiiny import</code> from a private Hugging Face repo. That last step waits on the device's import catalog, which currently reports <code>invalid</code>.</p>
+    </section>
+
+    <section id="experiments">
+      <p class="eyebrow">Design · rationale · results</p>
+      <h2>Experiments</h2>
+      <p>Stages run in order; each one's question came from the one before. Scores are execution match on the 108 eval pairs unless noted. Flips (<span class="plus">+gained</span> / <span class="minus">−lost</span>) compare an arm with its own control. Almost every arm is a single run; the only noise reference is stage 3's rerun, where a card change of 1–6 flips in 98 pairs was within noise.</p>
+
+      <figure>
+        <div class="legend"><span><i class="k-device"></i>device model, untuned, best context arm</span><span><i class="k-trained"></i>trained locally (LoRA)</span><span><i class="k-untuned"></i>untuned, run locally</span></div>
+        <div class="chart">
+          <svg viewBox="0 0 760 546" role="img" aria-label="Best execution match per model and approach, from 64.8 to 93.5 percent">
+            <g>
+              <line class="grid" x1="320" y1="38" x2="320" y2="508"/><text class="tick" x="320" y="28" text-anchor="middle">50</text>
+              <line class="grid" x1="400" y1="38" x2="400" y2="508"/><text class="tick" x="400" y="28" text-anchor="middle">60</text>
+              <line class="grid" x1="480" y1="38" x2="480" y2="508"/><text class="tick" x="480" y="28" text-anchor="middle">70</text>
+              <line class="grid" x1="560" y1="38" x2="560" y2="508"/><text class="tick" x="560" y="28" text-anchor="middle">80</text>
+              <line class="grid" x1="640" y1="38" x2="640" y2="508"/><text class="tick" x="640" y="28" text-anchor="middle">90</text>
+              <line class="grid" x1="720" y1="38" x2="720" y2="508"/><text class="tick" x="720" y="28" text-anchor="middle">100</text>
+            </g>
+            <g>
+              <text class="lab" x="300" y="56" text-anchor="end">Qwen3.6-27B <tspan class="sub">· retrieval</tspan></text><line class="stem" x1="320" y1="52" x2="668" y2="52"/><circle class="d-device" cx="668" cy="52" r="5.5"/><text class="val" x="680" y="56">93.5</text>
+              <text class="lab" x="300" y="82" text-anchor="end">gemma-4-26B-A4B <tspan class="sub">· examples</tspan></text><line class="stem" x1="320" y1="78" x2="653.6" y2="78"/><circle class="d-device" cx="653.6" cy="78" r="5.5"/><text class="val" x="665.6" y="82">91.7</text>
+              <text class="lab" x="300" y="108" text-anchor="end">Qwen3.5-4B + LoRA <tspan class="sub">· card</tspan></text><line class="stem" x1="320" y1="104" x2="638.4" y2="104"/><circle class="d-trained" cx="638.4" cy="104" r="5.5"/><text class="val" x="650.4" y="108">89.8</text>
+              <text class="lab" x="300" y="134" text-anchor="end">Qwen3-30B-A3B-Thinking <tspan class="sub">· card</tspan></text><line class="stem" x1="320" y1="130" x2="586.4" y2="130"/><circle class="d-device" cx="586.4" cy="130" r="5.5"/><text class="val" x="598.4" y="134">83.3</text>
+              <text class="lab" x="300" y="160" text-anchor="end">Qwen3-Coder-30B-A3B <tspan class="sub">· examples</tspan></text><line class="stem" x1="320" y1="156" x2="586.4" y2="156"/><circle class="d-device" cx="586.4" cy="156" r="5.5"/><text class="val" x="598.4" y="160">83.3</text>
+              <text class="lab" x="300" y="186" text-anchor="end">Qwen3.5-2B + LoRA <tspan class="sub">· card</tspan></text><line class="stem" x1="320" y1="182" x2="579.2" y2="182"/><circle class="d-trained" cx="579.2" cy="182" r="5.5"/><text class="val" x="591.2" y="186">82.4</text>
+              <text class="lab" x="300" y="212" text-anchor="end">Qwen3.5-0.8B + LoRA <tspan class="sub">· card</tspan></text><line class="stem" x1="320" y1="208" x2="572" y2="208"/><circle class="d-trained" cx="572" cy="208" r="5.5"/><text class="val" x="584" y="212">81.5</text>
+              <text class="lab" x="300" y="238" text-anchor="end">Qwen3-30B-A3B-Instruct <tspan class="sub">· retrieval</tspan></text><line class="stem" x1="320" y1="234" x2="549.6" y2="234"/><circle class="d-device" cx="549.6" cy="234" r="5.5"/><text class="val" x="561.6" y="238">78.7</text>
+              <text class="lab" x="300" y="264" text-anchor="end">Qwen3.5-35B-A3B <tspan class="sub">· examples</tspan></text><line class="stem" x1="320" y1="260" x2="542.4" y2="260"/><circle class="d-device" cx="542.4" cy="260" r="5.5"/><text class="val" x="554.4" y="264">77.8</text>
+              <text class="lab" x="300" y="290" text-anchor="end">Qwen3.5-9B <tspan class="sub">· card + examples</tspan></text><line class="stem" x1="320" y1="286" x2="527.2" y2="286"/><circle class="d-untuned" cx="527.2" cy="286" r="5.5"/><text class="val" x="539.2" y="290">75.9</text>
+              <text class="lab" x="300" y="316" text-anchor="end">gpt-oss-20b <tspan class="sub">· retrieval*</tspan></text><line class="stem" x1="320" y1="312" x2="521.6" y2="312"/><circle class="d-device" cx="521.6" cy="312" r="5.5"/><text class="val" x="533.6" y="316">75.2</text>
+              <text class="lab" x="300" y="342" text-anchor="end">Qwen3.5-9B + LoRA <tspan class="sub">· no prompt</tspan></text><line class="stem" x1="320" y1="338" x2="512.8" y2="338"/><circle class="d-trained" cx="512.8" cy="338" r="5.5"/><text class="val" x="524.8" y="342">74.1</text>
+              <text class="lab" x="300" y="368" text-anchor="end">Qwen3.5-0.8B + LoRA <tspan class="sub">· [python] tag</tspan></text><line class="stem" x1="320" y1="364" x2="512.8" y2="364"/><circle class="d-trained" cx="512.8" cy="364" r="5.5"/><text class="val" x="524.8" y="368">74.1</text>
+              <text class="lab" x="300" y="394" text-anchor="end">gpt-oss-120b <tspan class="sub">· retrieval</tspan></text><line class="stem" x1="320" y1="390" x2="504.8" y2="390"/><circle class="d-device" cx="504.8" cy="390" r="5.5"/><text class="val" x="516.8" y="394">73.1</text>
+              <text class="lab" x="300" y="420" text-anchor="end">qwen3.5-9b-uncensored <tspan class="sub">· retrieval</tspan></text><line class="stem" x1="320" y1="416" x2="490.4" y2="416"/><circle class="d-device" cx="490.4" cy="416" r="5.5"/><text class="val" x="502.4" y="420">71.3</text>
+              <text class="lab" x="300" y="446" text-anchor="end">GLM-4.7-Flash <tspan class="sub">· examples</tspan></text><line class="stem" x1="320" y1="442" x2="490.4" y2="442"/><circle class="d-device" cx="490.4" cy="442" r="5.5"/><text class="val" x="502.4" y="446">71.3</text>
+              <text class="lab" x="300" y="472" text-anchor="end">Qwen3-4B-Instruct-2507 <tspan class="sub">· examples</tspan></text><line class="stem" x1="320" y1="468" x2="453.6" y2="468"/><circle class="d-untuned" cx="453.6" cy="468" r="5.5"/><text class="val" x="465.6" y="472">66.7</text>
+              <text class="lab" x="300" y="498" text-anchor="end">Qwen3-8B <tspan class="sub">· retrieval</tspan></text><line class="stem" x1="320" y1="494" x2="438.4" y2="494"/><circle class="d-device" cx="438.4" cy="494" r="5.5"/><text class="val" x="450.4" y="498">64.8</text>
+            </g>
+            <text class="tick" x="520" y="534" text-anchor="middle">execution match on 108 eval pairs, % (axis starts at 50)</text>
+          </svg>
+        </div>
+        <figcaption>Each model's best arm. Device models are untuned and differ only in context (card, static examples or retrieved examples). * gpt-oss-20b over 105 answered pairs; 3 requests exhausted the reasoning budget.</figcaption>
+      </figure>
+
+      <div class="exp" id="e-cards">
+        <div class="exp-head"><h3>Which instructions to send</h3><span class="stage">stages 1–4</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>What does the vocabulary card, the system prompt that teaches the selector language, need to say?</p></dd>
+          <dt>Design</dt><dd><p>11 models × 40 pairs on card v1; then 4 models × 109 pairs on v1 vs v2; then per-model cards v1c, v2, v3 on 98 comparable pairs, with an exact rerun of v1 to measure noise. v1c is v1 with seven example selectors that leaked eval answers swapped for unused names.</p></dd>
+          <dt>Result</dt><dd>
+            <ul>
+              <li>Card v1c: gemma-4-26B 86.7, Qwen3-Coder-30B 76.5, uncensored 9B 71.4. Qwen3.6-27B preferred v2 (92.2), level with the Haiku 4.5 control.</li>
+              <li>Every attempt to add guidance hurt the models that did well without it: v2's type rules flipped gemma into guessed node types (<code>.import</code> → <code>import_statement</code>), 18 regressions.</li>
+              <li>Most misses shared causes the card never covered: dotted node types (<code>.with_statement</code> matches nothing), <code>.call#json.dumps</code> for <code>.call#dumps</code>, a <code>.mod &gt;</code> habit, and three-step chains the engine refuses.</li>
+              <li>Five eval requests were rewritten: every model gave the same reasonable, different answer (“recursive glob calls” when the call is <code>rglob</code>).</li>
+            </ul>
+          </dd>
+          <dt>Reading</dt><dd><p>Card work past v1c does not pay. The remaining errors are structure, the target for examples and training.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-context">
+        <div class="exp-head"><h3>Examples in the prompt</h3><span class="stage">stage 5</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>Do worked examples fix the structural errors, and does choosing them per request beat a fixed set?</p></dd>
+          <dt>Design</dt><dd><p>Card v1c plus: nothing; ten static examples from verified Python training pairs, one per error class; the eight Python training pairs nearest each request by TF-IDF; the same with other languages' pairs admitted. No arm shows any eval pair its own answer.</p></dd>
+          <dt>Result</dt><dd>
+            <div class="tbl">
+              <table>
+                <thead><tr><th>model</th><th class="n">control</th><th class="n">static 10</th><th class="n">retrieve 8</th><th class="n">+ other languages</th></tr></thead>
+                <tbody>
+                  <tr><td>gemma-4-26B-A4B-it</td><td class="n">88.0</td><td class="n"><strong>91.7</strong> <span class="plus">+5</span> <span class="minus">−1</span></td><td class="n">90.7</td><td class="n">85.2</td></tr>
+                  <tr><td>Qwen3-Coder-30B-A3B</td><td class="n">76.9</td><td class="n"><strong>83.3</strong> <span class="plus">+14</span> <span class="minus">−7</span></td><td class="n">80.6</td><td class="n">75.0</td></tr>
+                  <tr><td>qwen3.5-9b-uncensored</td><td class="n">67.6</td><td class="n">68.5</td><td class="n"><strong>71.3</strong></td><td class="n">68.5</td></tr>
+                  <tr><td>Qwen3.5-9B, local NF4</td><td class="n">64.8</td><td class="n"><strong>75.9</strong> <span class="plus">+15</span> <span class="minus">−3</span></td><td class="n">75.0</td><td class="n">—</td></tr>
+                  <tr><td>Qwen3-8B, device</td><td class="n">51.9</td><td class="n">57.4</td><td class="n"><strong>64.8</strong> <span class="plus">+16</span> <span class="minus">−2</span></td><td class="n">—</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </dd>
+          <dt>Reading</dt><dd><p>Examples fix exactly the error list (<code>.call#dumps</code>, <code>:has</code> placement, invented syntax) and help weaker models most. Other languages' examples mislead even when restricted to cross-language classes (<code>.fn#constructor</code> for <code>__init__</code>), so example pools stay per language; routing by sitting_duck's language detection is acceptable.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-device">
+        <div class="exp-head"><h3>Every chat model on the device</h3><span class="stage">stage 6</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>With store downloads failing, what can the models already on the device do? Running them costs nothing.</p></dd>
+          <dt>Design</dt><dd><p>Eight more models, one at a time, card v1c / static 10 / retrieve 8 back to back. Thinking off where it can be; gpt-oss at reasoning effort low; the always-thinking model ran the control only.</p></dd>
+          <dt>Result</dt><dd>
+            <div class="tbl">
+              <table>
+                <thead><tr><th>model</th><th class="n">card</th><th class="n">static</th><th class="n">retrieve</th><th class="n">s / answer</th></tr></thead>
+                <tbody>
+                  <tr class="best"><td>Qwen3.6-27B</td><td class="n">88.9</td><td class="n">92.6</td><td class="n"><strong>93.5</strong></td><td class="n">2.1</td></tr>
+                  <tr><td>Qwen3-30B-A3B-Thinking</td><td class="n">83.3</td><td class="n">—</td><td class="n">—</td><td class="n">35.5</td></tr>
+                  <tr><td>Qwen3-30B-A3B-Instruct</td><td class="n">74.1</td><td class="n">76.9</td><td class="n">78.7</td><td class="n">0.41</td></tr>
+                  <tr><td>Qwen3.5-35B-A3B</td><td class="n">75.0</td><td class="n">77.8</td><td class="n">77.8</td><td class="n">0.57</td></tr>
+                  <tr><td>Qwen3-Coder-30B-A3B-Turbo</td><td class="n">71.3</td><td class="n">78.7</td><td class="n">76.9</td><td class="n">0.57</td></tr>
+                  <tr><td>gpt-oss-20b</td><td class="n">65.0</td><td class="n">65.7</td><td class="n">75.2</td><td class="n">6.4</td></tr>
+                  <tr><td>gpt-oss-120b</td><td class="n">66.7</td><td class="n">68.5</td><td class="n">73.1</td><td class="n">10.2</td></tr>
+                  <tr><td>GLM-4.7-Flash</td><td class="n">55.6</td><td class="n">71.3</td><td class="n">70.4</td><td class="n">1.17</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </dd>
+          <dt>Reading</dt><dd><p>Qwen3.6-27B with retrieval is the best result yet (T2 25/25, T3 29/31, T4 29/31), at about four times gemma's latency. Reasoning does not pay: gpt-oss-120b sits below the non-thinking 30B-A3B at 25× the latency, and 1 in 9 gpt-oss-20b requests spends its whole reasoning budget and returns nothing.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-curve">
+        <div class="exp-head"><h3>How much data the 9B needs</h3><span class="stage">stage 6</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>Can a tuned model drop the ~2.5 KB card entirely, and is more data still helping?</p></dd>
+          <dt>Design</dt><dd><p>Qwen3.5-9B NF4, LoRA r=16, 2 epochs, bare request in and selector out. Nested 25 / 50 / 100 % subsets of the capped training set, all sharing the same 85 validation pairs.</p></dd>
+          <dt>Result</dt><dd>
+            <div class="tbl">
+              <table>
+                <thead><tr><th>training pairs</th><th class="n">shapes</th><th class="n">val loss e1 / e2</th><th class="n">match e1</th><th class="n">match e2</th></tr></thead>
+                <tbody>
+                  <tr><td>278 (25 %)</td><td class="n">147</td><td class="n">0.882 / 0.719</td><td class="n">43.5</td><td class="n">54.6</td></tr>
+                  <tr><td>457 (50 %)</td><td class="n">212</td><td class="n">0.557 / 0.554</td><td class="n">61.1</td><td class="n">70.4</td></tr>
+                  <tr><td>820 (100 %)</td><td class="n">297</td><td class="n">0.378 / 0.363</td><td class="n"><strong>74.1</strong></td><td class="n">70.4</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>With a 7-token prompt the adapter matches the untuned 9B carrying card and examples (74.1 vs 75.9) at half the latency. Against the card alone: <span class="plus">+26</span> <span class="minus">−16</span>, T3 14 → 23 of 31.</p>
+          </dd>
+          <dt>Reading</dt><dd><p>The curve is still rising, so more verified pairs should help. <strong>9 of the 16 losses are other languages' vocabulary:</strong> <code>catch_clause</code> and <code>throw_statement</code> (Java), <code>.call#log</code> (JavaScript), <code>.fn#new</code> (Rust). Python is 13 % of the rows and a bare request never says which language it is.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-small">
+        <div class="exp-head"><h3>A really small model</h3><span class="stage">stage 6b</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>Can Qwen3.5-0.8B be tuned too, and should the card stay in the prompt?</p></dd>
+          <dt>Design</dt><dd><p>Same 820 pairs, float16 weights plus LoRA. One arm with no system prompt (3 epochs); one trained with each pair's own language card and asked with the Python card (2 epochs).</p></dd>
+          <dt>Result</dt><dd>
+            <div class="tbl">
+              <table>
+                <thead><tr><th>0.8B arm</th><th class="n">match</th><th class="n">T3</th><th class="n">T4</th></tr></thead>
+                <tbody>
+                  <tr><td>untuned, card</td><td class="n">26.9</td><td class="n">5/31</td><td class="n">2/31</td></tr>
+                  <tr><td>trained, no prompt, e1 / e2 / e3</td><td class="n">63.9 / 65.7 / 69.4</td><td class="n">25/31</td><td class="n">16/31</td></tr>
+                  <tr class="best"><td>trained with the card, e1 / e2</td><td class="n">69.4 / <strong>81.5</strong></td><td class="n">25/31</td><td class="n">28/31</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </dd>
+          <dt>Reading</dt><dd><p>A 0.8B model at 1.8 GiB beats every local 9B arm. But the card also names the language, so this result mixes the card's content with the language cue, exactly the confound stage 6 pointed at.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-tag">
+        <div class="exp-head"><h3>Name the language instead</h3><span class="stage">stage 6e</span><span class="pill done">0.8B done</span><span class="pill run">9B running</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>How much of the card's gain is just telling the model which language it is answering?</p></dd>
+          <dt>Design</dt><dd><p>Identical pairs, split and schedule, with every request prefixed by its language (<code>[python] calls to sleep</code>), about 3 tokens against the card's ~700. The dataset was checked row for row against the untagged one. The 9B tag run and a 9B trained with the card follow.</p></dd>
+          <dt>Result</dt><dd>
+            <div class="tbl">
+              <table>
+                <thead><tr><th>0.8B</th><th class="n">e1</th><th class="n">e2</th><th class="n">e3</th></tr></thead>
+                <tbody>
+                  <tr><td>no prompt</td><td class="n">63.9</td><td class="n">65.7</td><td class="n">69.4</td></tr>
+                  <tr><td>language tag</td><td class="n">66.7</td><td class="n"><strong>74.1</strong></td><td class="n">74.1</td></tr>
+                  <tr><td>language card</td><td class="n">69.4</td><td class="n"><strong>81.5</strong></td><td class="n">—</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </dd>
+          <dt>Reading</dt><dd><p>The tag recovers about half of the card's gain, mostly on T4 (16 → 22–25 of 31); the card's content is worth the rest on the 0.8B. Where context length or latency matter, the tag is the cheap half.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-ladder">
+        <div class="exp-head"><h3>Size ladder, trained with the card</h3><span class="stage">stages 6c, 6d</span><span class="pill done">done</span><span class="pill run">9B running</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>How does the trained score move with model size when everything else is fixed?</p></dd>
+          <dt>Design</dt><dd><p>Qwen3.5 at 0.8B and 2B (float16) and 4B (NF4), the same pairs and card format, 2 epochs each. The ladder was switched from the no-card format to the card format before it started, on the stage 6b result. Qwen3-4B-Instruct-2507, which the device cannot download, ran locally untuned for comparison.</p></dd>
+          <dt>Result</dt><dd>
+            <figure>
+              <div class="legend"><span><i class="k-hollow"></i>untuned, with card</span><span><i class="k-trained"></i>trained with card (best epoch)</span></div>
+              <div class="chart">
+                <svg viewBox="0 0 760 236" role="img" aria-label="Untuned versus trained execution match by model size">
+                  <g>
+                    <line class="grid" x1="160" y1="38" x2="160" y2="200"/><text class="tick" x="160" y="28" text-anchor="middle">0</text>
+                    <line class="grid" x1="295" y1="38" x2="295" y2="200"/><text class="tick" x="295" y="28" text-anchor="middle">25</text>
+                    <line class="grid" x1="430" y1="38" x2="430" y2="200"/><text class="tick" x="430" y="28" text-anchor="middle">50</text>
+                    <line class="grid" x1="565" y1="38" x2="565" y2="200"/><text class="tick" x="565" y="28" text-anchor="middle">75</text>
+                    <line class="grid" x1="700" y1="38" x2="700" y2="200"/><text class="tick" x="700" y="28" text-anchor="middle">100</text>
+                  </g>
+                  <text class="lab" x="140" y="64" text-anchor="end">Qwen3.5-0.8B</text>
+                  <line class="link" x1="305.3" y1="60" x2="600.1" y2="60"/><circle class="hollow" cx="305.3" cy="60" r="6"/><circle class="d-trained" cx="600.1" cy="60" r="6.5"/>
+                  <text class="val" x="291" y="64" text-anchor="end">26.9</text><text class="val" x="614" y="64">81.5</text>
+
+                  <text class="lab" x="140" y="104" text-anchor="end">Qwen3.5-2B</text>
+                  <line class="link" x1="325.2" y1="100" x2="605" y2="100"/><circle class="hollow" cx="325.2" cy="100" r="6"/><circle class="d-trained" cx="605" cy="100" r="6.5"/>
+                  <text class="val" x="311" y="104" text-anchor="end">30.6</text><text class="val" x="619" y="104">82.4</text>
+
+                  <text class="lab" x="140" y="144" text-anchor="end">Qwen3.5-4B</text>
+                  <line class="link" x1="470" y1="140" x2="644.9" y2="140"/><circle class="hollow" cx="470" cy="140" r="6"/><circle class="d-trained" cx="644.9" cy="140" r="6.5"/>
+                  <text class="val" x="456" y="144" text-anchor="end">57.4</text><text class="val" x="659" y="144">89.8</text>
+
+                  <text class="lab" x="140" y="184" text-anchor="end">Qwen3.5-9B</text>
+                  <circle class="hollow" cx="509.9" cy="180" r="6"/>
+                  <text class="val" x="496" y="184" text-anchor="end">64.8</text><text class="pending" x="524" y="184">training now, stage 6e</text>
+
+                  <text class="tick" x="430" y="226" text-anchor="middle">execution match, %</text>
+                </svg>
+              </div>
+            </figure>
+            <p>Per epoch and peak memory: 0.8B 27 min / 1.8 GiB, 2B 27 min / 4.1 GiB, 4B 49 min / 3.8 GiB. Qwen3-4B-Instruct untuned: 55.6 with the card, 66.7 with examples.</p>
+          </dd>
+          <dt>Reading</dt><dd><p>The trained 4B is within 3.7 points of Qwen3.6-27B with retrieval. Pair by pair they agree on 94 right and 4 wrong; the 27B's seven extra wins are mostly prefix filters the 4B turns into exact names (<span class="sel">.fn#update</span> for <span class="sel">.fn[name^="update_"]</span>), and the 4B's three are node types the 27B dotted into non-classes. Training's gain shrinks with size (+54.6, +51.8, +32.4) and 0.8B and 2B land together.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-genpilot">
+        <div class="exp-head"><h3>Models write training pairs from source files</h3><span class="stage">generation pilot</span><span class="pill no">not scaled</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>The learning curve wants more data. Can a device model read a source file and propose pairs worth keeping? The bar to scale: more than ~30 % surviving, with good shape diversity.</p></dd>
+          <dt>Design</dt><dd><p>gemma-4-26B saw one training-fixture file at a time (10 Python, 10 Rust, 10 JavaScript) with the card, the drafting brief, the fixture's name inventory and a T3/T4-weighted tier mix, and wrote 8 candidates per file. Wording failures went back twice with the exact shared words. Survivors went through the verifier; Qwen3-Coder then translated each request back to a selector from the card alone.</p></dd>
+          <dt>Result</dt><dd>
+            <div class="funnel" role="list">
+              <div class="row" role="listitem"><span>generated</span><div class="bar"><span style="width:100%"></span></div><span class="n">238</span></div>
+              <div class="row" role="listitem"><span>wording passes as written</span><div class="bar"><span class="warn" style="width:21%"></span></div><span class="n">50</span></div>
+              <div class="row" role="listitem"><span>after two repair rounds</span><div class="bar"><span style="width:43.3%"></span></div><span class="n">103</span></div>
+              <div class="row" role="listitem"><span>passes the engine gates</span><div class="bar"><span class="warn" style="width:12.6%"></span></div><span class="n">30</span></div>
+              <div class="row" role="listitem"><span>back-translates</span><div class="bar"><span style="width:10.9%"></span></div><span class="n">26</span></div>
+            </div>
+            <p>By tier: T2 18/77, T3 7/50, T4 5/111. Engine rejections: bounds 36 (<span class="sel">.call#get</span> matches 106), duplicate node sets 17, eval answers 11 (<span class="sel">.fn:has(.try)</span>), steps that change nothing 9. About 2.5 minutes of device and engine time per surviving pair.</p>
+          </dd>
+          <dt>Reading</dt><dd><p>Well under the bar, and the survivors are the easy shapes: 16 of 30 are <span class="sel">.fn#name</span> or <span class="sel">.call#name</span>. The model cannot see match counts across a whole fixture, and its hardest candidates are exactly what the gates removed. Back-translation earned its place: it caught <span class="sel">.call#parse_query</span> worded as “the parse_query function”, a mismatch no execution gate can see.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-sfgen">
+        <div class="exp-head"><h3>Selector-first pairs</h3><span class="stage">selector-first pilot</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>If the tree and engine choose the selector, and a model writes only the words, do the engine-stage losses disappear and can the shape mix be chosen instead of hoped for?</p></dd>
+          <dt>Design</dt><dd>
+            <div class="pipeline">
+              <div><b>extract</b>One engine session per fixture: every node's parent, sibling position, descendant count, name and parameter count, plus each card class's exact node set.</div>
+              <div><b>enumerate</b>Compose T1–T4 selectors in Python, predict their node sets, keep only in-bounds, load-bearing, new, non-eval ones; weight shapes training lacks.</div>
+              <div><b>word</b>gemma writes a request and two paraphrases from the selector, a plain-English gloss and two matched source lines.</div>
+              <div><b>verify</b>The verifier's training gates; the engine's node set is compared with the prediction.</div>
+              <div><b>back-translate</b>Qwen3.6-27B reads each wording back; a pair is kept if any wording reproduces it.</div>
+            </div>
+            <p>Paraphrases for training pairs now need only differ from each other; the eval keeps its stricter overlap rule (Teague, 2026-09-15).</p>
+          </dd>
+          <dt>So far</dt><dd>
+            <ul>
+              <li>Extraction: 46–80 s per fixture, six fixtures in parallel.</li>
+              <li>Enumeration: <strong>352 candidates in 6 seconds, 250 distinct shapes, 269 with a shape new to training</strong>; by tier T1 10, T2 96, T3 108, T4 138. Examples: <span class="sel">while_statement:not(:has(break_statement))</span>, <span class="sel">.fn[params=5]</span>, <span class="sel">.class[name$="Annotator"]</span>, <span class="sel">.try ~ if_statement</span>.</li>
+              <li>Wording: 352 of 352 worded in 16 minutes. The wordings stay close to the gloss (“variables whose names end with _flag”), so they are accurate but plain; whether that matters for training is an open question.</li>
+            </ul>
+          </dd>
+          <dt>Then</dt><dd><p><strong>343 of 352 candidates verified, and the engine agreed with the Python prediction on every one</strong> — the prediction layer became <code>oracle.py</code>, the documented semantics computed in Python over the engine's own node table, and it now decides the gates while the engine only confirms each reference. The approach scaled to all nine languages: see <a href="#e-suite">the tier-5 suite</a>.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-audit">
+        <div class="exp-head"><h3>Requests that don't determine their selector</h3><span class="stage">request audit</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>Every arm above is measured against training data nobody had audited. A pair can only teach the mapping if the request picks out that selector <em>without seeing the fixture</em>. Does it?</p></dd>
+          <dt>Design</dt><dd><p><code>audit_pairs.request_reasons</code> reads each text against its own selector and nothing else, and flags five defects: a prefix or suffix claim the filter falsifies or narrows, a name filter the text never states, a fixture-defined name described only by its role, “immediately” written against <code>~</code>, and referential requests. Presence is matched on word boundaries with inflections, so “recon” does not count as stated by “reconciling”. Run over every training and eval wording.</p></dd>
+          <dt>Result</dt><dd>
+            <ul>
+              <li><strong>90 of 918 training pairs carried at least one bad wording</strong>, 202 texts in all; each was reworded to state the literal, the originals retired, and the replacements re-verified as batch audit-r1 (90 of 90 accepted).</li>
+              <li>The defect concentrated in one shape: <span class="sel">.fn[name^="_cmd_"]</span> asked as “functions starting with cmd”. A model cannot know about the underscore, so the pair taught a guess.</li>
+              <li>A contrast batch of 184 literal prefix/suffix candidates was added, 150 of them with no underscore at all; 127 passed the gates.</li>
+              <li>The rule is now a gate: <code>pilot.py</code> rejects training candidates that fail it and the generator drops such wordings before they reach a dataset.</li>
+            </ul>
+          </dd>
+          <dt>Reading</dt><dd><p>This is the one result that changes older numbers rather than adding to them: every score above was trained on a corpus with 90 bad pairs in it. The reworded ids also change which pairs land in validation, since the split hashes the id.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-seed">
+        <div class="exp-head"><h3>Seed noise, and more of the same pairs</h3><span class="stage">stages 7a, 7b</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>How much of a 2–4 point gap is noise, and does simply adding more verified pairs of the same shapes help?</p></dd>
+          <dt>Design</dt><dd><p>The stage 6b recipe on the 0.8B, changing only the seed; then the same seed with the selector-first pilot's 343 engine-verified T1–T4 pairs appended.</p></dd>
+          <dt>Result</dt><dd>
+            <div class="tbl">
+              <table>
+                <thead><tr><th>0.8B arm</th><th class="n">e1</th><th class="n">e2</th><th class="n">T3</th><th class="n">T4</th></tr></thead>
+                <tbody>
+                  <tr><td>820 pairs, seed 17</td><td class="n">69.4</td><td class="n">81.5</td><td class="n">25/31</td><td class="n">28/31</td></tr>
+                  <tr class="best"><td>820 pairs, seed 18</td><td class="n">78.7</td><td class="n"><strong>82.4</strong></td><td class="n">25/31</td><td class="n">28/31</td></tr>
+                  <tr><td>820 + 343 pairs, seed 17</td><td class="n">74.1</td><td class="n">79.6</td><td class="n">24/31</td><td class="n">26/31</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </dd>
+          <dt>Reading</dt><dd><p>Seed noise is <strong>9.3 points after one epoch and about one pair after two</strong>, which retires every single-run e1 comparison in the stages above. The 343 extra pairs did not help: they are the same T1–T4 shapes the 820 already cover, so that direction looks saturated at this size. New shapes, not more pairs, is the open question — which is what tier 5 is.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-t5">
+        <div class="exp-head"><h3>Tier 5: baselines, and a card that tries to teach it</h3><span class="stage">stages 7c, 7d</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>Tier 5 is relational and compound selectors — call graph, scope, receivers, two constraints on one node. No model has been trained on any. What can they do from vocabulary alone, and can a card teach it?</p></dd>
+          <dt>Design</dt><dd><p>55 tier-5 eval pairs asked with card v1c plus a tier-5 vocabulary block. The adapters are the existing ones: they never saw a tier-5 selector. Then a 0.8B trained with that longer card and no tier-5 pairs, to separate what the card does from what data would do.</p></dd>
+          <dt>Result</dt><dd>
+            <div class="tbl">
+              <table>
+                <thead><tr><th>model</th><th class="n">tier 5</th><th class="n">108 pairs</th></tr></thead>
+                <tbody>
+                  <tr><td>Qwen3.5-0.8B untuned</td><td class="n">7.3</td><td class="n">26.9</td></tr>
+                  <tr><td>Qwen3.5-0.8B trained (seed 17 / 18)</td><td class="n">34.5 / 30.9</td><td class="n">81.5 / 82.4</td></tr>
+                  <tr><td>Qwen3.5-2B trained</td><td class="n">38.2</td><td class="n">82.4</td></tr>
+                  <tr class="best"><td>Qwen3.5-4B trained</td><td class="n"><strong>67.3</strong></td><td class="n">89.8</td></tr>
+                  <tr><td>Qwen3.5-9B untuned</td><td class="n">60.0</td><td class="n">64.8</td></tr>
+                  <tr><td>0.8B trained with the tier-5 card</td><td class="n">29.1</td><td class="n">75.9</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </dd>
+          <dt>Reading</dt><dd><p><strong>Tier 5 separates model sizes far more than T1–T4 do.</strong> On the 108 pairs the trained 0.8B, 2B and 4B sit at 81.5 / 82.4 / 89.8; on tier 5 they sit at 31–35 / 38 / 67, and an <em>untuned</em> 9B beats two of them. Reading new syntax off a card is the thing small models cannot do — and the block costs the basic tiers about six points (82.4 → 75.9), because ~700 tokens of unused vocabulary compete with the vocabulary the eval actually uses. Tier 5 needs examples, not a longer card.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-prompt">
+        <div class="exp-head"><h3>What the prompt is still worth to a trained model</h3><span class="stage">stage 8</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>Examples were worth +3.7 to +11.1 on untuned models. Nobody had tried them on an adapter. Is there prompt-side headroom left after fine-tuning?</p></dd>
+          <dt>Design</dt><dd><p>No training: the stage 6b and 7a adapters asked with different prompts. The per-language card is byte-identical to card v1c, so the controls were asked with exactly the prompt they were trained on. Two baselines copy the nearest training request's selector verbatim, one of them barred from copying the asking pair's own answer.</p></dd>
+          <dt>Result</dt><dd>
+            <div class="tbl">
+              <table>
+                <thead><tr><th>arm (same adapter)</th><th class="n">108 pairs</th><th class="n">vs control</th><th class="n">flips</th></tr></thead>
+                <tbody>
+                  <tr class="best"><td>card v1c — control</td><td class="n"><strong>81.5 / 82.4</strong></td><td class="n">—</td><td class="n">—</td></tr>
+                  <tr><td>card + 10 static examples</td><td class="n">79.6 / 82.4</td><td class="n">−1.9 / +0.0</td><td class="n">+2 −4 / +2 −2</td></tr>
+                  <tr><td>card + 8 retrieved examples</td><td class="n">79.6</td><td class="n">−1.9</td><td class="n">+3 −5</td></tr>
+                  <tr><td>no card at all</td><td class="n">0.0</td><td class="n">−81.5</td><td class="n">0 −88</td></tr>
+                  <tr><td>language tag only</td><td class="n">0.0</td><td class="n">−81.5</td><td class="n">0 −88</td></tr>
+                  <tr><td>copy nearest training pair</td><td class="n">10.2</td><td class="n">—</td><td class="n">—</td></tr>
+                  <tr><td>…barred from its own answer</td><td class="n">3.7</td><td class="n">—</td><td class="n">—</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">Without its card the model does not write bad selectors — it stops doing the task: “Here is a list of every <code>try</code> block in your code:”, “In SQL, the <code>EXCEPT</code> clause is used to…”.</p>
+          </dd>
+          <dt>Reading</dt><dd><p>Examples are worth nothing to an adapter, static or retrieved, and the copy baselines prove the retrieval pool is relevant rather than useless — the adapter already knows what those examples teach. The real finding is the cliff: <strong>the card is a task trigger, not reference material.</strong> Two epochs on rows that all carried it taught “card present → emit a selector”. The fix is in the data, not the prompt: <code>--system mixed</code> varies the prompt per request (card 50 %, bare <code>[lang]</code> tag 25 %, nothing 25 %) so the request triggers the task. One more trap: those prose answers scored 94–95 % “executes”, because a bare word like <code>raise</code> parses as a type selector. Exec rate means nothing when match is zero.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-suite">
+        <div class="exp-head"><h3>The tier-5 suite</h3><span class="stage">suite 1</span><span class="pill done">verified</span><span class="pill run">filtering</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>Can the selector-first pipeline produce tier-5 training data at scale, across every language?</p></dd>
+          <dt>Design</dt><dd><p>Enumerate over 23 fixtures in nine languages with tier-5 families — chained constraints, scoped steps, receivers, call graph, references and exports — gate each candidate on the documented node set, have gemma write three wordings, verify with <code>oracle.verify_batch</code>, then back-translate the risky combinator shapes with Qwen3.6-27B.</p></dd>
+          <dt>Result</dt><dd>
+            <div class="funnel">
+              <div class="row"><div>candidates worded</div><div class="bar"><span style="width:100%"></span></div><div class="n">4,601</div></div>
+              <div class="row"><div>verified, engine agrees</div><div class="bar"><span style="width:79.6%"></span></div><div class="n">3,664</div></div>
+              <div class="row"><div>of those, tier 5</div><div class="bar"><span style="width:30.8%"></span></div><div class="n">1,416</div></div>
+              <div class="row"><div>pending on a filed engine defect</div><div class="bar"><span style="width:8.3%"></span></div><div class="n">384</div></div>
+              <div class="row"><div>rejected — engine resource failures</div><div class="bar"><span class="warn" style="width:11.3%"></span></div><div class="n">522</div></div>
+              <div class="row"><div>rejected on merit</div><div class="bar"><span class="warn" style="width:0.7%"></span></div><div class="n">31</div></div>
+            </div>
+            <p class="note">Pending tags name the defect: attribute filters inside <code>:has</code> (#150) 114, <code>:scope(selector)</code> (#145) 107, <code>:has</code> keyword tokens (#133) 104, refined call codes (#152) 70.</p>
+          </dd>
+          <dt>Reading</dt><dd><p>One run produced <strong>3.5× the entire existing corpus, and the first tier-5 training data there has ever been</strong>. Only 31 candidates were rejected on merit; the 522 “rejections” were a two-hour verify exhausting duckdb's temp space and memory, and since failures are deliberately never cached, a re-run retries exactly those and replays the other 4,079 from cache.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-class">
+        <div class="exp-head"><h3>Class-form alternatives</h3><span class="stage">classalt1</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>Many pairs name a grammar type (<span class="sel">catch_clause:has(.call)</span>) where the card has a class for it (<span class="sel">.catch:has(.call)</span>). The class form reads better and carries across languages. Should the corpus switch?</p></dd>
+          <dt>Design</dt><dd><p>Neither switch nor duplicate: <em>add</em>. For every accepted pair whose selector names a type, compose the same shape in class vocabulary and keep the original as the candidate's contrast, so the wording stage is told to make the difference explicit. Where the bare class form runs past the 50-node bound, scope it to the named function or class the original's nodes sit in rather than reverting to the type.</p></dd>
+          <dt>Result</dt><dd><p><strong>61 pairs across seven languages</strong> — 57 verified, 4 pending on #133, none rejected. Of 281 type-form pairs only 90 have a class form that selects the same nodes, so these are mostly new questions: <span class="sel">.loop</span> covers <code>for</code> and <code>while</code>, <span class="sel">.class</span> covers tables and views, <span class="sel">.fn</span> covers lambdas.</p>
+            <p>Two defects surfaced. The wording model echoed the card's labels across languages — “the organizations class” for a SQL table — so the rule now names each language's own nouns. And the type-specific original cannot be a distractor when both forms select the same nodes, which is exactly what the gate caught.</p></dd>
+          <dt>Reading</dt><dd><p>The pairs teach the distinction rather than replacing it: <span class="sel">.if + .if</span> beside <span class="sel">case_item + case_item</span>, each with its own frozen node set.</p></dd>
+        </dl>
+      </div>
+    </section>
+
+    <section id="engineering">
+      <p class="eyebrow">What broke, and what it taught</p>
+      <h2>Engineering notes</h2>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>symptom</th><th>cause</th><th>fix</th></tr></thead>
+          <tbody>
+            <tr><td>T3 0 of 31 for every model</td><td>main's selector macros return no rows for two-step selectors</td><td>pinned engine build and fix/127 macros for all scoring</td></tr>
+            <tr><td>~19 s per <code>ast_select_from</code></td><td>29 OCR workers competing for the CPU, on top of ~5 s of macro planning</td><td>OCR paused only while engine work runs (<code>ocr_pause.sh</code>, auto-resume guard); scoring sharded</td></tr>
+            <tr><td>NaN gradients, every step skipped</td><td>GradScaler at float16 on Turing</td><td>no scaler; non-finite steps skipped and logged</td></tr>
+            <tr><td>0.2 s per row just to encode</td><td>tokenizer <code>get_vocab()</code> rebuilt a 248k-entry dict each row; Qwen3.5 template render ~2 s</td><td>cached end-of-turn token; each prompt shape rendered once</td></tr>
+            <tr><td>local answers running to 48 tokens: <code>.class\nuser\nuser…</code></td><td>Qwen3.5 <code>config.json</code> names <code>&lt;|endoftext|&gt;</code> as eos; chat turns end with <code>&lt;|im_end|&gt;</code></td><td>stop on both; scores unchanged, latencies before 09-15 05:10 inflated</td></tr>
+            <tr><td>learning-curve subsets that didn't nest</td><td>fraction applied before the template cap; split and cap shared a hash</td><td>cap first, then fraction; separate salts</td></tr>
+            <tr><td>no new model reaches the device</td><td>store downloads fail after ~11 s at 0 of 0 bytes; import catalog <code>invalid</code>; CLI v0.0.3 deadlocks on the failure event</td><td>beta report drafted; evaluation uses what is already on the device</td></tr>
+            <tr><td>a 90-pair batch took 40+ minutes to verify</td><td>every <code>ast_select_from</code> call costs ~6 s before it reads anything — 5.2 s planner, 0.9 s optimizer, 0.19 s execution — and the same 6 s on a 1-row table; <code>PREPARE</code> does not amortize it (sitting_duck #160)</td><td>verification time is the number of distinct engine calls: results cached per engine, fixture content and selector; the oracle answers the relaxation and distractor gates, leaving ~1 call per pair. 41m52s → 4m36s, and a re-run is seconds</td></tr>
+            <tr><td>522 tier-5 candidates rejected as “no output for query”</td><td>duckdb exhausting temp space and memory inside a two-hour verify: IO errors, a corrupt temporary file, one out-of-memory — all tier 5, every fixture</td><td>deterministic errors are cached, resource failures never are, so re-running retries exactly those and replays the rest from cache</td></tr>
+            <tr><td>5 pairs rejected as “engine and documented semantics disagree”</td><td>a bare type is a prefix match: <code>import_spec</code> also returns the 7 <code>import_spec_list</code> nodes (23 → 30), <code>column_definition</code> the <code>column_definitions</code> container (#151)</td><td><code>classify()</code> tags them <code>pending_engine:type-prefix#151</code> from the fixture's own type list; removed upstream, shipping in the next release</td></tr>
+            <tr><td>oracle-first gates could silently change what the corpus accepts</td><td>the gates moved from the engine to Python, and two pairs with an identical node set can swap which one claims it</td><td>ten committed batches replayed on the engine that verified them: 581 accepted in, 581 out, no reference changed; the two swaps were the replay's own paraphrase rule, and vanish under the rule each batch was verified with</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="next">
+      <p class="eyebrow">Where it goes next</p>
+      <h2>Open questions</h2>
+      <ul>
+        <li><strong>Does tier-5 training move tier 5, and what does it cost the basic tiers?</strong> The suite has 1,416 verified tier-5 pairs and the 0.8B scores 30.9–34.5 there today. Arms: card v1 plus tier-5 pairs, the mixed-prompt dataset, and a short tier-5 block, with the 108-pair score as the guard.</li>
+        <li><strong>Does prompt-variety training remove the card dependency?</strong> The trained 0.8B scores 0.0 without its card. <code>--system mixed</code> trains behind card, tag and bare request; if the score holds, the ~700-token card becomes optional at serving time.</li>
+        <li><strong>Do the recovered candidates change the yield?</strong> 522 tier-5 candidates were rejected on engine resource errors rather than merit, and failures are never cached, so a re-run retries exactly those.</li>
+        <li><strong>Does the 9B trained with the card beat the 4B's 89.8?</strong> Still unrun; the GPU went to the 0.8B work.</li>
+        <li><strong>Noise:</strong> nearly every arm is one run. Stage 7a put e2 seed noise at about one pair, so 2–4 point gaps still need repeats.</li>
+        <li><strong>Review decisions:</strong> 66 notes from Claude's pass over 1,215 pairs are waiting — 38 wordings, 11 drops, 2 selector fixes — and they change which pairs train.</li>
+        <li><strong>Deployment:</strong> merge, re-evaluate the merged weights, and import to the Tiiny when its catalog recovers. Device and local runtimes may still disagree on identical weights.</li>
+        <li><strong>Card v1c's <span class="sel">.import ~ .var</span> example</strong> matches nothing in Python and should become <span class="sel">.import ~ .fn</span>.</li>
+      </ul>
+      <footer>Sources: FINDINGS.md and run directories, merged to main at 6cf7176 and continuing on tune/tier5; workspace logs for runs still in progress. Scores are execution match against frozen node sets on the pinned engine. Filed upstream while building this: sitting_duck #158 (C++ template use sites), #159 (a <code>:templated</code> pseudo-class) and #160 (~6 s of planning per selector call); #151, the bare-type prefix match, is fixed upstream and ships in the next release.</footer>
+    </section>
+  </main>
+</div>
+
