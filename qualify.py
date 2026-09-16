@@ -276,8 +276,8 @@ class EmbedPause:
 
 
 def request_body(model, thinking, card, nl):
-    body = {"model": model, "stream": True, "temperature": 0,
-            "messages": [{"role": "system", "content": card}, {"role": "user", "content": nl}]}
+    msgs = ([{"role": "system", "content": card}] if card else []) + [{"role": "user", "content": nl}]
+    body = {"model": model, "stream": True, "temperature": 0, "messages": msgs}
     mode = "none"
     if thinking.get("supported") and thinking.get("toggleable"):
         body["chat_template_kwargs"] = {"enable_thinking": False}
@@ -524,8 +524,11 @@ def cmd_oracle(args):
 
 def cmd_run(args):
     key = auth_key()
-    card_path = os.path.abspath(args.card or CARD)
-    card = open(card_path).read()
+    # --card none asks with no system message at all (the "plain" arm): what the model does
+    # knowing nothing about the selector language, which is the floor every card is measured against.
+    plain = (args.card or "").lower() == "none"
+    card_path = "none" if plain else os.path.abspath(args.card or CARD)
+    card = "" if plain else open(card_path).read()
     pairs = sample(load_pairs(), args.per_tier, args.seed)
     by_id = {p["id"]: p for p in pairs}
     # Per-request context: {pair id: (system prompt, example ids)}. Without --retrieve every
