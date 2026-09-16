@@ -1376,3 +1376,38 @@ within this run is meaningful.
 
 Arm 2 (`t5-mixed`, `--system mixed`, aimed at the 0.0%-without-a-card cliff) was queued behind
 arm 1 and has NOT run; the unit exited after arm 1's scoring.
+
+### The tier-5 adapter as the selector half: better AND more brittle (2026-09-16)
+
+`workspace/adapters/t5-langcard/epoch1` (the checkpoint that scores 83.6% on eval_t5) run over the
+20 mutation tasks, exactly as the merged 82.4% model and the tuned 4B were:
+
+| | raw mutation request | extracted target | composed with the 9B's op/args |
+|---|---|---|---|
+| merged 0.8B (82.4%) | 11/20 | 17/20 | 15/20 = 75% |
+| tuned 4B (89.8%) | 13/20 | 18/20 | 16/20 = 80% |
+| **tier-5 0.8B (e1)** | **9/20** | **19/20** | **17/20 = 85%** |
+
+**Best selector half measured here, and the worst leakage.** On a clean targeting phrase it is the
+strongest of the three -- 19/20, beating a 4B five times its size. Handed the raw mutation request
+it is the weakest -- 9/20, below the model it replaces. The clean-vs-raw gap widens monotonically
+with specialisation: -6 (merged), -5 (tuned 4B), -10 (tier-5).
+
+The failures explain the direction. The tier-5 model is more FLUENT in astcss, so mutation words in
+the request get spent on more elaborate wrong selectors built from that fluency:
+`.fn#search_users ~ safe_search`, `.fn#get_user .fn[params=False]`,
+`.fn#execute .fn:not(:has(.fn#p...))`, `.fn#main .fn#setup_logging`, `.fn#load .fn#insert_validate`,
+`.fn#close .call#None`, `.fn#connect .var#ready`. Combinators, attribute filters and :not(:has())
+are all tier-5 vocabulary. A weaker model simply echoes the name; a stronger one constructs a
+grammatical answer to the wrong question.
+
+So **selector-only specialisation makes off-distribution mutation phrasing WORSE, not better**, and
+training one model on selectors AND mutators is the fix for a problem that grows as the selector
+half improves.
+
+**This also revises an earlier conclusion in this file.** With the tier-5 selector the composed
+pipeline reaches 85% -- tying a single untuned 4B and trailing only the 9B (90%) -- so "the split
+still loses to one model" is no longer accurate on this task set. Caveat on cost: that 85% pairs a
+0.8B selector with the 9B as EXTRACTOR. The 4B-extractor pipeline measured 70% with the older
+selector and has not been re-run with this one, so a cheap "0.8B + small extractor" remains
+undemonstrated.
