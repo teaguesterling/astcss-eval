@@ -1162,16 +1162,20 @@ PSS_ARGKEYS so the card cannot drift from the parser.
 | Qwen3-8B               |  8 | 11 |  9 |  3 | 12 |  7 |
 | Qwen3.5-9B             | 17 | 17 | 18 | 10 | 16 |  9 |
 
-D and F are bottom-two on all three models. The 8-point gap persists on the STRONGEST model, so it
-is not a small-model artifact that scale washes out.
+D and F are bottom-two on all three models. D's gap persists on the STRONGEST model (10/20 against
+17-18 for A/B/C), so it is not a small-model artifact that scale washes out. F is NOT monotone --
+9/20 on the 9B but 12/20 on the 4B -- so only D's penalty holds across the whole ladder.
 
 **Where the difference lives: the selector, and only the selector.** On the 9B card arm, `op` is
 18-20/20 and `args` 16-20/20 on every surface; `selector` is 17-18 for positional surfaces and 11
 for both keyed ones. Every discriminating task has the signature `sel=False, op=True, args=True` --
 the model knows what to do and what to do it with, and aims at the wrong nodes. This rules out
 argument-keying as the cause: D and F key arguments quite differently yet both lose only the
-selector column. The shared property is that the selector heads a CSS rule. B_argv's selector is
-bare and unquoted too and is fine, so it is not quoting or bareness -- it is the `{`.
+selector column. The shared property is that the selector heads a CSS rule. B_argv's selector is bare and unquoted
+too and is fine, which argues against quoting or bareness -- but that is ONE discriminating surface,
+and E_prefix quotes its selector and sits mid-pack while C_json quotes and leads. So the claim stays
+at "the rule form, not argument keying"; blaming the `{` specifically is not supported by a single
+comparison, least of all with the card-example confound below in play.
 The keyed surfaces add a `.mod`/`.class` ancestor step the reference lacks 3-5x more often, on all
 three models. Caveat: many of those are `.class#User`, copied from card_v1c's own example (`User`
 is not even a class in the fixture), so the data cannot separate "CSS framing invites CSS-idiomatic
@@ -1203,13 +1207,22 @@ Composing per task (both halves right on the SAME task, not a product of margina
 | 4B card B_argv | 95% | 85% | 85% |
 
 The split does NOT beat the best single model (90% either way). What it does is make end-to-end
-accuracy independent of the op-model's selector ability: weak arms lift to 75-85%, strong arms are
-unchanged, and the PSS penalty disappears (D_pss 15-50% -> 75-85%). So under a two-model split, PSS
-can be chosen on ergonomics rather than ruled out on accuracy.
+accuracy independent of the op-model's selector ability: weak arms lift to 75-85% and the PSS penalty
+disappears (D_pss 15-50% -> 75-85%). It adds nothing only where the op-model's OWN selector accuracy
+already exceeds the specialist's -- `9B card C_json` (90% -> 90%) is the clean instance of that.
+`4B card B_argv` is not: at 85% composed against 95% op&args and the specialist's 90%, it is bounded
+by which TASKS the two halves fail on, not by either marginal, so it should not be read as "the split
+adds nothing for the 4B". So under a two-model split, PSS can be chosen on ergonomics rather than
+ruled out on accuracy.
 
 **Limits.** 20 tasks whose selectors are easy (14/20 single-step `.fn#name`), so the 0.8B's 18/20
 is not comparable to its 82.4% on the real eval. The targeting phrases were hand-written, so the
 op-extractor that would produce them is unmeasured and is a real component of a deployed pipeline.
+Bigger still: those phrases are in EXACTLY the register the 0.8B was trained on (English -> selector),
+while the device models were handed mutation requests. So 18/20 is a best-case, matched-register
+number, and the 55% -> 90% gap conflates off-distribution prompting (real) with the specialist being
+evaluated on its own training distribution while the generalists were not. The composition
+measurement does not rest on this; the 90% headline does.
 The op+args halves are reused from answers where the model also produced a selector; a dedicated
 op-only prompt could score differently either way. Prompt condition interacts with both model and
 surface and did not resolve: examples help D consistently (4x across runs) and help the older 8B,
