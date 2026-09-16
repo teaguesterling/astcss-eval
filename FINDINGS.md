@@ -758,3 +758,41 @@ the nearest training request by TF-IDF (tune/context.Retriever) and its selector
   25 %, nothing 25 %) so the request, not the card, triggers the task. That is an arm of the next
   training run; if it holds the 108-pair score, the 700-token card becomes optional at inference.
 
+
+## Class-form alternatives: the card's vocabulary beside the grammar's (2026-09-15)
+
+Teague prefers `.catch:has(.call)` over `catch_clause:has(.call)`, and wants both: "having
+specialized cases is good too". So nothing was retired. `tune/class_alt.py` takes every accepted
+training pair whose selector names a grammar type and composes the same shape in the card's class
+vocabulary, keeping the original as the candidate's `contrast` so the wording stage is told to
+make the difference explicit.
+
+The class is usually WIDER than the type, so these are new questions with their own node sets,
+not rewrites: of 281 type-form pairs only 90 have a class form that selects the same nodes
+(`.loop` covers for and while, `.class` covers create_table and create_view, `.fn` covers lambdas).
+Where the bare class form runs past the 50-node bound the fallback scopes it to the named function
+or class the original's nodes sit in (`create_table#organizations column_definition` ->
+`.class#organizations .var`), which stays in the card's vocabulary instead of reverting to the type.
+
+Batch classalt1: 61 candidates -> **57 accepted, 4 pending (has-keyword-tokens #133), 0 rejected**,
+three wordings each, across 7 languages (cpp 27, sql 13, java 7, bash 4, c 4, python 3, rust 3),
+tiers 2/3/4 = 11/27/23. Back-translation of the 4 risky combinator pairs: 12 wordings, 0 read back
+as a distractor. They join the next run through `--extra-pairs`, as sfgen's batch did in 7b; the
+frozen corpus is untouched. The other 220 type-form pairs get no alternative: the class form is
+already a pair (51), its node set is already frozen in training (90), nothing is in bounds (66), or
+it is an eval answer (13).
+
+Two defects this batch exposed, both fixed:
+- **The wording model echoed the card's class labels across languages**: "the organizations class"
+  for a SQL table, "variables inside the users class" for columns, "comprehensions containing a call
+  to count" for subqueries. The 96 accepted SQL pairs say table (15), column (18) and subquery (12)
+  almost exclusively, and the two that select `.class`/`.comp` at the top level avoid card labels
+  entirely ("the named database objects declared here"). WORD_SYSTEM now names the mapping per
+  language (SQL .class = table or view, .var = column; C = struct/enum/union; Rust =
+  struct/enum/trait/impl; Go = struct/interface; C++ and Java keep "class", their own word).
+  Re-wording fixed 12 of 14; two needed a literal comprehension -> subquery substitution.
+- **The type-specific original cannot be a distractor when the two forms are equivalent.** Both
+  first-round rejections were that: `.class#organizations .var` and `create_table#organizations
+  column_definition` select the same 6 nodes, so the distractor matched the reference. Those pairs
+  now take both distractors from the relaxations.
+
