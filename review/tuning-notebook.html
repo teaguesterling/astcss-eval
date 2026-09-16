@@ -219,6 +219,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--rule);
     <ol>
       <li><a href="#top">Summary</a></li>
       <li><a href="#undertaking">The undertaking</a></li>
+      <li><a href="#method">How a pair is made and checked</a></li>
       <li><a href="#qlora">QLoRA, from first principles</a></li>
       <li><a href="#experiments">Experiments</a>
         <ol>
@@ -308,6 +309,75 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--rule);
       <aside class="side">
         <h4>Pinned engine</h4>
         <p>Every number from stage 5 on is scored with one frozen sitting_duck build and the <code>fix/127-combinator-steps</code> macros. With main's macros the same build returns 0 rows for every two-step selector, which briefly made T3 look like 0 of 31 for every model. <code>qualify.py oracle</code> confirms the pinned pairing: references 100 %, first distractors 0 %.</p>
+      </aside>
+    </section>
+
+    <section id="method">
+      <p class="eyebrow">Method · how the corpus is built, and what it has to survive</p>
+      <h2>How a pair is made and checked</h2>
+      <p>The eval is only worth its numbers if a pair cannot enter it by being plausible. Nothing here is accepted because it looks right: every pair is executed against real code, and every claim about what a selector means is computed twice and compared.</p>
+
+      <h3>Six gates, and a pair must pass all of them</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>gate</th><th>what it rejects</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Bounds</strong></td><td>a selector returning 0 nodes, or more than 50. Zero is the silent-failure shape the engine produces for an unsupported construct; the upper bound keeps “every function in the repo” out.</td></tr>
+            <tr><td><strong>Load-bearing</strong></td><td>a modifier that changes nothing. Drop each <span class="sel">#name</span>, each <code>[attr]</code>, each pseudo-class and the first combinator step in turn: if the node set is unchanged, the pair teaches a decoration.</td></tr>
+            <tr><td><strong>Distractors</strong></td><td>near-miss selectors that must parse, run, and return a <em>different</em> node set. A distractor matching the reference means the request does not pin the answer.</td></tr>
+            <tr><td><strong>No duplicate</strong></td><td>a node set already frozen by another pair on that fixture. Two questions with one answer teach the model the answer, not the question.</td></tr>
+            <tr><td><strong>Held-out eval</strong></td><td>a training pair repeating an eval request, or an eval answer from tier 2 up. The sibling batch alone hit this 7 times in 8 rejections.</td></tr>
+            <tr><td><strong>Request determines the selector</strong></td><td>wording that cannot pick the answer without seeing the fixture: a prefix claim the filter falsifies (“starts with cmd” for <code>^="_cmd_"</code>), an unstated name filter, a fixture-defined name described only by role, “immediately” written against <span class="sel">~</span>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Then the wording itself is checked: a second model reads each request back into a selector, and a wording that lands on one of the pair's own distractors is dropped. The suite lost 111 wordings and 13 whole pairs that way; the sibling batch 70 and 13.</p>
+
+      <h3>Two answers for every selector</h3>
+      <p>sitting_duck's <code>ast_select</code> fails silently in both directions, so the engine cannot be the only authority on what a selector means. <code>oracle.py</code> is the second: the <em>documented</em> semantics, computed in Python over the node table the engine itself exports. Both answer every selector, and the comparison decides what happens to the pair.</p>
+      <div class="pipeline">
+        <div><b>agree</b>The pair is verified and its node set is frozen as the reference.</div>
+        <div><b>disagree, explained</b>A filed engine defect covers the difference: the pair is held <code>pending_engine:&lt;issue&gt;</code> with the documented node set, never scored, and revisited when the engine changes.</div>
+        <div><b>disagree, unexplained</b>Rejected. Either the oracle is wrong or there is an unfiled defect, and both deserve a look before a pair enters the corpus.</div>
+      </div>
+      <p>That third arm is where three of this project's six upstream issues came from: the pairs failed, the failure had no explanation, and the explanation turned out to be in the engine.</p>
+
+      <h3>Selector first, words second</h3>
+      <p>Asking a model to invent pairs from source files produced about 13 % that survived verification. Composing the selector from the tree first, and asking a model only for the English, produced 343 of 352. Every batch since is built that way:</p>
+      <div class="pipeline">
+        <div><b>extract</b>One engine session per fixture: every node's parent, sibling index, descendant count, name, flags and parameter count, plus each card class's exact node set.</div>
+        <div><b>enumerate</b>Compose selectors in Python, predict their node sets, keep only in-bounds, load-bearing, non-duplicate, non-eval ones, and weight the shapes training lacks.</div>
+        <div><b>word</b>A device model writes a typed request, a spoken one and a question, from the selector plus a plain-English gloss and two matched source lines.</div>
+        <div><b>verify</b>The gates above, with the oracle deciding and the engine confirming each reference.</div>
+        <div><b>back-translate</b>A second model reads each wording back; wordings that land on a distractor are dropped.</div>
+      </div>
+      <p>Two variants reuse the same machinery. <strong>Siblings</strong> promote the distractors that pairs already carry — each was proven to select something different, so it is a verified question waiting for words. <strong>Class-form alternatives</strong> take a pair that names a grammar type and add its counterpart in the card's vocabulary (<span class="sel">case_item + case_item</span> beside <span class="sel">.if + .if</span>), keeping both so the corpus teaches the distinction rather than replacing it.</p>
+
+      <h3>Making verification affordable</h3>
+      <p>Every <code>ast_select_from</code> call costs about <strong>6 s of planning before it reads anything</strong> — the same on a 77,730-node table and a 1-row one, and <code>PREPARE</code> does not amortize it (sitting_duck #160). Verification time is therefore the number of distinct engine calls, and three changes attacked exactly that:</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>change</th><th>effect</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Result cache</strong> keyed on engine binaries, macros, fixture contents and selector</td><td>identical queries run once, ever; a re-verify after a wording change costs seconds</td></tr>
+            <tr><td><strong>Oracle-first gates</strong>: the oracle answers relaxations and distractors, the engine confirms one reference per pair</td><td>audit-r1 16m41s → <strong>4m57s</strong>, prefix-c1 41m52s → <strong>4m36s</strong>, verdicts identical on 581 replayed pairs</td></tr>
+            <tr><td><strong>Per-query retry</strong> when a CLI process dies mid-script</td><td>one selector that exhausts memory used to reject dozens queued behind it: suite 1 lost <strong>522</strong> candidates, the sibling batch lost <strong>1</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">The oracle-first switch was validated rather than assumed: ten committed batches were re-run on the engine that verified them, 581 accepted pairs in and 581 out, no reference changed, every rejection difference traced to a gate added later or an id retired since.</p>
+
+      <h3>Provenance, so numbers stay comparable</h3>
+      <ul>
+        <li><strong>The engine is pinned and recorded.</strong> Every batch stores the CLI path, extension mtime, checkout commit and macro checksum that verified it. A build change is visible in the data, not a mystery in the scores.</li>
+        <li><strong>References are frozen node sets, not live queries.</strong> Scoring compares a model's answer against a stored sha256 of file:node_id, so a score never depends on the engine being up, or the same.</li>
+        <li><strong>A second pin, on purpose.</strong> When main fixed two defects, a second build was pinned <em>only</em> to re-verify pairs held pending; the original pin still scores every model, so nothing already measured moved. That is how 230 held pairs became verified without disturbing a single reported number.</li>
+      </ul>
+
+      <aside class="side">
+        <h4>Two traps worth naming</h4>
+        <p><strong>Execution rate is not quality.</strong> A model answering in prose still “executes”: a bare word parses as a type selector. Across the no-card arms, exec rate ranged 46–100 % while match stayed at 0. Only match means anything once the format breaks.</p>
+        <p><strong>Pending is not rejected.</strong> A pair whose documented answer differs from the engine's because of a filed defect is kept with its documented node set and scored by it. Treating those as failures would have thrown away 2,700 tier-5 pairs; treating them as verified would have taught the model the engine's bugs.</p>
       </aside>
     </section>
 
