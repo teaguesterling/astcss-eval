@@ -230,8 +230,8 @@ properly.
 
 - `feat/ast-patch` merged, or pinned as a second verification-only engine the way `sd-20260915-2001`
   already is.
-- A decision on pluckit's line-granular splicing (§7 below), because the oracle's counterpart should
-  ideally be byte-exact too.
+- A decision on pluckit's line-granular splicing (§3, and "Filed elsewhere" at the end), because the
+  oracle's counterpart should ideally be byte-exact too.
 - The op-name collision gate (§2) implemented in the generator before any pair is written.
 
 ## Filed elsewhere
