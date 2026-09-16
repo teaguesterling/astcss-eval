@@ -162,7 +162,10 @@ def rstep(st):
     return s + "".join(rattr(a) for a in st.get("attrs") or []) + "".join(rpseudo(p) for p in st.get("pseudos") or [])
 
 
-ELEMENTS = ("callers", "callees")
+ELEMENTS = ("callers", "callees", "scope")
+# node_config.hpp: bit 3, "creates scope boundary". The engine's :scope is is_scope(flags) and
+# ::scope joins each match to scope.current, its nearest enclosing boundary.
+IS_SCOPE_BIT = 0x08
 
 
 def render(c):
@@ -265,7 +268,7 @@ _SEL = re.compile(r"\*|\.?[A-Za-z_][\w-]*")
 _ID = re.compile(r"#([A-Za-z_][\w]*)")
 _ATTR = re.compile(r"\[\s*([\w-]+)\s*(\^=|\$=|\*=|=)\s*(?:\"([^\"]*)\"|'([^']*)'|([^\]\s]*))\s*\]")
 _PSEUDO = re.compile(r":([\w-]+)")
-PSEUDO_KINDS = {"has", "not", "calls", "called-by", "is-called", "is-referenced", "exported", "scope", "decorated",
+PSEUDO_KINDS = {"has", "not", "calls", "called-by", "is-called", "is-referenced", "exported", "scope", "in-scope", "decorated",
                 "async", "typed", "templated"}
 
 
@@ -309,11 +312,14 @@ def _parse_pseudo(text):
             return None, 0
         inner, k = _parse_pseudo(arg or "")
         return ({"kind": "not", "arg": inner} if inner and k == len(arg) else None), i
-    if kind == "scope" and arg:
+    # :scope and :in-scope share one argument grammar (sitting_duck 2a1413d, #145): a keyword
+    # (function|class|module), a semantic-class alias with an optional #name, or a bare node type.
+    # `:scope(X)` asks whether the node IS a boundary of X; `:in-scope(X)` whether it sits INSIDE one.
+    if kind in ("scope", "in-scope") and arg:
         if arg.startswith(".") or "#" in arg or "[" in arg or ":" in arg:
             st = parse_step(arg)
-            return ({"kind": "scope", "arg": st} if st else None), i
-        return {"kind": "scope", "arg": arg}, i
+            return ({"kind": kind, "arg": st} if st else None), i
+        return {"kind": kind, "arg": arg}, i
     if kind in ("calls", "called-by"):
         return {"kind": kind, "arg": arg.strip("\"'") if arg else None}, i
     if arg:
@@ -577,7 +583,10 @@ class Tree:
         if kind == "exported":
             return {k for k in s if n[k]["sem"] in DEFINITIONS and n[k]["flags"] & EXPORTED_BIT
                     and self.nearest(k, FN) is None and self.nearest(k, CLS) is None}
-        if kind == "scope":
+        if kind == "in-scope":
+            # CONTAINMENT: the node sits inside a scope matching the argument. This is what this
+            # module always computed for `:scope(X)`; sitting_duck 2a1413d gave that meaning its own
+            # name and left `:scope` for the boundary test below.
             if isinstance(arg, dict):
                 kinds, target = self.base(arg["sel"]), self.step(arg)
                 out = set()
@@ -588,6 +597,14 @@ class Tree:
                 return out
             return {k for k in s if any(n[a]["type"] == arg or n[a]["type"].startswith(arg + "_")
                                         for a in self.ancestors_of(k))}
+        if kind == "scope":
+            # BOUNDARY: the node itself creates a scope (IS_SCOPE), optionally of a given kind or name.
+            boundary = {k for k in s if n[k]["flags"] & IS_SCOPE_BIT}
+            if arg is None:
+                return boundary
+            if isinstance(arg, dict):
+                return boundary & self.step(arg)
+            return {k for k in boundary if n[k]["type"] == arg or n[k]["type"].startswith(arg + "_")}
         if kind == "decorated":
             return {k for k in s if n[k]["annotations"]}
         if kind == "async":
@@ -684,6 +701,15 @@ class Tree:
                     f = self.nearest(call, FN)
                     if f is not None:
                         out.add(f)
+            return out
+        if el == "scope":
+            # ::scope -- each match's nearest enclosing scope boundary (the engine joins on
+            # scope.current). A set here: two matches in one function yield that function once.
+            out = set()
+            for k in base:
+                anc = next((a for a in self.ancestors_of(k) if n[a]["flags"] & IS_SCOPE_BIT), None)
+                if anc is not None:
+                    out.add(anc)
             return out
         # callees: the named calls inside the matched function, nested functions included
         out = set()
@@ -897,8 +923,8 @@ def selftest():
         t = Tree("oracle-sample")
         names = lambda c: sorted("%s@%d" % (t.node[k]["name"], t.node[k]["start_line"]) for k in t.select(c))  # noqa: E731
         cases = [
-            (C(S(".call", pseudos=[P("scope", S(".class", "UserService"))])), ["execute@13", "execute@9"]),
-            (C(S(".fn", pseudos=[P("scope", S(".class", "UserService"))])), ["__init__@5", "get_user@8", "safe_delete@11"]),
+            (C(S(".call", pseudos=[P("in-scope", S(".class", "UserService"))])), ["execute@13", "execute@9"]),
+            (C(S(".fn", pseudos=[P("in-scope", S(".class", "UserService"))])), ["__init__@5", "get_user@8", "safe_delete@11"]),
             (C(S(".fn", pseudos=[P("calls", "execute")])), ["get_user@8", "inner@24", "record@19", "safe_delete@11"]),
             (C(S(".fn", pseudos=[P("is-referenced")])), ["get_user@8", "inner@24", "outer@23"]),
             (C(S(".fn", pseudos=[P("exported")])), ["main@37", "outer@23", "unused_function@33"]),
