@@ -27,6 +27,7 @@ Runs on the NPU; stage 10 has the GPU. Surfaces iterate INSIDE a model because a
 costs minutes and a surface costs nothing.
 """
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -131,6 +132,13 @@ def main(argv=None):
                 log("  %s: already complete" % surface)
                 continue
             turns, system = build_messages(surface, card_body, args.condition, None)
+            # Fingerprint the exact prompt text. Rows from two different card versions under
+            # one arm label is silent contamination -- and since done_keys() treats an
+            # existing row as complete, a corrected re-run would SKIP the stale ones rather
+            # than replace them. Recording this makes the mix detectable.
+            card_sha = hashlib.sha256(
+                (system + "".join(t["content"] for t in (turns or []))).encode()
+            ).hexdigest()[:12]
             tally = {"ok": 0, "wrong_surface": 0, "malformed": 0, "error": 0, "all": 0}
             for t in todo:
                 body, mode = Q.request_body(model, thinking, system, t["request"])
@@ -139,7 +147,7 @@ def main(argv=None):
                                         + [{"role": "user", "content": t["request"]}])
                 row = {"model": model, "surface": surface, "condition": args.condition,
                        "task": t["id"], "tier": t["tier"], "arity": t["arity"],
-                       "request": t["request"], "thinking_mode": mode}
+                       "request": t["request"], "thinking_mode": mode, "card_sha": card_sha}
                 try:
                     got = Q.chat(key, body)
                     text = got["content"]

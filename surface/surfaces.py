@@ -147,9 +147,36 @@ LIMITS = {
 }
 
 
+def pss_argkey_help(surface):
+    """Keyed surfaces have to be TOLD their argument names.
+
+    This is an information-parity fix, not extra help. A positional surface encodes which
+    argument is which by ORDER, and the shared operation table already supplies that ("two
+    arguments: X, then Y"). PSS names its arguments instead, and the card previously
+    instantiated only the names that happened to appear in its two examples (to, anchor,
+    code). Qwen3-4B then generalised `to:` to addParam/removeParam/addArg/removeArg -- five
+    of D's fourteen failures were that one gap, i.e. the surface was being scored against a
+    vocabulary it was never given.
+
+    Generated from PSS_ARGKEYS so the card cannot drift away from the parser."""
+    items = []
+    for op, keys in PSS_ARGKEYS.items():
+        ks = keys if surface == "D_pss" else keys[1:]   # F: the op's own value is arg 1
+        if ks:
+            items.append("%s: %s" % (op, ", ".join(ks)))
+    if not items:
+        return ""
+    head = ("ARGUMENT NAMES" if surface == "D_pss"
+            else "ARGUMENT NAMES for a second argument (the operation's own value is the first)")
+    return head + "\n  " + "; ".join(items) + "\n"
+
+
 def build_card(card_body, surface):
     """Shared header + shared vocabulary + shared op table + this surface's block."""
-    return SHARED_HEADER + card_body + SHARED_OPS + BLOCKS[surface]
+    block = BLOCKS[surface]
+    if surface in ("D_pss", "F_pss_short"):
+        block = block + pss_argkey_help(surface)
+    return SHARED_HEADER + card_body + SHARED_OPS + block
 
 
 def strip_selector_instruction(card_v1c_text):
