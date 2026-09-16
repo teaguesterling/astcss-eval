@@ -874,3 +874,49 @@ Kept after filtering, across the three batches: **4,302 pairs, 2,039 of them tie
 4,025/1,762, kept-suite1r 116/116, kept-suite1r2 161/161). The training corpus today is 1,052 pairs
 with no tier 5 at all.
 
+
+### Recovering the pairs held on #145: `:scope` splits into `:scope` and `:in-scope` (2026-09-15)
+
+sitting_duck main (d706c89) landed two fixes that between them unblock most of what this corpus was
+holding: **2a1413d** splits `:scope` (the node IS a scope boundary) from `:in-scope` (the node sits
+INSIDE one), and **2a84814** makes a bare type an exact match instead of a prefix (#151). Our 182
+pending pairs were written against the documented containment meaning of `:scope(X)`, so they needed
+their selector text migrated, not their meaning.
+
+A **second pin** (`workspace/engine/sd-20260915-2001`, main d706c89) exists only to verify pairs held
+pending. `sd-20260914-1835` stays authoritative for every score, so no measured number moves.
+
+The oracle needed one correction before it could be trusted against the new build. It walked to the
+nearest ancestor in the class set; the engine reads `a.scope.function` / `.class` / `.module`, which
+is always a node flagged IS_SCOPE (`node_config.hpp` bit 3). The two differ wherever a class holds
+non-scope nodes -- C++ `.fn` covers `function_declarator` (#139) -- so a parameter's nearest `.fn`
+ancestor is the declarator while its `scope.function` is the enclosing definition. With IS_SCOPE
+required, oracle and engine agree everywhere checked: 3 previously-disagreeing C++ pairs became
+1/1, 14/14, 15/15, the `scope`/`in-scope`/`::scope` validation set is 7/7, selftest 343 same 0 differ.
+
+| step | outcome |
+|---|---|
+| rewrite | 151 pure renames `:scope(X)` -> `:in-scope(X)`; 31 also need the semantic-class argument form, since the grammar cannot split `function_definition#foo` |
+| migrate, pre-alignment oracle | 158 accepted, 24 rejected |
+| migrate, IS_SCOPE-aligned oracle | **172 accepted, 10 rejected** |
+| the 10 | 9 SQL zeros (#166) and 1 honest duplicate of an existing pair |
+| SQL re-routed to `create_table#X column_definition` | **9 of 9 accepted** on the new pin |
+
+**181 of 182 recovered.** The 12 C++ pairs that looked ambiguous under the old model (a name in both
+a header and a source file) were never ambiguous: `scope.function` attributes each node to its own
+enclosing definition. One pair's node set legitimately changed -- `tr-cpp-t5-g030240` froze 10 nodes
+under the straddling model and yields 4 now, all inside the `function_definition`; it is accepted
+with a wording flag, since its paraphrase says "directly within" while `:in-scope` is any depth.
+
+Two defects found while doing it, both filed:
+- **#165** `:has(<semantic class>)` does not match containment: `import_statement:has(.import)` returns
+  0 while `.import` matches 297 nodes in the same files. This is the residue after #133's fix and the
+  last holdout of the 64 pairs that fix otherwise unblocked (63 of 64 now agree).
+- **#166** `:in-scope(.class#name)` returns 0 for SQL: the semantic-class form needs `IS_SCOPE`, which
+  `create_table` does not carry, while the bare-type form walks ancestor ranges and works
+  (`:in-scope(create_table)` 112, `create_table#projects column_definition` 8, `.class:scope` 0).
+
+Also measured: the oracle's cached class atoms are NOT stale across the two pins -- `.var` 1813,
+`.fn` 540, `.call` 1702, `.class` 25 are identical for the oracle cache, the old pin and the new one,
+so every comparison above rests on the same class membership.
+
