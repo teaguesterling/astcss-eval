@@ -303,6 +303,15 @@ def execute(queries):
             first[(fx, sel)] = qid
             todo.append((qid, fx, sel))
     got = _execute_sharded(todo) if todo else {}
+    # A CLI process that dies mid-script takes the REST of its shard with it: those queries report
+    # "no output for query" though nothing is wrong with them. Measured 2026-09-15 on suite 1: one
+    # `.call:called-by(...)` on c-duckhts exhausted a 24 GB cap, and 408 tier-5 candidates were
+    # rejected as failures because they sat behind such a query. Retry the lost ones one process
+    # each, so an expensive selector can only lose itself. ASTCSS_RETRY_LOST=0 turns it off.
+    lost = [t for t in todo if "no output" in (got.get(t[0], {}).get("error") or "")]
+    if lost and len(lost) < len(todo) and os.environ.get("ASTCSS_RETRY_LOST", "1") != "0":
+        for t in lost:
+            got.update(_execute_one([t]))
     if cache and todo:
         cache.put_many([(fx, sel, got[qid]) for qid, fx, sel in todo if qid in got])
     for qid, fx, sel in queries:
