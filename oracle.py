@@ -62,7 +62,11 @@ ISSUES = {"scope-selector": 145, "calls-scope": 146, "is-referenced": 147, "expo
           "call-code-literal": 152,
           # C++ templates (2026-09-15): template_function/template_method use sites are classified as
           # definitions and the call around them has no name (#158); :templated is a proposal (#159)
-          "template-call-name": 158, "templated": 159}
+          "template-call-name": 158, "templated": 159,
+          # A bare type is a PREFIX match (#151), so `import_spec` also returns import_spec_list and
+          # `column_definition` also returns the column_definitions container. Only detectable against
+          # a fixture -- classify() adds it when the tree holds a longer type with the same prefix.
+          "type-prefix": 151}
 # Documented post-#158 semantics: a call whose callee is a template_function/template_method (directly,
 # or through qualified_identifier / field_expression) takes that template's name. Off by default so the
 # engine-agreement pipelines keep today's names; the template batch turns it on.
@@ -712,7 +716,23 @@ class Tree:
 
 # ---------------------------------------------------------------- engine comparison and gates
 
-def classify(c, oracle_digest, engine):
+def prefix_types(tree, c):
+    """Bare types in the selector that are a PREFIX of another type in this fixture (#151): the
+    engine returns those too, so a disagreement of exactly that size is the filed defect, not a
+    defect here. `import_spec` picks up import_spec_list; `column_definition` picks up
+    column_definitions."""
+    out = {}
+    for st in c["steps"]:
+        sel = st.get("sel") or ""
+        if sel.startswith(".") or sel == "*":
+            continue
+        longer = sorted(t for t in tree.by_type if t != sel and t.startswith(sel))
+        if longer:
+            out[sel] = longer
+    return out
+
+
+def classify(c, oracle_digest, engine, tree=None):
     """engine: {"nodes": [...]} or {"error": str}. -> ("verified" | "pending" | "rejected", detail)."""
     fs = features(c)
     if "error" in engine:
@@ -727,6 +747,10 @@ def classify(c, oracle_digest, engine):
     explained = sorted(f for f in fs if f in ISSUES)
     if explained:
         return "pending", ["pending_engine:%s#%d" % (f, ISSUES[f]) for f in explained]
+    if tree is not None and len(engine["nodes"]) > 0:
+        pre = prefix_types(tree, c)
+        if pre:
+            return "pending", ["pending_engine:type-prefix#%d" % ISSUES["type-prefix"]]
     return "rejected", ["engine (%d nodes) and documented semantics disagree, and no filed issue explains it"
                         % len(engine["nodes"])]
 
@@ -791,7 +815,7 @@ def verify_batch(rows, batch, root, paraphrase_rule="distinct", check_eval_overl
         reasons += gate_reasons(t, c, ref, dis)
         if r["id"] in overlap:
             reasons.append(overlap[r["id"]])
-        verdict, detail = ("verified", []) if not engine else classify(c, dg, got.get(r["id"], {"error": "no output"}))
+        verdict, detail = ("verified", []) if not engine else classify(c, dg, got.get(r["id"], {"error": "no output"}), t)
         agreement["%s:%s" % (tier(c), verdict)] += 1
         if verdict == "rejected":
             reasons += detail

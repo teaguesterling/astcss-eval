@@ -677,3 +677,147 @@ Fixes:
   bare callee name (`dumps`), and the `.dumps` part is dropped silently (#128).
   Models do write this spelling (Qwen3-8B, smoke run), so it will show up as a
   common miss rather than an error.
+
+## Verification speed: what a batch actually costs (2026-09-15)
+
+Measured on the pinned engine and on a clean build of sitting_duck main (caa35ff), CLI timings:
+
+| what | time |
+|---|---|
+| `read_ast` of a 1246-node file | 0.03 s |
+| `read_ast` of the whole c-duckhts fixture | 0.16 s |
+| any `ast_select_from` call | 6.0-6.4 s |
+| the same call on a 1-row table | 6.1 s |
+| `PREPARE` of that call, then each `EXECUTE` | 6.0 s, then 6.2 s each |
+| `UNION ALL` of 3 selectors | 21.8 s |
+| `EXPLAIN` of one call | 39 s |
+
+JSON profiling puts 5.2 s of a 6.3 s call in the planner (binding is 0.05 s of that) and 0.9 s
+in the optimizer; execution is 0.19 s of CPU. `ast_select_from` is a table macro with a
+46,362-character body. Filed as **sitting_duck #160**: the cost is per call, not per row, so
+verification time is the number of distinct engine calls and nothing else.
+
+Two changes followed, and both were validated by replaying already-verified batches:
+
+- **Result cache** (`verify.execute`): identical (fixture, selector) queries run once, and
+  results persist in `workspace/cache/engine-results.sqlite` keyed on content hashes of the CLI,
+  extension and macros, the fixture's files, and the selector. Deterministic errors are cached;
+  timeouts, missing output and memory errors are not. `ASTCSS_ENGINE_CACHE=0` turns it off.
+  The verifier self-test: 28.8 s cold, 2.0 s warm, identical output.
+- **Oracle-first gates** (`pilot.oracle_first_verify`, the default for training batches): the
+  engine runs each reference selector; relaxations and distractors are answered from
+  `oracle.Tree` where the oracle reproduces the engine's reference exactly and the check
+  carries no feature with a filed engine defect (`oracle.ISSUES`). Everything else still goes to
+  the engine -- whole pairs when the oracle cannot parse the selector, when the fixture has no
+  oracle cache, or when the reference disagrees; single checks otherwise. `--gates=engine`
+  forces the old path, and the eval set (root == HERE) keeps it.
+
+Replay of three batches on the engine that verified them, same verdicts and same node sets:
+
+| batch | candidates | before | after | oracle-answered checks |
+|---|---|---|---|---|
+| templates-c1 | 8 | (part of a 7-min run) | 47 s | 20 of 22 |
+| audit-r1 | 90 | 16 m 41 s | 4 m 57 s | 252 of 288 |
+| prefix-c1 | 184 | 41 m 52 s | 4 m 36 s | 658 of 658 |
+
+
+### Stage 8: what the prompt is still worth to a trained 0.8B (2026-09-15)
+
+No training: the stage 6b (seed 17) and 7a (seed 18) adapters, asked with different prompts.
+`train/cards/card_python.md` is byte-identical to `card_v1c.md`, so the controls were asked with
+exactly the prompt they were trained with. The k-NN rows are not a model: for each eval request,
+the nearest training request by TF-IDF (tune/context.Retriever) and its selector copied verbatim.
+
+| arm | 108 pairs | vs control | flips | T1 | T2 | T3 | T4 |
+|---|---|---|---|---|---|---|---|
+| card v1c, seed 17 (6b control) | **81.5** | -- | -- | 19/21 | 16/25 | 25/31 | 28/31 |
+| card v1c, seed 18 (7a control) | **82.4** | -- | -- | 19/21 | 17/25 | 25/31 | 28/31 |
+| card_v1c_fewshot, seed 17 | 79.6 | -1.9 | +2 -4 | 19/21 | 16/25 | 25/31 | 26/31 |
+| card_v1c_fewshot, seed 18 | 82.4 | +0.0 | +2 -2 | 19/21 | 16/25 | 27/31 | 27/31 |
+| card v1c + retrieve 8 | 79.6 | -1.9 | +3 -5 | 18/21 | 16/25 | 25/31 | 27/31 |
+| no card | 0.0 | -81.5 | 0 -88 | 0/21 | 0/25 | 0/31 | 0/31 |
+| language tag only (`[python]`) | 0.0 | -81.5 | 0 -88 | 0/21 | 0/25 | 0/31 | 0/31 |
+| copy nearest training pair (k-NN) | 10.2 | -- | -- | 7/21 | 2/25 | 2/31 | 0/31 |
+| same, excluding the pair's own reference | 3.7 | -- | -- | 0/21 | 2/25 | 2/31 | 0/31 |
+
+- **Examples are worth nothing to an adapter, static or retrieved**: -1.9 / +0.0 / -1.9, all inside
+  the ~1-pair e2 seed noise (7a). On untuned models the same context was worth +3.7 to +11.1
+  (stage 5). The k-NN control rules out a bad retrieval pool: copying the nearest training pair
+  scores 10.2 %, so the examples are relevant but not answers -- the adapter already knows what
+  they teach, and re-showing them only perturbs T4.
+- **The card is a task trigger, not reference material.** Without it the trained model does not
+  write bad selectors; it stops doing the task and reverts to base chat ("Here is a list of every
+  `try` block in your code:", "In SQL, the `EXCEPT` clause is used to ..."), and a bare `[python]`
+  tag does not substitute. 0.0 % in every tier, against 65.7 % for the adapter TRAINED without a
+  card (6b). Two epochs on 820 rows that all carried the card taught "card present -> emit a
+  selector" as part of the task.
+- **Exec rate is not a quality signal.** Those prose fragments scored 94-95 % "executes": bare
+  words like `raise` parse as type selectors. Only `match` means anything when the format breaks.
+- So there is no prompt-side headroom to buy at inference on this model, and a real fragility to
+  fix: `build_dataset.py --system mixed` varies the prompt per request (card 50 %, `[lang]` tag
+  25 %, nothing 25 %) so the request, not the card, triggers the task. That is an arm of the next
+  training run; if it holds the 108-pair score, the 700-token card becomes optional at inference.
+
+
+## Class-form alternatives: the card's vocabulary beside the grammar's (2026-09-15)
+
+Teague prefers `.catch:has(.call)` over `catch_clause:has(.call)`, and wants both: "having
+specialized cases is good too". So nothing was retired. `tune/class_alt.py` takes every accepted
+training pair whose selector names a grammar type and composes the same shape in the card's class
+vocabulary, keeping the original as the candidate's `contrast` so the wording stage is told to
+make the difference explicit.
+
+The class is usually WIDER than the type, so these are new questions with their own node sets,
+not rewrites: of 281 type-form pairs only 90 have a class form that selects the same nodes
+(`.loop` covers for and while, `.class` covers create_table and create_view, `.fn` covers lambdas).
+Where the bare class form runs past the 50-node bound the fallback scopes it to the named function
+or class the original's nodes sit in (`create_table#organizations column_definition` ->
+`.class#organizations .var`), which stays in the card's vocabulary instead of reverting to the type.
+
+Batch classalt1: 61 candidates -> **57 accepted, 4 pending (has-keyword-tokens #133), 0 rejected**,
+three wordings each, across 7 languages (cpp 27, sql 13, java 7, bash 4, c 4, python 3, rust 3),
+tiers 2/3/4 = 11/27/23. Back-translation of the 4 risky combinator pairs: 12 wordings, 0 read back
+as a distractor. They join the next run through `--extra-pairs`, as sfgen's batch did in 7b; the
+frozen corpus is untouched. The other 220 type-form pairs get no alternative: the class form is
+already a pair (51), its node set is already frozen in training (90), nothing is in bounds (66), or
+it is an eval answer (13).
+
+Two defects this batch exposed, both fixed:
+- **The wording model echoed the card's class labels across languages**: "the organizations class"
+  for a SQL table, "variables inside the users class" for columns, "comprehensions containing a call
+  to count" for subqueries. The 96 accepted SQL pairs say table (15), column (18) and subquery (12)
+  almost exclusively, and the two that select `.class`/`.comp` at the top level avoid card labels
+  entirely ("the named database objects declared here"). WORD_SYSTEM now names the mapping per
+  language (SQL .class = table or view, .var = column; C = struct/enum/union; Rust =
+  struct/enum/trait/impl; Go = struct/interface; C++ and Java keep "class", their own word).
+  Re-wording fixed 12 of 14; two needed a literal comprehension -> subquery substitution.
+- **The type-specific original cannot be a distractor when the two forms are equivalent.** Both
+  first-round rejections were that: `.class#organizations .var` and `create_table#organizations
+  column_definition` select the same 6 nodes, so the distractor matched the reference. Those pairs
+  now take both distractors from the relaxations.
+
+
+### Validating the oracle-first gates against the engine-only path (2026-09-15)
+
+Ten committed batches were re-run through `pilot.oracle_first_verify` on the engine that verified
+them, into a copy of `train/pairs`, and compared pair by pair. The first three ran with
+`--paraphrases=distinct`; the other seven were re-run a second time with the strict rule they were
+actually verified with, because the rule decides which of two pairs with an identical node set
+claims it first (cpp-b1 and javascript-b1 each showed such a swap under the wrong rule, and neither
+survives the correct one).
+
+| pass | batches | pairs accepted before -> after | gained/lost | references differing | unexplained verdict changes |
+|---|---|---|---|---|---|
+| distinct rule | audit-r1, prefix-c1, templates-c1 | 224 -> 224 | 0 / 0 | 0 | 0 |
+| strict rule | cpp-b2, java-b2, sql-b2, bash-b1, cpp-b1, python-b1, javascript-b1 | 357 -> 357 | 0 / 0 | 0 | 0 |
+
+Every rejection difference is a gate that postdates the batch (the request audit), an id the audit
+retired since, or a node set a later batch has claimed -- never the load-bearing or distractor
+gates. The vacuous rejections reproduce pair for pair, worded differently ("drop #YAMLReader" vs
+"drop to .class .class"), including the ones the oracle answered itself. The verifier self-test's
+six hand-checked cases agree on both paths.
+
+Speed, same engine and same batch: audit-r1 16m41s -> 4m57s, prefix-c1 41m52s -> 4m36s. A second
+run of an already-verified batch costs seconds, because every reference query is a cache hit --
+the class-form batch re-verified in 7 s after a text change.
+

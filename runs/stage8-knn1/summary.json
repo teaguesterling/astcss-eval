@@ -1,0 +1,31 @@
+[
+  {
+    "model": "knn1",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 108,
+    "exec_match": 11,
+    "exact": 7,
+    "by_tier": {
+      "1": [
+        7,
+        21
+      ],
+      "2": [
+        2,
+        25
+      ],
+      "3": [
+        2,
+        31
+      ],
+      "4": [
+        0,
+        31
+      ]
+    },
+    "median_latency_s": 0.0,
+    "mean_completion_tokens": null,
+    "thinking": "off"
+  }
+]

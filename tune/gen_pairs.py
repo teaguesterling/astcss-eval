@@ -779,6 +779,11 @@ Rules for all three:
   directly before a word (no foo(), no self.x, no json.dumps).
 - Never selector names (fn, var, member, mod, receiver, called-by). Say "functions",
   "variables", "files", "calls on conn", "called from", "never called", "unused".
+- Use THIS language's own word for the construct, never the class label from the card. In SQL
+  a .class is a table or a view and a .var is a column, so write "tables", "views", "columns",
+  "subqueries" -- never "classes", "variables" or "comprehensions". In C a .class is a struct,
+  enum or union; in Rust a struct, enum, trait or impl block; in Go a struct or interface. Ask
+  the question the way someone working in that language asks it.
 - Keep every code name exactly as given (process_file, GitHubClient, test_).
 - Be exact about every condition in the meaning: "directly inside" vs "anywhere inside",
   "contains" vs "does not contain", "its own body" vs nested functions, all conditions

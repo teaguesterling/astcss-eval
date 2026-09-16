@@ -12,19 +12,25 @@ module adds the checks the engine will not do for us, because sitting_duck's
                  does, because `[bases]` is silently ignored.
   distractors    each parses (no error) and returns a DIFFERENT node set
 
-Everything runs through ONE sitting_duck CLI session per batch, with each
-fixture's AST materialised once and queried with ast_select_from.
+Everything runs through sitting_duck CLI sessions (ASTCSS_EXEC_JOBS of them), with each
+fixture's AST materialised once per session and queried with ast_select_from. Identical
+(fixture, selector) queries run once and their results persist in the result cache, because
+every ast_select_from call costs ~6 s of planning whatever the data (sitting_duck #160).
+pilot.py answers most relaxation and distractor checks from oracle.py instead, so a training
+batch reaches the engine with roughly one query per pair.
 
 Engine: see memory `astcss-eval-verifier-runtime`. Until a sitting_duck release
 ships PR #129, the only runtime that executes combinators correctly is the local
 HEAD build's CLI with the #129 macros loaded over it. engine_identity() records
 exactly what was used; store it with every verified batch.
 """
+import functools
 import glob
 import hashlib
 import json
 import os
 import subprocess
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SD = os.environ.get("SITTING_DUCK", os.path.expanduser("~/Projects/sitting_duck"))
@@ -223,13 +229,89 @@ def relaxations(selector, nodes, base, end_adj):
 # Executing and judging
 # ---------------------------------------------------------------------------
 
+_CACHE_UNSTABLE = ("no output", "timeout", "timed out", "out of memory", "memory limit", "interrupt")
+
+
+@functools.lru_cache(maxsize=None)
+def _engine_key():
+    """What decides a result besides the fixture and the selector: the CLI and extension binaries
+    (content hashes, so a rebuild of the same code keeps the cache and a swapped file doesn't)
+    and the selector macros."""
+    parts = [_sha256_file(p) if os.path.exists(p) else "missing:" + p for p in (CLI, EXT, MACROS)]
+    return hashlib.sha256("|".join(parts).encode()).hexdigest()
+
+
+@functools.lru_cache(maxsize=None)
+def _fixture_key(fx):
+    """Every file the fixture's glob expands to, by path, size and mtime (fixtures are pinned copies)."""
+    pattern = os.path.join(HERE, FIXTURES[fx])
+    h = hashlib.sha256()
+    for f in sorted(glob.glob(pattern, recursive=True)):
+        st = os.stat(f)
+        h.update(("%s\0%d\0%d\n" % (os.path.relpath(f, HERE), st.st_size, st.st_mtime_ns)).encode())
+    return h.hexdigest()
+
+
+class _ResultCache:
+    """Engine results keyed on (engine, fixture content, selector) in a sqlite file under workspace/
+    (ASTCSS_ENGINE_CACHE_DIR). Deterministic errors (a refused selector) are cached; timeouts,
+    missing output and memory errors are not. ASTCSS_ENGINE_CACHE=0 turns it off."""
+
+    def __init__(self):
+        import sqlite3
+        d = os.environ.get("ASTCSS_ENGINE_CACHE_DIR", os.path.join(HERE, "workspace", "cache"))
+        os.makedirs(d, exist_ok=True)
+        self.db = sqlite3.connect(os.path.join(d, "engine-results.sqlite"), timeout=120)
+        self.db.execute("PRAGMA journal_mode=WAL")
+        self.db.execute("CREATE TABLE IF NOT EXISTS results (engine TEXT, fixture TEXT, selector TEXT, "
+                        "payload TEXT, created REAL, PRIMARY KEY (engine, fixture, selector))")
+        self.engine = _engine_key()
+
+    def get(self, fx, sel):
+        row = self.db.execute("SELECT payload FROM results WHERE engine=? AND fixture=? AND selector=?",
+                              (self.engine, _fixture_key(fx), sel)).fetchone()
+        return json.loads(row[0]) if row else None
+
+    def put_many(self, items):
+        rows = []
+        for fx, sel, res in items:
+            if "error" in res and any(u in res["error"].lower() for u in _CACHE_UNSTABLE):
+                continue
+            rows.append((self.engine, _fixture_key(fx), sel, json.dumps(res), time.time()))
+        with self.db:
+            self.db.executemany("INSERT OR REPLACE INTO results VALUES (?, ?, ?, ?, ?)", rows)
+
+
 def execute(queries):
     """queries: [(qid, fixture, selector)] -> {qid: {"nodes": [...]} | {"error": str}}
 
-    ASTCSS_EXEC_JOBS=N splits the queries across N CLI processes. Measured 2026-09-14 on
-    the sd-20260914-1835 engine: parsing a fixture costs ~5 s, each ast_select_from ~16 s,
-    so one process scoring 165 predictions takes ~45 min and sharding is near-linear.
-    Each shard parses its own fixtures; results are identical to a single process."""
+    Identical (fixture, selector) queries run once, and results come from the result cache
+    when this engine already answered them (_ResultCache). Measured 2026-09-15 on the
+    sd-20260914-1835 engine: parsing all of c-duckhts costs 0.16 s, but every ast_select_from
+    costs ~6 s of planning whatever the table size (the same on a 1-node table), so the
+    number of distinct engine calls is what verification time is made of.
+
+    ASTCSS_EXEC_JOBS=N splits the remaining queries across N CLI processes; sharding is
+    near-linear. Each shard parses its own fixtures; results are identical to a single process."""
+    cache = _ResultCache() if os.environ.get("ASTCSS_ENGINE_CACHE", "1") != "0" else None
+    res, first, todo = {}, {}, []
+    for qid, fx, sel in queries:
+        hit = cache.get(fx, sel) if cache else None
+        if hit is not None:
+            res[qid] = hit
+        elif (fx, sel) not in first:
+            first[(fx, sel)] = qid
+            todo.append((qid, fx, sel))
+    got = _execute_sharded(todo) if todo else {}
+    if cache and todo:
+        cache.put_many([(fx, sel, got[qid]) for qid, fx, sel in todo if qid in got])
+    for qid, fx, sel in queries:
+        if qid not in res:
+            res[qid] = got.get(first[(fx, sel)], {"error": "no output for query"})
+    return res
+
+
+def _execute_sharded(queries):
     jobs = int(os.environ.get("ASTCSS_EXEC_JOBS", "1"))
     if jobs > 1 and len(queries) > 1:
         import concurrent.futures
