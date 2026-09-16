@@ -796,3 +796,28 @@ Two defects this batch exposed, both fixed:
   column_definition` select the same 6 nodes, so the distractor matched the reference. Those pairs
   now take both distractors from the relaxations.
 
+
+### Validating the oracle-first gates against the engine-only path (2026-09-15)
+
+Ten committed batches were re-run through `pilot.oracle_first_verify` on the engine that verified
+them, into a copy of `train/pairs`, and compared pair by pair. The first three ran with
+`--paraphrases=distinct`; the other seven were re-run a second time with the strict rule they were
+actually verified with, because the rule decides which of two pairs with an identical node set
+claims it first (cpp-b1 and javascript-b1 each showed such a swap under the wrong rule, and neither
+survives the correct one).
+
+| pass | batches | pairs accepted before -> after | gained/lost | references differing | unexplained verdict changes |
+|---|---|---|---|---|---|
+| distinct rule | audit-r1, prefix-c1, templates-c1 | 224 -> 224 | 0 / 0 | 0 | 0 |
+| strict rule | cpp-b2, java-b2, sql-b2, bash-b1, cpp-b1, python-b1, javascript-b1 | 357 -> 357 | 0 / 0 | 0 | 0 |
+
+Every rejection difference is a gate that postdates the batch (the request audit), an id the audit
+retired since, or a node set a later batch has claimed -- never the load-bearing or distractor
+gates. The vacuous rejections reproduce pair for pair, worded differently ("drop #YAMLReader" vs
+"drop to .class .class"), including the ones the oracle answered itself. The verifier self-test's
+six hand-checked cases agree on both paths.
+
+Speed, same engine and same batch: audit-r1 16m41s -> 4m57s, prefix-c1 41m52s -> 4m36s. A second
+run of an already-verified batch costs seconds, because every reference query is a cache hit --
+the class-form batch re-verified in 7 s after a text change.
+
