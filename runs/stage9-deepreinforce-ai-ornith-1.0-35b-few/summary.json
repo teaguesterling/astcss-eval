@@ -1,0 +1,31 @@
+[
+  {
+    "model": "deepreinforce-ai/Ornith-1.0-35B",
+    "n": 107,
+    "request_errors": 1,
+    "executes": 107,
+    "exec_match": 98,
+    "exact": 92,
+    "by_tier": {
+      "1": [
+        18,
+        21
+      ],
+      "2": [
+        25,
+        25
+      ],
+      "3": [
+        29,
+        30
+      ],
+      "4": [
+        26,
+        31
+      ]
+    },
+    "median_latency_s": 6.78,
+    "mean_completion_tokens": 282.8411214953271,
+    "thinking": "on"
+  }
+]

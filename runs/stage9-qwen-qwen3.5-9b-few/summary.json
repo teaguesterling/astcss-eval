@@ -1,0 +1,31 @@
+[
+  {
+    "model": "Qwen/Qwen3.5-9B",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 107,
+    "exec_match": 79,
+    "exact": 78,
+    "by_tier": {
+      "1": [
+        16,
+        21
+      ],
+      "2": [
+        18,
+        25
+      ],
+      "3": [
+        21,
+        31
+      ],
+      "4": [
+        24,
+        31
+      ]
+    },
+    "median_latency_s": 0.885,
+    "mean_completion_tokens": 5.398148148148148,
+    "thinking": "off"
+  }
+]

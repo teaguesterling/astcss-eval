@@ -1,0 +1,31 @@
+[
+  {
+    "model": "Qwen/Qwen3-Coder-Next",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 105,
+    "exec_match": 88,
+    "exact": 81,
+    "by_tier": {
+      "1": [
+        15,
+        21
+      ],
+      "2": [
+        24,
+        25
+      ],
+      "3": [
+        27,
+        31
+      ],
+      "4": [
+        22,
+        31
+      ]
+    },
+    "median_latency_s": 0.86,
+    "mean_completion_tokens": 6.12962962962963,
+    "thinking": "none"
+  }
+]
