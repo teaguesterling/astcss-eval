@@ -1311,14 +1311,21 @@ the natural source of real before/after pairs. Status of the machinery, checked 
 
   * `parse_ast(<source string>, <language>)` parses inline content in our pinned engine (verified:
     16 nodes, 1 function_definition, 0 errors). So content fetched from git can be parsed directly.
-  * `read_ast` does NOT support `git://` URIs in this build -- the string does not appear in the
-    source or the built extension -- so `structural_diff`, which documents that requirement
-    (sitting_duck#48), cannot run against our engine. The git:// path is not needed: git_read ->
-    parse_ast closes the same loop.
+  * `read_ast` DOES understand `git://` URIs, but only by PASS-THROUGH: `ast_file_utils` detects a
+    URI scheme and hands the path to DuckDB's virtual filesystem "without local fs checks"
+    (src/ast_file_utils.cpp:188). It does not implement git itself. The git VFS is registered by
+    duck_tails -- which is exactly the extension we cannot load alongside it (see the ABI note
+    below). So `git://` reads are unavailable to us in practice, for a different reason than
+    "unsupported". (An earlier draft of this section claimed git:// appears nowhere in the source;
+    that was a grep against a path that does not exist, and was wrong.)
   * duck_tails provides the git table functions (`git_tree`, `git_read`, `git_uri`, `read_git_diff`,
-    `git_log`); fledgling's `repo.sql` only wraps them. `file_changes` is a blob-hash join between
-    two `git_tree` scans, so enumerating changed files across many commits is a query, not a
-    subprocess per file.
+    `git_log`); fledgling's `repo.sql` only wraps them, and `file_changes` is written as a
+    blob-hash join between two `git_tree` scans -- which WOULD make enumerating changed files a
+    query rather than a subprocess per file. UNVERIFIED: that is source reading. Live, `git_tree`
+    returned 1 row on a freshly created single-commit control repo but 0 rows on every real repo
+    tried, in both the `(repo, ref)` and `git://repo@ref` forms. The mining primitive is therefore
+    plausible but has not been demonstrated, and the discrepancy is unexplained. Anyone building on
+    this should confirm it with the duck_tails author before assuming it scales.
   * BLOCKER: duck_tails is built for DuckDB `b155d6f63c` and our sitting_duck CLI is `d8cdaa33fd`,
     so the two extensions cannot load in one process. Mining must therefore be a two-process batch
     (duck_tails extracts content pairs -> parquet -> sitting_duck parses), or one side gets rebuilt.
