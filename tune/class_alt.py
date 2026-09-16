@@ -145,14 +145,20 @@ def main(argv=None):
             if any(t.select(r) == ref for r in O.relaxed(c2)):
                 skipped["a modifier is not load-bearing"] += 1
                 continue
-            # The type-specific original is the first distractor: it is exactly the confusion the
-            # pair must teach apart. A second comes from the relaxations, which already differ.
-            dis = [O.parse(p["css"])]
+            # The type-specific original is the first distractor where it differs: it is exactly
+            # the confusion the pair must teach apart. Where the class form and the type form
+            # select the SAME nodes it cannot be one -- a distractor that matches the reference
+            # fails the gate -- so those pairs take both distractors from the relaxations.
+            dis = []
+            orig = O.parse(p["css"])
+            if orig is not None and t.select(orig) != ref:
+                dis.append(orig)
             for r in O.relaxed(c2):
-                if t.select(r) != ref and render(r) != css2:
-                    dis.append(r)
+                if len(dis) >= 2:
                     break
-            if len(dis) < 2 or dis[0] is None:
+                if t.select(r) != ref and render(r) != css2 and all(render(r) != render(d) for d in dis):
+                    dis.append(r)
+            if len(dis) < 2:
                 skipped["fewer than 2 distractors"] += 1
                 continue
             lang = G.lang_of(fx) if fx.split("-")[0] in G.LANG_BY_PREFIX else "python"
