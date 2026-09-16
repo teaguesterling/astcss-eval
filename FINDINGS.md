@@ -1227,3 +1227,54 @@ The op+args halves are reused from answers where the model also produced a selec
 op-only prompt could score differently either way. Prompt condition interacts with both model and
 surface and did not resolve: examples help D consistently (4x across runs) and help the older 8B,
 while a written syntax description wins for the newer instruct-tuned 4B.
+
+### The two-model pipeline, measured end to end (2026-09-16)
+
+The 18/20 selector figure above used targeting phrases I wrote by hand. Measuring the extractor
+instead (device model splits the raw request into {target, op, args}; the extracted target goes to
+the tuned 0.8B; all three parts scored together) changes the picture twice.
+
+The op model needs NO selector vocabulary -- only the operation table -- which is why this half
+could be much smaller than a model that has to emit a selector itself. Both models produced valid
+JSON 20/20 at the first attempt.
+
+| | sel | op | args | end-to-end |
+|---|---|---|---|---|
+| v1 4B + 0.8B | 11/20 | 20/20 | 15/20 | 35% |
+| v1 9B + 0.8B | 14/20 | 20/20 | 17/20 | 65% |
+| v2 4B + 0.8B | 17/20 | 20/20 | 17/20 | 70% |
+| v2 9B + 0.8B | 17/20 | 20/20 | 18/20 | 75% |
+| hand-written targets | 18/20 | - | - | (86% estimated) |
+| those models ALONE | - | - | - | 85% / 90% |
+
+v1 -> v2 changed only the extraction instruction: "target is a NOUN PHRASE, verb removed", plus two
+examples. The 4B had been copying the whole request into `target` ("delete the search_users
+method"), which handed the 0.8B a mutation request and reproduced the argument-leakage failure
+exactly. So the extractor deficit was mostly a prompt bug -- but op EXTRACTION being free (20/20)
+does not make TARGET extraction free, and my earlier estimate was optimistic because I supplied the
+best-case input myself.
+
+**The split still loses to one model on this set**, because errors compound across stages: 17/20
+selectors and 17/20 args compose to 14/20, since different tasks fail in each half. The split's
+benefit is confined to rescuing a model that is bad at selectors (8B/D_pss 15% -> 85%); where the
+single model is already strong at selectors, the extra stage only adds failure modes.
+
+**The tuned ladder (same 108-pair eval, langcard-e2) argues for one tuned 4B, not a 9B and not a split:**
+
+| tuned | exec_match |
+|---|---|
+| 0.8B fp16 | 81.5% (merged 82.4%) |
+| 2B fp16 | 82.4% |
+| **4B nf4** | **89.8%** |
+| 9B nf4 | 77.8% |
+
+2B buys nothing over 0.8B (+0.9), so a 2B selector model is not worth its cost; 4B is the sweet spot
+(+7.4); the 9B is WORSE than the 0.8B (4B and 9B were both NF4, so quantisation is not the
+explanation, though the 9B runs differ in data fraction and epochs -- hold that one loosely). Every
+size scores 0.0% with no card, at every scale.
+
+**A measured reason to train one model on BOTH selectors and mutators:** a selector-only model
+degrades sharply when the request contains the mutation. The 0.8B scores 18/20 on targeting phrases
+and 11/20 on the same targets phrased as mutations, folding the argument into the selector
+(`.fn#get_user:has(.call#verbose)`). Training on mutators removes exactly that failure, so "trained
+on both" fixes a measured degradation rather than being a convenience.
