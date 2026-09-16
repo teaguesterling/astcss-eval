@@ -588,10 +588,18 @@ class Tree:
             # module always computed for `:scope(X)`; sitting_duck 2a1413d gave that meaning its own
             # name and left `:scope` for the boundary test below.
             if isinstance(arg, dict):
+                # The engine reads the nearest enclosing SCOPE PROVIDER (a.scope.function /
+                # .class / .module, precomputed at parse time), not the nearest node of the
+                # class. The two differ wherever a class includes non-scope nodes: C++ `.fn`
+                # covers function_declarator (#139), so a parameter's nearest `.fn` ancestor is
+                # the declarator while its scope.function is the enclosing definition. Requiring
+                # IS_SCOPE here reproduces the engine -- including for SQL, where create_table
+                # is not a scope provider and the answer is legitimately empty (#166).
                 kinds, target = self.base(arg["sel"]), self.step(arg)
                 out = set()
                 for k in s:
-                    near = next((a for a in self.ancestors_of(k) if a in kinds), None)
+                    near = next((a for a in self.ancestors_of(k)
+                                 if a in kinds and n[a]["flags"] & IS_SCOPE_BIT), None)
                     if near is not None and near in target:
                         out.add(k)
                 return out
