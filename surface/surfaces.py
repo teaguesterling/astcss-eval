@@ -69,21 +69,27 @@ A mutation has three parts: a SELECTOR (which nodes), an OPERATION (what to do t
 the operation's ARGUMENTS. Reply with the mutation only: one line, no explanation, no backticks.
 """
 
+#: Arity is stated in PROSE, never as a bracketed token beside the op name.
+#: The first version of this table wrote `remove [0]` / `rename [1]` under the heading
+#: "argument count in brackets", and Qwen3-4B transcribed the annotation straight into its
+#: answers in four of five surfaces -- `$('.fn#x').remove[0]`, `find .fn#x remove [0]`,
+#: `"args": [0]`, `remove[0]('.call#print')`. PSS was spared only because `{ op: remove; }`
+#: has nowhere to append it, which would have handed surface D a win it had not earned.
 SHARED_OPS = """
-OPERATIONS (argument count in brackets)
-  remove [0]            delete the matched nodes
-  unwrap [0]            drop the node's first and last line, dedent the rest
-  rename [1]            new name
-  addParam [1]          parameter to add to a function definition
-  removeParam [1]       parameter name to drop from a function definition
-  addArg [1]            argument to add to a call
-  removeArg [1]         keyword-argument name to drop from a call
-  prepend [1]           code inserted at the TOP of the node's body
-  append [1]            code inserted at the BOTTOM of the node's body
-  replaceWith [2]       old text, new text (replaced inside the node)
-  wrap [2]              code placed before the node, code placed after it
-  insertBefore [2]      a SELECTOR naming an inner anchor, then code to insert before it
-  insertAfter [2]       a SELECTOR naming an inner anchor, then code to insert after it
+OPERATIONS
+  remove            no arguments; deletes the matched nodes
+  unwrap            no arguments; drops the node's first and last line and dedents the rest
+  rename            one argument: the new name
+  addParam          one argument: the parameter to add to a function definition
+  removeParam       one argument: the parameter name to drop from a function definition
+  addArg            one argument: the argument to add to a call
+  removeArg         one argument: the keyword-argument name to drop from a call
+  prepend           one argument: code to insert at the TOP of the node's body
+  append            one argument: code to insert at the BOTTOM of the node's body
+  replaceWith       two arguments: the old text, then the new text (replaced inside the node)
+  wrap              two arguments: code placed before the node, then code placed after it
+  insertBefore      two arguments: a SELECTOR naming an inner anchor, then code to insert before it
+  insertAfter       two arguments: a SELECTOR naming an inner anchor, then code to insert after it
 """
 
 # --- surface blocks: fixed shape -- one syntax line, two worked examples -------------
