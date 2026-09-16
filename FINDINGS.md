@@ -1129,3 +1129,88 @@ facts rather than proposal, so they belong here too:
 
 Unbuilt and deliberately so: the cheapest test is 20-30 hand-built pairs through the stage-9 harness to
 find whether these models emit a well-formed chain at all, before any corpus exists.
+
+## Which output surface can a small model write? And should one model write it all? (2026-09-16)
+
+`surface/` — 6 surfaces x 20 mutations x 3 device models x 2 prompt conditions = 720 rows
+(`workspace/surface/rows-full2.jsonl`). Same fixture, same selector vocabulary, same operation
+table in every arm; only the wrapper syntax differs, so a gap between arms is the surface's doing.
+Surfaces: A jQuery chain, B pluckit argv, C JSON, D PSS (`{ op: rename; to: x; }`), E prefix call,
+F PSS shorthand (`{ rename: x; }`). Selectors scored BY EXECUTION, not string equality.
+
+**Two harness bugs fabricated a result before any of this was trustworthy.** Both were found by
+reading raw model text after a 3-task smoke run, and either alone would have produced a confident
+and wrong ranking:
+  - the shared operation table wrote arity as a bracketed token (`remove [0]`), and Qwen3-4B
+    transcribed the annotation into its answers in four of five surfaces (`.remove[0]`,
+    `"args": [0]`). PSS was spared only because `{ op: remove; }` has nowhere to append it.
+    Stating arity in prose: A 0/3 -> 2/3 correct, E 0/3 -> 3/3, D unchanged. D's entire apparent
+    lead was one token in a card shared by every arm.
+  - the scorer tallied the arity-0 denominator after the `continue` for unparsed rows, so a
+    surface failing every arity-0 task reported 0/0 rather than 0/6.
+A third defect was a parity failure: D and F NAME their arguments while A/B/C/E position theirs,
+and the card only instantiated the key names its two examples happened to use, so the model
+generalised `to:` to addParam/addArg. Five of D's fourteen failures were that gap; D was being
+scored against a vocabulary the card never gave it. The key list is now GENERATED from
+PSS_ARGKEYS so the card cannot drift from the parser.
+
+**Result (card condition, fully correct / 20).**
+
+| model | A jq | B argv | C json | D pss | E prefix | F short |
+|---|---|---|---|---|---|---|
+| Qwen3-4B-Instruct-2507 | 13 | 17 | 17 | 10 | 13 | 12 |
+| Qwen3-8B               |  8 | 11 |  9 |  3 | 12 |  7 |
+| Qwen3.5-9B             | 17 | 17 | 18 | 10 | 16 |  9 |
+
+D and F are bottom-two on all three models. The 8-point gap persists on the STRONGEST model, so it
+is not a small-model artifact that scale washes out.
+
+**Where the difference lives: the selector, and only the selector.** On the 9B card arm, `op` is
+18-20/20 and `args` 16-20/20 on every surface; `selector` is 17-18 for positional surfaces and 11
+for both keyed ones. Every discriminating task has the signature `sel=False, op=True, args=True` --
+the model knows what to do and what to do it with, and aims at the wrong nodes. This rules out
+argument-keying as the cause: D and F key arguments quite differently yet both lose only the
+selector column. The shared property is that the selector heads a CSS rule. B_argv's selector is
+bare and unquoted too and is fine, so it is not quoting or bareness -- it is the `{`.
+The keyed surfaces add a `.mod`/`.class` ancestor step the reference lacks 3-5x more often, on all
+three models. Caveat: many of those are `.class#User`, copied from card_v1c's own example (`User`
+is not even a class in the fixture), so the data cannot separate "CSS framing invites CSS-idiomatic
+qualification" from "the PSS arms are likelier to copy the card's example". A card whose example
+carries no combinator would settle it. A related hypothesis DIED: D and F do not agree with each
+other more than other surface pairs do (D==F 16/20, 8/19, 19/20 vs baseline B==C 16/20, 10/19, 18/20).
+
+**A design bug in PSS worth fixing regardless of any of this.** A valueless declaration
+(`{ remove; }`) is silently dropped, leaving a bare selector -- and a bare selector means
+`show: body`. The mutation silently becomes a view: no error, wrong action. In the few-shot
+condition, where the `remove: true` convention is never demonstrated, BOTH models wrote exactly
+that form on exactly the 6 arity-0 tasks (6/6 on each, 0 malformed under the card). The most
+natural thing a model writes in the shorthand is the one form PSS misreads as a read.
+
+**Two models beat one surface.** Since op+args is 85-100% everywhere and only the selector
+collapses, the obvious split is a selector specialist plus a general model for op+args. Feeding the
+tuned 0.8B (`workspace/merged/qwen3.5-0.8b-astcss`, the 82.4% model) the whole mutation request
+scores 55% -- but 7/20 of those are the RIGHT target with an argument-derived qualifier bolted on
+(`.fn#get_user:has(.call#verbose)`), which is off-distribution prompting, not targeting error. Given
+the targeting clause a pipeline would actually hand it ("the get_user method"), it scores **18/20**.
+
+Composing per task (both halves right on the SAME task, not a product of marginals):
+
+| arm | op&args | composed | that model alone |
+|---|---|---|---|
+| 8B card D_pss | 90% | **85%** | 15% |
+| 8B card B_argv | 90% | 85% | 55% |
+| 9B card C_json | 100% | 90% | 90% |
+| 4B card B_argv | 95% | 85% | 85% |
+
+The split does NOT beat the best single model (90% either way). What it does is make end-to-end
+accuracy independent of the op-model's selector ability: weak arms lift to 75-85%, strong arms are
+unchanged, and the PSS penalty disappears (D_pss 15-50% -> 75-85%). So under a two-model split, PSS
+can be chosen on ergonomics rather than ruled out on accuracy.
+
+**Limits.** 20 tasks whose selectors are easy (14/20 single-step `.fn#name`), so the 0.8B's 18/20
+is not comparable to its 82.4% on the real eval. The targeting phrases were hand-written, so the
+op-extractor that would produce them is unmeasured and is a real component of a deployed pipeline.
+The op+args halves are reused from answers where the model also produced a selector; a dedicated
+op-only prompt could score differently either way. Prompt condition interacts with both model and
+surface and did not resolve: examples help D consistently (4x across runs) and help the older 8B,
+while a written syntax description wins for the newer instruct-tuned 4B.

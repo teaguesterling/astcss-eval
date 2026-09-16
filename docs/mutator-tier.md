@@ -215,6 +215,16 @@ measured before any corpus is built.
 
 ## 7. The cheapest experiment that could kill this
 
+> **Superseded 2026-09-16.** This experiment was run, in a different form: see "Which output
+> surface can a small model write?" in FINDINGS.md. Two results change this note. (a) The
+> reference/oracle framing in section 3 assumed pluckit would be the counterpart oracle; Teague has
+> since said the CSS design is "just a scribble", and pluckit is a MODEL here, not an oracle.
+> (b) op+args turns out to be 85-100% for every surface and model while only the selector column
+> collapses, so the tier's hard half is selector accuracy -- which a tuned 0.8B specialist already
+> supplies at 18/20 on targeting phrasing. A mutator tier should probably be built as a two-model
+> pipeline from the start, not as one model emitting a whole mutation.
+
+
 **Hand-build 20–30 mutator pairs and run them through the existing stage-9 harness** (7 device models ×
 plain/card/few-shot). No corpus, no generator, no new verification code — score by hand if necessary.
 
