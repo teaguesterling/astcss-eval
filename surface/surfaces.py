@@ -119,6 +119,11 @@ WRITE IT AS A FUNCTION CALL: <operation>('<selector>', '<arg>', '<arg>')
   rename the helper function to run      ->  rename('.fn#helper', 'run')
   in save, add x = 1 before the return   ->  insertBefore('.fn#save', '.jump', 'x = 1')
 """,
+    "F_pss_short": """
+WRITE IT AS A PSS RULE: <selector> { <operation>: <value>; <name>: <value>; }   (value `true` if the operation takes no arguments)
+  rename the helper function to run      ->  .fn#helper { rename: run; }
+  in save, add x = 1 before the return   ->  .fn#save { insertBefore: .jump; code: "x = 1"; }
+""",
 }
 
 #: Known-before-running representability limits. Every surface has one; part of the result
@@ -134,6 +139,11 @@ LIMITS = {
              "({ remove; }) is silently dropped into a bare selector -- which PSS reads as "
              "'show: body', turning a mutation into a view. Avoided by putting the op in a value",
     "E_prefix": "same quoting constraint as A",
+    "F_pss_short": "CANNOT PRESERVE THE OPERATION'S CASE -- PSS lowercases declaration keys, so "
+                   "insertBefore arrives as insertbefore and has to be canonicalised on the way "
+                   "back. Also needs an invented convention for zero-argument operations "
+                   "(`remove: true`), since a valueless `{ remove; }` is silently dropped to a "
+                   "bare selector, which PSS reads as `show: body` -- a mutation becoming a view",
 }
 
 
@@ -167,6 +177,14 @@ def render(surface, selector, op, args):
     if surface == "E_prefix":
         inner = ", ".join("'%s'" % a for a in [selector] + list(args))
         return "%s(%s)" % (op, inner)
+    if surface == "F_pss_short":
+        keys = PSS_ARGKEYS.get(op, [])
+        if not args:
+            return "%s { %s: true; }" % (selector, op)
+        decls = ["%s: %s" % (op, _pss_value(args[0]))]
+        for k, v in zip(keys[1:], args[1:]):
+            decls.append("%s: %s" % (k, _pss_value(v)))
+        return "%s { %s; }" % (selector, "; ".join(decls))
     raise KeyError(surface)
 
 
@@ -305,8 +323,30 @@ def parse_B(text):
     return {"selector": " ".join(toks[:idx]), "op": toks[idx], "args": toks[idx + 1:]}
 
 
+def parse_F(text):
+    """PSS shorthand: the operation is the declaration KEY. PSS lowercases keys, so the op
+    name arrives case-flattened and must be canonicalised -- the cost the regular form
+    (op as a value) does not pay."""
+    rules = _pss_rules(text)
+    if len(rules) != 1:
+        return None
+    selector, decls = rules[0]
+    if not selector:
+        return None
+    lower2op = {o.lower(): o for o in OPS}
+    opkey = next((k for k in decls if k in lower2op), None)
+    if opkey is None:
+        return None
+    op = lower2op[opkey]
+    keys = PSS_ARGKEYS.get(op, [])
+    if not keys:                            # zero-argument op: the value is a placeholder
+        return {"selector": selector, "op": op, "args": []}
+    args = [decls[opkey]] + [decls[k] for k in keys[1:] if k in decls]
+    return {"selector": selector, "op": op, "args": args}
+
+
 PARSERS = {"A_jquery": parse_A, "B_argv": parse_B, "C_json": parse_C,
-           "D_pss": parse_D, "E_prefix": parse_E}
+           "D_pss": parse_D, "E_prefix": parse_E, "F_pss_short": parse_F}
 
 
 def judge(surface, text):
