@@ -920,3 +920,31 @@ Also measured: the oracle's cached class atoms are NOT stale across the two pins
 `.fn` 540, `.call` 1702, `.class` 25 are identical for the oracle cache, the old pin and the new one,
 so every comparison above rests on the same class membership.
 
+
+### The sibling batch, and what the per-query retry was worth (2026-09-15)
+
+Near-miss siblings promoted to pairs of their own: every verified suite-1 pair carries distractors
+the oracle already showed select a different node set, so each one that passes the same gates
+becomes a candidate. 1,966 candidates from 4,048 source pairs, tier-5 heavy (761 of them).
+
+**1,838 accepted, 120 pending, 8 rejected in 72 minutes** -- T1 3, T2 305, T3 328, T4 558, T5 651,
+plus 109 tier-5 and 10 tier-4 held pending on filed defects.
+
+The 8 rejections are the interesting part, because they are all the gates working rather than the
+engine failing:
+
+- **7 are eval overlap** -- "continue statements", "classes containing an if statement", "functions
+  containing a loop". The generator found the same obvious selectors the eval uses, and the gate
+  refused them rather than leaking held-out answers into training.
+- **1 is an engine out-of-memory**: `.call:called-by(FormatLogEntry)` (#164).
+
+That last line is the measurement worth keeping. Suite 1, run before the fix, rejected **522**
+candidates because a CLI process that died mid-script took the rest of its shard with it. The
+sibling batch, run after `verify.execute` began retrying lost queries one process each, lost
+**one** -- the query that actually exhausts memory. Same engine, same fixtures, same tier-5 shapes.
+
+Of the 120 pending, **62 are already fixed upstream** and recoverable with the machinery built for
+#145 today: 32 has-keyword-tokens (#133), 29 scope-selector (#145), 1 type-prefix (#151). The other
+58 are genuinely open: attr-in-has 33 (#150), call-code-literal 22 (#152), chained-receiver 11
+(#149), calls-scope 7 (#146), called-by-lambda 3 (#152), exported 1 (#148).
+
