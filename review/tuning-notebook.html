@@ -237,6 +237,8 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--rule);
           <li><a href="#e-prompt">Prompt on a trained model</a></li>
           <li><a href="#e-suite">The tier-5 suite</a></li>
           <li><a href="#e-class">Class-form alternatives</a></li>
+          <li><a href="#e-corpus">What the night produced</a></li>
+          <li><a href="#e-device9">Seven new device models</a></li>
         </ol>
       </li>
       <li><a href="#engineering">Engineering notes</a></li>
@@ -246,7 +248,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--rule);
 
   <main>
     <section id="top">
-      <p class="eyebrow">astcss-eval · main → tune/tier5 · 2026-09-14 → 09-15</p>
+      <p class="eyebrow">astcss-eval · main → tune/tier5 · 2026-09-14 → 09-16</p>
       <h1>astcss Tuning Notebook</h1>
       <p class="dek">Teaching language models to turn a developer's plain-English request into one astcss selector, and checking every answer by running it against a real code tree.</p>
       <div class="meta">
@@ -261,7 +263,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--rule);
         <div class="reading"><div class="num">93.5<small>%</small></div><div class="what"><b>Best overall:</b> Qwen3.6-27B on the device with 8 retrieved examples</div></div>
         <div class="reading"><div class="num">89.8<small>%</small></div><div class="what"><b>Best trained:</b> Qwen3.5-4B, LoRA with each language's card, under 4 GiB</div></div>
         <div class="reading"><div class="num">81.5<small>%</small></div><div class="what"><b>Smallest that works:</b> Qwen3.5-0.8B trained with the card; <b>0.0 %</b> when that card is removed</div></div>
-        <div class="reading"><div class="num">1,416</div><div class="what"><b>Tier-5 pairs verified</b> in one suite run, against none in the training corpus today</div></div>
+        <div class="reading"><div class="num">3,131</div><div class="what"><b>Tier-5 pairs</b> generated and kept overnight, against none in the training corpus today</div></div>
       </div>
     </section>
 
@@ -756,6 +758,64 @@ assistant: .class#Collector .fn                ← loss computed only here</code
           <dt>Reading</dt><dd><p>The pairs teach the distinction rather than replacing it: <span class="sel">.if + .if</span> beside <span class="sel">case_item + case_item</span>, each with its own frozen node set.</p></dd>
         </dl>
       </div>
+
+      <div class="exp" id="e-corpus">
+        <div class="exp-head"><h3>What the night produced</h3><span class="stage">suite, siblings, call graph</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>The learning curve wants more data and tier 5 has none. Can the selector-first pipeline produce a corpus several times the size of the hand-built one, in every language, without lowering the bar?</p></dd>
+          <dt>Design</dt><dd><p>Three passes over the same fixtures. <strong>Suite</strong>: compose selectors from the node table, gate them, have a device model word them. <strong>Siblings</strong>: every verified pair carries distractors already shown to select different nodes — promote the ones that pass the same gates. <strong>Call graph</strong>: the same for <span class="sel">:calls</span>, <span class="sel">:called-by</span> and <span class="sel">::callers</span> shapes.</p></dd>
+          <dt>Result</dt><dd>
+            <div class="tbl">
+              <table>
+                <thead><tr><th>batch</th><th class="n">kept</th><th class="n">tier 5</th></tr></thead>
+                <tbody>
+                  <tr><td>suite 1</td><td class="n">4,025</td><td class="n">1,762</td></tr>
+                  <tr><td>suite 1, recovered passes</td><td class="n">277</td><td class="n">277</td></tr>
+                  <tr><td>siblings</td><td class="n">1,945</td><td class="n">748</td></tr>
+                  <tr><td>call graph</td><td class="n">337</td><td class="n">337</td></tr>
+                  <tr><td>class-form alternatives</td><td class="n">61</td><td class="n">0</td></tr>
+                  <tr class="best"><td><strong>total kept</strong></td><td class="n"><strong>6,657</strong></td><td class="n"><strong>3,131</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>Against a frozen training corpus of <strong>1,052 pairs with no tier 5 at all</strong>. 655 of the kept pairs were held on a filed engine defect rather than verified outright; <strong>230 of those were recovered</strong> once sitting_duck main split <span class="sel">:scope</span> from <span class="sel">:in-scope</span> and made bare types exact — 208 of the recovered are tier 5. The rest wait on defects still open upstream.</p></dd>
+          <dt>Reading</dt><dd><p>The bar did not move: every pair still passes bounds, load-bearing, distinct distractors, no duplicate node set and no eval overlap, and the wording is back-translated. What changed is that the oracle now decides the gates and the engine only confirms each reference, which is what made a corpus this size affordable — the suite's first verify took 2h13m, the sibling batch 72 minutes for a comparable number of harder pairs.</p></dd>
+        </dl>
+      </div>
+
+      <div class="exp" id="e-device9">
+        <div class="exp-head"><h3>Seven new device models</h3><span class="stage">stage 9</span><span class="pill done">done</span></div>
+        <dl class="qdr">
+          <dt>Question</dt><dd><p>The device's store recovered and seven chat models became available that had never been scored — including <code>Qwen/Qwen3.5-9B</code>, the base we fine-tune, which stage 6 recorded as impossible to download. What can they do, and what is the floor without any card at all?</p></dd>
+          <dt>Design</dt><dd><p>Three arms each on the 108-pair eval: <strong>plain</strong> (no system message at all — new capability, <code>--card none</code>), <strong>card</strong> (card_v1c), <strong>few</strong> (card_v1c plus ten examples). One model resident at a time, and the whole run waits for the generation chain to leave the NPU: an earlier attempt loaded a second chat model beside it and got empty responses back.</p></dd>
+          <dt>Result</dt><dd>
+            <div class="tbl">
+              <table>
+                <thead><tr><th>model</th><th class="n">plain</th><th class="n">card</th><th class="n">few-shot</th><th class="n">few − card</th><th class="n">s/answer</th></tr></thead>
+                <tbody>
+                  <tr class="best"><td>Qwen3.6-27B-Turbo</td><td class="n">0.0</td><td class="n">87.0</td><td class="n"><strong>92.6</strong></td><td class="n">+5.6</td><td class="n">1.9</td></tr>
+                  <tr><td>Ornith-1.0-35B</td><td class="n">0.0</td><td class="n">84.8</td><td class="n">91.6</td><td class="n">+6.8</td><td class="n">6.8</td></tr>
+                  <tr><td>Qwen3-Coder-Next</td><td class="n">0.0</td><td class="n">81.5</td><td class="n">84.3</td><td class="n">+2.8</td><td class="n">0.9</td></tr>
+                  <tr><td>Qwen3.6-35B-A3B</td><td class="n">0.0</td><td class="n">77.8</td><td class="n">83.3</td><td class="n">+5.6</td><td class="n">0.8</td></tr>
+                  <tr><td>Qwen3.6-35B-A3B-Turbo</td><td class="n">0.0</td><td class="n">76.9</td><td class="n">80.6</td><td class="n">+3.7</td><td class="n">0.9</td></tr>
+                  <tr><td>Qwen3.5-9B</td><td class="n">0.0</td><td class="n">69.4</td><td class="n">73.1</td><td class="n">+3.7</td><td class="n">0.9</td></tr>
+                  <tr><td>Qwen3-4B-Instruct-2507</td><td class="n">0.0</td><td class="n">49.1</td><td class="n">64.8</td><td class="n"><strong>+15.7</strong></td><td class="n">0.5</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">Ornith's card and few arms answered 105 and 107 of 108 (empty responses); the 9B's plain arm 107. Every other arm answered all 108.</p>
+          </dd>
+          <dt>Reading</dt><dd>
+            <ul>
+              <li><strong>The floor is zero, unanimously.</strong> Seven models from 4B to 35B, general, coder and reasoning alike, score 0.0 % with no card. They do not write wrong selectors — they answer as a chat turn: “Could you clarify what you mean by…”, “Since you didn't specify a language or context…”. A coder model is no exception, so the card supplies genuinely novel vocabulary rather than cueing something half-known.</li>
+              <li><strong>Few-shot beats the card for every model, without exception</strong> (+2.8 to +15.7), and the gain is largest where the model is weakest — the 4B gains 15.7. Examples fix structure, and the weakest models have the most structure to fix.</li>
+              <li><strong>Plain arms cost 189–1,513 completion tokens per answer</strong> against 5–7 with a card, and up to 113 minutes per arm. Exec rate is meaningless there: it ranged 46–100 % while match stayed at 0, because prose parses as type selectors.</li>
+              <li><strong>Active parameters beat total.</strong> The 35B-A3B pair (~3B active) sits at 77–83 while the 27B-Turbo reaches 87–93; Ornith buys second place at seven times the latency.</li>
+              <li><strong>Same weights, different runtime:</strong> Qwen3.5-9B scores <strong>69.4 on the device against 64.8 locally</strong> under NF4 — the first time that comparison was possible.</li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
     </section>
 
     <section id="engineering">
@@ -794,7 +854,7 @@ assistant: .class#Collector .fn                ← loss computed only here</code
         <li><strong>Deployment:</strong> merge, re-evaluate the merged weights, and import to the Tiiny when its catalog recovers. Device and local runtimes may still disagree on identical weights.</li>
         <li><strong>Card v1c's <span class="sel">.import ~ .var</span> example</strong> matches nothing in Python and should become <span class="sel">.import ~ .fn</span>.</li>
       </ul>
-      <footer>Sources: FINDINGS.md and run directories, merged to main at 6cf7176 and continuing on tune/tier5; workspace logs for runs still in progress. Scores are execution match against frozen node sets on the pinned engine. Filed upstream while building this: sitting_duck #158 (C++ template use sites), #159 (a <code>:templated</code> pseudo-class) and #160 (~6 s of planning per selector call); #151, the bare-type prefix match, is fixed upstream and ships in the next release.</footer>
+      <footer>Sources: FINDINGS.md and run directories, merged to main at 6cf7176 and continuing on tune/tier5; workspace logs for runs still in progress. Scores are execution match against frozen node sets on the pinned engine <code>sd-20260914-1835</code>; a second pin (<code>sd-20260915-2001</code>, main d706c89) exists only to verify pairs held pending, so no measured number moves. Filed upstream while building this: #158 (C++ template use sites), #159 (a <code>:templated</code> pseudo-class), #160 (~6 s of planning per selector call), #164 (call-graph selectors exhaust 24 GB and kill the process), #165 (<code>:has</code> of a semantic class returns 0) and #166 (<code>:in-scope(.class#name)</code> returns 0 where the container is not a scope provider). Fixed upstream while building this: #151 (bare types are exact) and #145 (<span class="sel">:scope</span> split from <span class="sel">:in-scope</span>), which between them freed 230 held pairs.</footer>
     </section>
   </main>
 </div>
