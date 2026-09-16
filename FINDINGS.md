@@ -989,18 +989,35 @@ Qwen3.6-27B-Turbo with the card all fail exactly t1-p20, p21, p22, p23, p25:
 Every miss is the same move: take a node type and dot it, or invent a class-plus-name filter
 (`.jump#continue`, `.loop#while`) rather than write the bare type.
 
-**This is not missing information.** card_v1c lists `with_statement`, `while_statement`,
-`continue_statement`, `decorated_definition` and `lambda` by name, under a heading that says
-"PYTHON NODE TYPES (exact tree-sitter names, when no class fits)". card_v1c_fewshot adds two worked
-examples of exactly this shape (`every assert statement -> assert_statement`, `every ternary
-conditional expression -> conditional_expression`). The models read both and still dot the type. CSS
-priors pull every token toward a class selector, and neither a vocabulary list nor a positive example
-overrides that.
+**It is not missing information, and it is not immovable either.** card_v1c lists `with_statement`,
+`while_statement`, `continue_statement`, `decorated_definition` and `lambda` by name, under a heading
+that says "PYTHON NODE TYPES (exact tree-sitter names, when no class fits)". card_v1c_fewshot adds
+two worked examples of the shape (`every assert statement -> assert_statement`, `every ternary
+conditional expression -> conditional_expression`).
 
-It is worth about 4.6 points on the 108-pair eval (5 of 21 tier-1 pairs) for every model measured so
-far, so it is the largest single error class left in the prompt-side results. The obvious fix -- an
-explicit negative line, "write `with_statement`, never `.with_statement`" -- is a HYPOTHESIS, not a
-change to make: stages 2-4 showed every added prose rule hurt the models that did well without it
-(card v2's type rules cost gemma 18 regressions). Test it as an arm, per model, against the 108
-pairs, the way the card arms were tested.
+Those two examples fix the error -- for a model strong enough to generalise from them. The
+27B-Turbo's few-shot arm answers `with_statement`, `lambda`, `decorated_definition` and
+`continue_statement` bare and correct, taking tier 1 from 16/21 to **20/21** and the arm from 87.0 to
+**92.6**. The 9B read the same two examples and changed nothing: still `.with_statement`,
+`.lambdas`, `.decorated_definition`.
+
+| pair | 9B card | 9B few | 27BT card | 27BT few |
+|---|---|---|---|---|
+| t1-p20 | `.with_statement` | `.with_statement` | `.with_statement` | `with_statement` OK |
+| t1-p21 | `.lambdas` | `.lambdas` | `.lambda` | `lambda` OK |
+| t1-p22 | `.decorated_definition` | `.decorated_definition` | `.decorated_definition` | `decorated_definition` OK |
+| t1-p23 | `.jump#continue` | `.continue_statement` | `.continue` | `continue_statement` OK |
+| t1-p25 | `.loop#while` | `.loop` | `.while` | `.while` |
+
+So the dotted type is a capability-dependent habit: two positive examples are enough for a 27B and
+not enough for a 9B, and a vocabulary list alone is enough for neither. It is worth ~4.6 points where
+it persists, which makes it the largest error class left in the prompt-side results for the smaller
+models.
+
+t1-p25 is the residue: every arm, including the one that learned the lesson, invents `.while` or
+`.loop` for "while loops" -- `.loop` exists as a class, so `while` reads as a modifier of it rather
+than as part of a type name. An explicit negative line ("write `with_statement`, never
+`.with_statement`") is a HYPOTHESIS for the models the examples do not reach, not a change to make:
+stages 2-4 showed every added prose rule hurt the models that did well without it (card v2's type
+rules cost gemma 18 regressions). Test it as an arm, per model, the way the card arms were tested.
 
