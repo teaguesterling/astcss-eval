@@ -1411,3 +1411,42 @@ still loses to one model" is no longer accurate on this task set. Caveat on cost
 0.8B selector with the 9B as EXTRACTOR. The 4B-extractor pipeline measured 70% with the older
 selector and has not been re-run with this one, so a cheap "0.8B + small extractor" remains
 undemonstrated.
+
+### Growing eval_t5: why the cheap pool does not work (2026-09-16)
+
+eval_t5 is 55 pairs (42 accepted + 13 pending; rejected excluded), which is a thin instrument --
+the epoch-1-vs-epoch-2 difference in stage 10 was 2 pairs. The obvious way to grow it is the 1,221
+corpus pairs that did not make it into the training set. That does not work, and the reason
+generalises.
+
+Those 1,221 are exactly `dropped_by_template_cap` from the dataset manifest: they were excluded
+BECAUSE their selector template had already been used 8 times. Measured against the 6,053 trained
+pairs:
+
+| | count |
+|---|---|
+| unused pool pairs | 1,221 |
+| novel css **string** | 1,165 |
+| novel css **template** (names stripped) | **0** |
+
+Every one of the 1,165 is same-shape/new-name. The commonest shapes are `.call[receiver="V"]` (285),
+`.var#N` (103), `.fn#N::callees` (93). An eval built from them would measure name substitution
+against shapes the model saw up to 8 times, and would score deceptively high.
+
+**The lesson is about the gate, not the pool.** `pilot.eval_overlap` matches on exact normalised
+`nl`/paraphrase text and exact `css` string. All 1,165 pass it. The gate is necessary and not
+sufficient: held-out-ness has to be judged by selector SHAPE, not by string identity, or an eval can
+be "disjoint" from training and still test nothing new.
+
+**A second constraint, easy to trip over:** eval_overlap is applied when a DATASET IS BUILT, not
+continuously. `t5-langcard` was built 2026-09-16 08:33 against the eval as it then stood, and stage
+11 (the 4B) is training on it now. Adding pairs to `eval_t5/pairs/` afterwards does not retroactively
+remove them from that dataset -- so any grown eval must be checked absent from the built dataset's
+own pairs, or it silently contaminates every model already trained on it.
+
+**What the real pool is:** `eval_t5/candidates/selectors.jsonl` holds 126 drafted selectors, 38 of
+which became eval pairs, leaving 88 unused. They carry `css`/`struct`/`distractors`/`family` but no
+`nl`. Per draft_t5.py the eval's standard is HAND-WRITTEN wordings, under a strict rule (no two of
+request and paraphrases sharing more than half their content words). So growing 55 -> ~143 is an
+authoring task, not an automation one; using the wording model instead is possible but would weaken
+exactly the property that makes the eval worth trusting.
