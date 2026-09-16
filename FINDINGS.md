@@ -1278,3 +1278,60 @@ degrades sharply when the request contains the mutation. The 0.8B scores 18/20 o
 and 11/20 on the same targets phrased as mutations, folding the argument into the selector
 (`.fn#get_user:has(.call#verbose)`). Training on mutators removes exactly that failure, so "trained
 on both" fixes a measured degradation rather than being a convenience.
+
+### A tuned 4B as the single executor, and why "trained on both" is not optional (2026-09-16)
+
+Teague's framing: the large model decides WHAT to change and says "add the n parameter to foo and
+add this if statement"; the small model turns that into an executable mutation. So the small
+model's job is instruction -> mutation, which is exactly what the 20 tasks measure.
+
+Tested `ladder-qwen3.5-4b-nf4-langcard/epoch2` (the 89.8% adapter) as that executor:
+
+| | tuned 4B | tuned 0.8B |
+|---|---|---|
+| raw mutation request -> selector | 13/20 | 11/20 |
+| extracted target phrase -> selector | 18/20 | 17/20 |
+| composed with the 9B's op/args | 16/20 = 80% | 15/20 = 75% |
+
+**A selector-tuned model leaks the mutation into the selector, and it is not a small-model
+artifact.** At 4B the same failure appears: `.fn#execute .call#del` for "REMOVE the params
+parameter", `.class#SearchUsers .call#replace`, `.fn#load .jump`, `.fn#connect .call#create_connect`.
+Handing it a clean targeting phrase recovers 5/20. So training one model on selectors AND mutators
+is not a convenience -- it repairs a measured 25% degradation that survives a 5x parameter increase.
+
+Qualifications: the tuned 4B beats the tuned 0.8B only 18 vs 17 here, because these selectors are
+too easy to expose the ladder's real gap (89.8% vs 82.4% on the 108-pair eval) -- this task set
+ceilings. And composed 80% still trails a single untuned 9B end-to-end (90%), so on THIS set the
+split does not win; its value remains rescuing models that are weak at selectors.
+
+### Mining "what to edit to" from git history: what works today (2026-09-16)
+
+The hard half of a mutator corpus is not the selector, it is the replacement content. Git history is
+the natural source of real before/after pairs. Status of the machinery, checked rather than assumed:
+
+  * `parse_ast(<source string>, <language>)` parses inline content in our pinned engine (verified:
+    16 nodes, 1 function_definition, 0 errors). So content fetched from git can be parsed directly.
+  * `read_ast` does NOT support `git://` URIs in this build -- the string does not appear in the
+    source or the built extension -- so `structural_diff`, which documents that requirement
+    (sitting_duck#48), cannot run against our engine. The git:// path is not needed: git_read ->
+    parse_ast closes the same loop.
+  * duck_tails provides the git table functions (`git_tree`, `git_read`, `git_uri`, `read_git_diff`,
+    `git_log`); fledgling's `repo.sql` only wraps them. `file_changes` is a blob-hash join between
+    two `git_tree` scans, so enumerating changed files across many commits is a query, not a
+    subprocess per file.
+  * BLOCKER: duck_tails is built for DuckDB `b155d6f63c` and our sitting_duck CLI is `d8cdaa33fd`,
+    so the two extensions cannot load in one process. Mining must therefore be a two-process batch
+    (duck_tails extracts content pairs -> parquet -> sitting_duck parses), or one side gets rebuilt.
+
+**Op labels do not come free.** `structural_diff`'s entire vocabulary is `added` / `removed` /
+`modified` at (name, semantic_type) granularity, with change detected via descendant_count and
+children_count. It says THAT `foo` changed, never that a parameter was added or a call was wrapped.
+Mapping a real diff onto the 14 mutator ops is unwritten and is the tier's main engineering cost.
+
+**And the argument is only recoverable for some ops.** For mechanical ops (rename, addParam,
+removeParam, addArg, removeArg, remove, unwrap) the diff determines the argument exactly, so those
+pairs can be mined and execution-verified. For content ops (append, prepend, wrap, replaceWith,
+insertBefore/After) the argument is code a human authored; mining them teaches transcription, not
+judgement. Under Teague's architecture that gap closes, because the large model supplies the content
+and the small model only has to place it -- so the corpus needs to teach placement and form, which
+IS minable, with the request back-translated from the diff by the existing wording model.
