@@ -1544,3 +1544,37 @@ residue is nameable after all.
 
 Still out of reach per-record: `move`, which spans two separate Edit calls and needs cross-edit
 correlation within a session regardless of diff method.
+
+### The operation vocabulary, mined by AST diff (2026-09-16)
+
+`editmine/astdiff.sql`, one query, 2,184 mined edits with a mapped language. Node-type deltas
+between the parsed old and new fragments; an asymmetric delta is an operation performed.
+
+| op | added in | removed in |
+|---|---|---|
+| comment | 1140 | 53 |
+| arg | 1083 | 122 |
+| call/wrap | 1081 | 125 |
+| condition | 641 | 83 |
+| return | 629 | 57 |
+| param | 435 | 36 |
+| function | 430 | 43 |
+| error_handling | 137 | 14 |
+| import | 125 | 7 |
+
+**Coverage: 1,720 / 2,184 = 79% carry a named op, against 26.7% by line diffing.** The earlier
+number measured the method, not the edits -- confirming the 60-pair probe. param and arg are the
+clearest case: 435 and 1,083 here versus 34 and 43 found by line diffing, because both wrap across
+line breaks and line-based detection cannot see them.
+
+Three caveats, so this is not mistaken for a finished vocabulary:
+  * `comment` leading at 1,140 repeats the earlier trap one level up -- a node-type delta fires on
+    ANY change in comment count, so a large rewrite touching a comment is counted. Needs the same
+    pure-vs-incidental split that cut line-based comment_added from 64% to a true 1.6%.
+  * `arg` and `call/wrap` at ~1,080 each are near-certainly correlated: adding an argument changes
+    argument_list AND its enclosing call_expression. Probably one operation counted twice.
+  * counts are per-edit occurrences, not disjoint classes; an edit can contribute to several rows.
+
+What is solid: the ordering. addComment, addArg/wrap and addParam dominate; error handling and
+imports are real but modest -- which matches Teague's ergonomic case for addComment and puts
+argument/parameter mutation at the centre of any mutator API.
