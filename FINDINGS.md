@@ -1509,12 +1509,22 @@ The scalable path stays back-translation from the diff, as with the selector cor
 Teague: "Isn't this exactly what sitting_duck can do with parse_ast from json?" Yes in principle,
 with one correction and one caveat.
 
-**Correction: `parse_ast` does not accept a column.** `read_json_auto(edits) , LATERAL
-parse_ast(t.old, t.lang)` is refused -- "Table function parse_ast does not support lateral join
-column parameters ... only supports literals as parameters" -- and the correlated-subquery form
-fails identically. (duck_tails documents the same restriction for its table functions.) The
-working route is `read_ast` over a glob of per-fragment temp files, which IS set-based and is how
-the fixtures are already parsed. A column-accepting parse_ast would make this one query.
+**Correction, itself corrected (2026-09-16).** `parse_ast` proper does not accept a column --
+"Table function parse_ast does not support lateral join column parameters" -- and I concluded from
+that one probe that the whole approach needed a temp-file workaround. WRONG: the column-accepting
+variants already exist beside it in the same build, under different names.
+
+  parse_ast_list(code, lang)        scalar     -> LIST of nodes per row
+  parse_ast_list_table(code, lang)  table_macro-> full AST rows, LATERAL-compatible
+
+Verified against the real harvest AND against the pinned scoring engine sd-20260914-1835 (which has
+both, so mining and verification need no build split):
+
+    SELECT t.type, count(*) FROM read_json_auto('edits-*.jsonl') e,
+           LATERAL parse_ast_list_table(e.old, e.lang) t GROUP BY 1;
+
+300 edits parsed with a per-row language column. So the AST-diff miner IS one query, and the
+per-fragment temp-file route was unnecessary work built on an incomplete probe.
 
 **Caveat: fragments parse well except SQL.** Clean-parse rate over 300 sampled old-fragments:
 bash 88.9%, python 73.0%, javascript 72.7%, rust 68.8%, cpp 68.0%, **sql 18.2% (4.2 errors/frag)**.
