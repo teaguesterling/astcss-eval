@@ -1651,3 +1651,50 @@ not deployment.
 best selector model). It trained under NF4, and merging an NF4-fitted adapter into fp16 is not
 identity, so its number cannot be carried across -- it needs a merge plus a full re-score, and a 4B
 generation pass is more GPU than stage 11 can spare. Queued for when the card frees.
+
+### Published: qwen3.5-4b-astcss, and stage 11's epoch-1 score (2026-09-16)
+
+https://huggingface.co/teaguesterling/qwen3.5-4b-astcss -- merged from
+`ladder-qwen3.5-4b-nf4-langcard/epoch2`, upload verified complete (3 shards byte-identical to
+local, 4,205,751,296 params, pipeline_tag text-generation).
+
+**The merge is NOT identity, and the re-score is what proved it.** Scored in NF4 to match how the
+adapter was measured:
+
+| eval | merged & published | the adapter |
+|---|---|---|
+| 108-pair | **88.9%** (96/108) | 89.8% (97/108) |
+| eval_t5 | **65.5%** (36/55) | 67.3% (37/55) |
+
+One pair lost on each -- within noise, but real, and exactly what the repo's rule exists to catch.
+`verify_merge` shows the mechanism: 248 targeted tensors at max delta 0.0031 against 178 untouched
+at 0.00049, so the targeted deltas are only ~6x the fp16 round-trip floor. The fp16-trained 0.8B
+merge gave ~75x (0.0365 vs 0.00049). An NF4-fitted adapter folded into fp16 lands much closer to
+the noise, which is why carrying the adapter's number across would have been wrong.
+
+**Corpus beats parameter count, stated on the model card itself.** On eval_t5 the 0.8B tier-5 model
+scores 83.6% against this 4B's 65.5% -- five times smaller, 18 points better, because it trained on
+a 7.4x larger corpus while this 4B trained on the old one.
+
+### Stage 11 epoch 1 (4B on tier-5): the early scorer worked
+
+The `astcss-stage11-e1score` unit fired autonomously at 22:59 when the epoch-1 adapter appeared,
+waited for headroom (5,290 MiB free), scored both evals, and released the GPU -- the design worked
+end to end without intervention.
+
+| | 4B tier-5 e1 | 0.8B tier-5 e1 | 4B OLD corpus |
+|---|---|---|---|
+| 108-pair | **87.0%** (94/108) | 82.4% | 88.9% |
+| eval_t5 | **83.6%** (46/55) | **83.6%** (46/55) | 65.5% |
+
+val loss 0.0726.
+
+Two readings. Tier-5 training lifted the 4B's eval_t5 from 65.5% to 83.6% (+18), confirming the
+corpus is the binding constraint at 4B as well as 0.8B. But it **ties the 0.8B exactly** on that
+eval -- 46/55 both -- while gaining only +4.6 on the saturated 108-pair. Five times the parameters
+bought nothing on the eval that discriminates.
+
+Epoch 2 is still running with ~383 min left. Stage 10's evidence was that epoch 2 LOST ground on
+eval_t5 (83.6% -> 80.0%) with a better val loss, so the case for spending the GPU on it is weak --
+killing it would free the card for stage 12 (the 9B, the only deployable target) tonight rather
+than tomorrow evening.
