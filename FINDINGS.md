@@ -1615,3 +1615,39 @@ worth weighing before the grammar is treated as settled.
 
 Gap: every fixture is Python, so addComment's language-derived syntax -- its strongest
 justification -- remains untested.
+
+### Published: qwen3.5-0.8b-astcss-t5 (2026-09-16)
+
+https://huggingface.co/teaguesterling/qwen3.5-0.8b-astcss-t5 -- the tier-5 0.8B, merged from
+`workspace/adapters/t5-langcard/epoch1`.
+
+**Re-scored on the merged artifact rather than inheriting the adapter's numbers**, per the repo's
+own rule that a merge is verified, not assumed. It reproduces the adapter exactly, tier for tier:
+
+| eval | adapter (stage 10 e1) | merged & published |
+|---|---|---|
+| 108-pair | 82.4% (89/108), 17/21 20/25 28/31 24/31 | 82.4% (89/108), same tiers |
+| eval_t5 | 83.6% (46/55) | 83.6% (46/55) |
+
+`verify_merge`: 186 targeted tensors at max delta 0.0365, 134 untouched at 0.000488 (fp16
+round-trip noise). A real merge, not a base passthrough -- the check that caught the silent no-op
+where all 372 adapter tensors matched nothing.
+
+Why this one is worth publishing: **34.5% -> 83.6% on eval_t5 at identical model size**, corpus the
+only change. On that eval it beats a 4B trained on the old corpus (67.3%) and an untuned 9B (60.0%).
+The 108-pair eval is saturated at this size and shows none of it -- old corpus, e1 and e2 all land
+on exactly 89/108.
+
+Caveats recorded on the model card: text-only (168 base tensors not written -- 153 `model.visual.*`
+and 15 `mtp.*` dropped by save_pretrained under AutoModelForCausalLM), 0.0% without its card at
+every size tested, and eval_t5's 55 pairs make a 2-pair difference noise.
+
+`pipeline_tag: text-generation` is set deliberately: the device's import records
+`model_task.source: hf_pipeline_tag`, so that is the field the Tiiny toolkit reads. It still cannot
+be imported -- no `qwen3.5-0.8b` toolkit exists, only `qwen3.5-9b` -- so this publish is for sharing,
+not deployment.
+
+**Not published: the 4B** (`ladder-qwen3.5-4b-nf4-langcard/epoch2`, 89.8% on the 108-pair eval, our
+best selector model). It trained under NF4, and merging an NF4-fitted adapter into fp16 is not
+identity, so its number cannot be carried across -- it needs a merge plus a full re-score, and a 4B
+generation pass is more GPU than stage 11 can spare. Queued for when the card frees.
