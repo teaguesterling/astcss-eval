@@ -1503,3 +1503,34 @@ exactly that edit). Turn-level prose adjacent to a call is status narration and 
 A symbol-overlap salvage of shared thinking measured 30% and did not survive reading the text.
 Bash `description` (308 local, agent-written, per call) is the other genuine intent source.
 The scalable path stays back-translation from the diff, as with the selector corpus.
+
+### AST diffing finds what line diffing cannot (2026-09-16)
+
+Teague: "Isn't this exactly what sitting_duck can do with parse_ast from json?" Yes in principle,
+with one correction and one caveat.
+
+**Correction: `parse_ast` does not accept a column.** `read_json_auto(edits) , LATERAL
+parse_ast(t.old, t.lang)` is refused -- "Table function parse_ast does not support lateral join
+column parameters ... only supports literals as parameters" -- and the correlated-subquery form
+fails identically. (duck_tails documents the same restriction for its table functions.) The
+working route is `read_ast` over a glob of per-fragment temp files, which IS set-based and is how
+the fixtures are already parsed. A column-accepting parse_ast would make this one query.
+
+**Caveat: fragments parse well except SQL.** Clean-parse rate over 300 sampled old-fragments:
+bash 88.9%, python 73.0%, javascript 72.7%, rust 68.8%, cpp 68.0%, **sql 18.2% (4.2 errors/frag)**.
+SQL here is DuckDB macro bodies and partial statements; it needs file context, not fragments.
+
+**The demonstration.** 60 pairs that the line-based classifier could only call `rewrite`, re-diffed
+by node-type counts from read_ast:
+
+  now carry >=1 named op: 39 / 60 = 65%
+  +addArg 26, +wrap/addCall 25, +addComment 7, +condition_changed 3, +return_changed 3,
+  +addParam 3, and the corresponding removals.
+
+Exactly the operations predicted to be hidden: argument/parameter changes that wrap across line
+breaks, and expression-level wrapping. So the earlier "26.7% of replace decomposes" is a floor set
+by the METHOD, not a property of the edits -- with AST diffing a large part of the `rewrite`
+residue is nameable after all.
+
+Still out of reach per-record: `move`, which spans two separate Edit calls and needs cross-edit
+correlation within a session regardless of diff method.
