@@ -1578,3 +1578,40 @@ Three caveats, so this is not mistaken for a finished vocabulary:
 What is solid: the ordering. addComment, addArg/wrap and addParam dominate; error handling and
 imports are real but modest -- which matches Teague's ergonomic case for addComment and puts
 argument/parameter mutation at the centre of any mutator API.
+
+### Mutator grammar: first spot test (2026-09-16)
+
+`mutator/` -- card assembled from card_v1c's selector vocabulary, 20 reference mutations weighted
+by the mined frequencies, all 18 distinct selectors validated to exactly 1 node first (which caught
+M08: `.fn#validate_email .if` matches 2 guard clauses, so "the first check" was unanswerable --
+the same failure as T19, caught by the same gate).
+
+**Qwen3.5-9B, untuned, card only: parse 19/20, selector 16, op 18, args 8, fully correct 8/20.**
+
+The grammar is learnable cold. Zero malformed answers; chained calls, clause builders and
+`.finally()` all used correctly without examples of the latter. M17 produced a correctly ORDERED
+two-handler wrapInTry, which was the property most at risk.
+
+Selector 16/20 matches the pattern everywhere else in this project: the selector half is the strong
+half once a card is present. **Argument FORM is the weak half (8/20)**, and part of that is the
+judge being strict rather than the model wrong:
+
+  * M04 `addArg({name: "retries", value: 3})` -- a structured form the card never showed
+  * M11 `addParam("strict", "True")` -- two positionals instead of `"strict=True"`
+  * M03 passed `"inside"` positionally though the card names the key `pos`
+  * M09 `setReturn("copy(result)")` vs the reference `dict(result)` -- SEMANTICALLY FINE, scored
+    wrong because arguments compare as exact strings. "Return a copy" has no single right answer;
+    this is the transcription-vs-judgement problem the surface study flagged, now biting the
+    reference set itself.
+
+Two real failures: M08 substituted the wrong OPERATION (asked to change a guard's condition, it
+produced `wrapInTry().on(...)`) -- a comprehension error, not a syntax one. M19 is the only
+wrong_surface: `.mod.addImport(...)`, dropping the `$()` wrapper, and notably on `.mod`, the one
+selector that is not a `.fn`/`.class`.
+
+M06 inverted the design: `$('.fn#get_user').wrapCall('list', '.call#fetch_all')` puts the target in
+the selector and the anchor in the arguments. Arguably more natural than the reference form, and
+worth weighing before the grammar is treated as settled.
+
+Gap: every fixture is Python, so addComment's language-derived syntax -- its strongest
+justification -- remains untested.
