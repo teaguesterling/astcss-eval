@@ -1450,3 +1450,56 @@ which became eval pairs, leaving 88 unused. They carry `css`/`struct`/`distracto
 request and paraphrases sharing more than half their content words). So growing 55 -> ~143 is an
 authoring task, not an automation one; using the wording model instead is possible but would weaken
 exactly the property that makes the eval worth trusting.
+
+## Does a real edit decompose into standalone operations? (2026-09-16)
+
+4,823 real edits mined from Claude Code transcripts (33 local + 1,609 on snape) via
+`editmine/extract_edits.py`: Edit/Write tool calls carry {file_path, old_string, new_string},
+a before/after pair at a known path. 2,598 are in code files.
+
+Coarse ops: replace 63%, append 16%, prepend 9%, signature_edit 6%, rename_token 5%,
+**wrap 0.3% (16 of 4,823)**, delete 0.06%. Two of the operations one would naturally put in a
+mutation API are near-absent in practice.
+
+**`replace` mostly does NOT decompose.** Sub-classifying the 1,785 code replaces
+(`editmine/subclass2.py`, composition-aware, multi-label):
+
+| | share |
+|---|---|
+| carries a non-comment named op | **26.7%** |
+| comment_added only | 46.4% |
+| unexplained rewrite | 26.6% |
+
+A first pass reported 73.4% "explained", which was wrong: `comment_added` fires whenever any
+added logical line is a comment, and with median churn of 11 lines most large rewrites trip it
+incidentally. The comment-only records are +17/-4, +25/-2, +35/-4 rewrites that happen to contain
+comments -- not comment-addition operations. Named ops that do stand alone, as a share of replace:
+wrap_expression 7.3, literal_changed 6.8, condition_changed 4.5, import_added 3.2, try_wrap 3.1,
+addArg 2.4, addParam 1.9, return_changed 1.8, removeParam 0.6, removeArg 0.4.
+
+**`append` decomposes well** (261 code records): call_statement 35%, function/class 22%,
+statement 12%, branch 10%, import 7%, doc/comment 6%, assertion 3%, return 2%, logging 2%.
+"Append a call / a branch / an import / an assertion" are real operations with real frequency.
+
+**Composition is real but shallow:** 275 records carry two labels, 47 three, 11 four. The
+commonest pair is comment_added + wrap_expression. A mutation API wants to apply a couple of ops
+per call, not long chains.
+
+**Method note that matters more than the counts:** wrap_expression, addArg and addParam only
+became visible after joining physical lines by paren depth -- `const Opts &o)` ->
+`&o,\n const string &fmt)` reads as an unclassifiable rewrite line-by-line and as addParam once
+joined. LINE-BASED DIFFING SYSTEMATICALLY HIDES THESE OPERATIONS. Mining the vocabulary properly
+wants AST diffing of both revisions, which sitting_duck can already do (parse_ast takes inline
+source, verified). `move` is worse than hidden: it appears as a delete in one Edit and an insert
+in another, so no per-record classifier can see it -- only 2 in-record reorders were found.
+
+**Per-language differences are mild:** replace dominates everywhere (60-73%); only the secondary
+op shifts (.hpp append 21%, .mjs prepend 15%, .rs prepend 13%, .sql signature_edit 11%). That is
+an argument against separate per-language mutation vocabularies -- same ops, different mix.
+
+**Intent, honestly:** usable per-edit labels are 64 (43 local + 21 snape), taken from the THINKING
+block preceding a call ("use the stored p['split'] instead of recomputing it with the old hash" ->
+exactly that edit). Turn-level prose adjacent to a call is status narration and must not be used.
+A symbol-overlap salvage of shared thinking measured 30% and did not survive reading the text.
+Bash `description` (308 local, agent-written, per call) is the other genuine intent source.
+The scalable path stays back-translation from the diff, as with the selector corpus.
