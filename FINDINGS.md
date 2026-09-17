@@ -1698,3 +1698,40 @@ Epoch 2 is still running with ~383 min left. Stage 10's evidence was that epoch 
 eval_t5 (83.6% -> 80.0%) with a better val loss, so the case for spending the GPU on it is weak --
 killing it would free the card for stage 12 (the 9B, the only deployable target) tonight rather
 than tomorrow evening.
+
+### Stage 11 complete: epoch 2 wins, and I argued all day for killing it (2026-09-17)
+
+The 4B on tier-5 finished on its own at 06:46:52, Result=success, both epochs and all four
+scoring passes.
+
+| | epoch 1 | epoch 2 |
+|---|---|---|
+| 108-pair | 87.0% | **90.7%** |
+| eval_t5 | 83.6% (46/55) | **89.1%** (49/55) |
+| val loss | 0.0726 | 0.0553 |
+
+**90.7% is the best score in this project** -- above the published 4B's 88.9% -- and 89.1% on
+eval_t5 beats every model measured, including cold haiku at 87.3%.
+
+I recommended killing epoch 2 repeatedly, and built the early-scorer unit specifically to enable
+that decision. The argument was stage 10's result that epoch 2 LOST ground on eval_t5
+(83.6% -> 80.0%) with a better val loss, plus the reasoning that tier-5's single epoch already
+carries 3.6x the gradient exposure of two old-corpus epochs. Both were wrong here: epoch 2 gained
++3.7 and +5.5 points, and val loss tracked the eval correctly. The stage 10 signal I leaned on was
+2 pairs out of 55 -- I had called it noise when I first reported it, then used it as the basis for
+a recommendation four separate times. Had it been taken, the best model in the project would not
+exist.
+
+The early-scorer apparatus itself worked exactly as designed (fired at 22:59 on adapter arrival,
+waited for headroom, scored, released the GPU). The apparatus was sound; the decision rule it was
+built to serve was not.
+
+### The first card A/B was 10 pairs, not 55
+
+`qualify.py run` stratified-samples by default (`--per-tier 10`). Running the A/B without
+`--per-tier 0` gave each arm 10 of 55 pairs; arm v1 errored on one and scored 9. The resulting
+77.8% vs 50.0% is a 2-3 pair difference and says nothing about the card.
+
+A second error of mine on top: I first reported the arms had drawn DIFFERENT pairs, inferring it
+from `n=9` vs `n=10` without opening the meta. `sample()` is deterministic on (per_tier, seed) and
+both arms drew the SAME 10 ids. The invalidity is the sample size, not the sampling.
