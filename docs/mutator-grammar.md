@@ -23,7 +23,7 @@ AST node-type deltas over 2,184 language-mapped edits (added / removed):
 | `setReturn(expr)` | return_statement | 629 | 57 |
 | `addParam(p)` / `removeParam(name)` | parameter_declaration, parameters | 435 | 36 |
 | `append(code)` / `prepend(code)` | function_definition et al | 430 | 43 |
-| `wrapInTry(handler)` | try/catch/except | 137 | 14 |
+| `wrapInTry().on(exc, body)*.finally(body)?` | try/catch/except | 137 | 14 |
 | `addImport(module)` | preproc_include, import_statement | 125 | 7 |
 | `rename(newName)` | (line-mined) | 220 | - |
 | `remove()` | (line-mined) | 3 | - |
@@ -37,6 +37,42 @@ node-type delta fires on ANY change in comment count, so a large rewrite touchin
 counted. The true pure-addComment rate measured 1.6% line-wise. And `arg` + `call/wrap` at ~1,080
 each are near-certainly the same operation double-counted, since adding an argument changes
 `argument_list` AND its enclosing `call_expression`.
+
+## Clause builders: operations whose argument is an ordered list
+
+Teague, 2026-09-16: `wrapInTry("except Exception: ...")` is wrong, because a try block is not one
+handler -- it is an ORDERED LIST of (exception, body) clauses, and the order is load-bearing
+(`KeyError` before `Exception` is a different program from the reverse).
+
+    $('.fn#export_users').wrapInTry()
+      .on("KeyError as e", "return e")
+      .on("Exception",     "log.exception('export failed')")
+      .finally("db.close()")
+
+Measured over the 79 mined edits that introduce a try/catch:
+
+| handler clauses added | edits |
+|---|---|
+| 0 | 14 |
+| 1 | 49 |
+| 2 | 11 |
+| 3 | 3 |
+| 4 | 1 |
+| 5 | 1 |
+
+Single-handler is the majority, but **16 edits (20%) add two or more**, one adds five, and **10 add
+a `finally`**. The flat string cannot express any of those, nor ordering. The 14 edits adding a try
+with ZERO handlers are `try/finally`, which the flat signature cannot represent even in principle.
+
+Also: `.rs` shows 33 `try_expression` with zero `catch_clause` -- Rust's `?` operator. That is a
+different construct and must not be forced through this operation.
+
+**`.on()` is a grammar feature, not a wrapInTry special case.** The same ordered (guard, body) shape
+covers `if`/`elif`/`else` chains (`condition`, 641 occurrences) and match/switch arms. Any operation
+whose argument is an ordered clause list uses the same builder.
+
+The `"KeyError as e"` binding stays an opaque string for now; generalising it later (a separate
+`as` argument) does not change the shape.
 
 ## Design decisions the data forces
 
