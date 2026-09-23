@@ -1,0 +1,31 @@
+[
+  {
+    "model": "cold:haiku-4.5",
+    "n": 38,
+    "request_errors": 0,
+    "executes": 38,
+    "exec_match": 36,
+    "exact": 36,
+    "by_tier": {
+      "1": [
+        6,
+        6
+      ],
+      "2": [
+        8,
+        8
+      ],
+      "3": [
+        11,
+        12
+      ],
+      "4": [
+        11,
+        12
+      ]
+    },
+    "median_latency_s": 0.0,
+    "mean_completion_tokens": null,
+    "thinking": "off"
+  }
+]
