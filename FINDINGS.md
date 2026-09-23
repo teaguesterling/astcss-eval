@@ -1735,3 +1735,96 @@ built to serve was not.
 A second error of mine on top: I first reported the arms had drawn DIFFERENT pairs, inferring it
 from `n=9` vs `n=10` without opening the meta. `sample()` is deterministic on (per_tier, seed) and
 both arms drew the SAME 10 ids. The invalidity is the sample size, not the sampling.
+
+### The card A/B, finally run on all 55 pairs: v2 does not earn its place (2026-09-20)
+
+The corrected A/B (`--per-tier 0`, both arms the untrained `Qwen/Qwen3.5-9B` on the device,
+identical 55 pairs, identical engine binary, scored on the pinned `sd-20260914-1835` with the
+fix127 macros -- only the card text differs):
+
+| card | exec_match | |
+|---|---|---|
+| `card_t5.md` | 35/55 | **63.6%** |
+| `card_t5_v2.md` | 31/55 | 56.4% |
+
+Per pair: 30 both, 4 v1-only, 1 v2-only, 19 neither, plus one v2 arm pair (`t5-p03`) that
+returned an empty completion -- a transport miss, not a card effect, which I am counting against
+v2 in the table above but excluding from the test. On the 5 genuinely discordant pairs the exact
+two-sided binomial is **p = 0.38**.
+
+So the honest statement is not "v2 is worse". It is: **this A/B is underpowered, and what signal
+there is points away from v2, so `card_t5.md` stays.** Five discordant pairs cannot distinguish a
+7-point regression from noise; what they can do is rule out the reason v2 was written, which was
+that adding a `.if` vs `if_statement` contrast would recover the three pairs haiku lost to exactly
+that substitution. It recovered one (`t5-p29`) and cost four.
+
+A caveat that limits how far this generalises: it was measured on the **untrained** 9B only. A
+card line that does nothing for a base model may still matter for a tuned one, where the card is a
+task trigger rather than a reference (stage 8). Nothing here says v2 is bad for a trained model --
+only that there is no case for shipping it on this evidence.
+
+One procedural note for future A/B scripts: `ab_card_t5.sh` sets the pinned engine inside
+`score()` but not around `qualify.py run`, so `meta.json` records the *unpinned* paths and a null
+`macros_sha256`. The scoring -- the part that decides the number -- did use the pin. The metadata
+is misleading, not the result; worth fixing before the next arm, because it cost half an hour of
+re-derivation to establish that the arms were comparable.
+
+### The card cliff survives training on a mixed corpus (stage 10, arm 2)
+
+Arm 2 trained the 0.8B on `t5-mixed`, a corpus that deliberately includes card-free rows, on the
+theory that a model taught to work both with and without a card would stop depending on one.
+
+| 108-pair | epoch 1 | epoch 2 |
+|---|---|---|
+| with `card_v1c.md` | 74.1% | **86.1%** |
+| no card | 72.2% | 72.2% |
+
+It did not work. At epoch 2 the card is still worth **+13.9 points** to a model explicitly trained
+on card-free examples, and the no-card arm did not improve at all between epochs -- the second
+epoch's entire gain went to the carded path. Mixing the corpus made the model better *with* a
+card; it did nothing for the dependency itself.
+
+Also worth recording against the epoch-2 argument: on this arm epoch 1 was the weak one
+(74.1% -> 86.1%, +12). That is the opposite of the stage 10 arm-1 signal I built the "kill epoch 2"
+recommendation on, in the same stage, on the same model.
+
+### Stage 12: the 9B, and what it is and is not evidence for (2026-09-21)
+
+The 9B ran, but not as planned. The langcard run was interrupted mid-training (the log ends in a
+`KeyboardInterrupt` inside the forward pass) and was restarted on **`t5-mixed`** instead. So:
+
+| | 9B `t5-mixed` e1 | 4B `t5-langcard` e2 | cold haiku |
+|---|---|---|---|
+| 108-pair | 88.0% (95/108) | **90.7%** | 94.7%* |
+| eval_t5 | 87.3% (48/55) | **89.1%** | 87.3% |
+
+\* haiku's 108-pair figure is 38 pairs, not 108.
+
+**This is not "the 9B loses to the 4B".** The two differ in dataset as well as size, and `t5-mixed`
+is the arm that was weak at one epoch everywhere it has been measured (at 0.8B: 74.1% at e1 vs
+82.4% for langcard, only reaching 86.1% at e2). The 9B got one epoch of the weaker corpus and came
+within 2.7 / 1.8 points of a 4B that got two epochs of the stronger one. A clean size comparison
+needs `t5-9b-langcard`, which has never completed.
+
+**Against the constraint that actually binds, it is the headline.** The device has a `qwen3.5-9b`
+toolkit and no 4B one, so the 4B -- the better model -- cannot be deployed at all. Among things
+that can be, 88.0% / 87.3% is the best measured, and it ties cold haiku on eval_t5 with a model
+that runs on the device.
+
+### The sitting_duck combinator defect in main's macros is fixed (measured 2026-09-23)
+
+`verify.py` was patched on Sep 21 to fall back to `$SITTING_DUCK/src/sql_macros/css_selectors.sql`
+when the `fix/127-combinator-steps` worktree is absent -- and that worktree has since been deleted,
+so the fallback is now the live path for any run that does not set `ASTCSS_MACROS`.
+
+That mattered, because main's macros were the subject of an open defect note: on 2026-09-14 every
+two-step selector returned 0 rows under them. Re-measured today against main's current macros
+(sha1 `3f3541d3`), the three cases from that note reproduce exactly:
+
+    .try .call                    11  (want 11)
+    .class#Animal .fn              5  (want 5)
+    .class#DatabaseConnection .fn  5  (want 5)
+
+So the fallback is safe and the note can be dismissed. Every stage 10/11/12 and A/B number in this
+file was nonetheless produced with `ASTCSS_MACROS` pinned to `sd-20260914-1835`'s fix127 copy, so
+none of them depend on this either way.
