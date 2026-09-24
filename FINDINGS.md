@@ -1828,3 +1828,52 @@ two-step selector returned 0 rows under them. Re-measured today against main's c
 So the fallback is safe and the note can be dismissed. Every stage 10/11/12 and A/B number in this
 file was nonetheless produced with `ASTCSS_MACROS` pinned to `sd-20260914-1835`'s fix127 copy, so
 none of them depend on this either way.
+
+### Stage 13: the clean size comparison, and the 9B loses it (2026-09-24)
+
+The 9B on `t5-langcard`, two epochs — identical to stage 11's 4B in dataset, epochs, accum, lr and
+seed, so **model size is the only variable**. This is the comparison stage 12 could not make.
+
+| | 108-pair (tiers 1-4) | `eval_t5` | val loss |
+|---|---|---|---|
+| 4B langcard e1 | 87.0% — 19/21 21/25 28/31 26/31 | 83.6% | 0.0726 |
+| **4B langcard e2** | **90.7%** — 19/21 22/25 29/31 28/31 | **89.1%** | 0.0553 |
+| 9B mixed e1 | 88.0% — 19/21 21/25 27/31 28/31 | 87.3% | 0.0700 |
+| 9B langcard e1 | 72.2% — 17/21 19/25 24/31 **18/31** | 89.1% | 0.0678 |
+| 9B langcard e2 | 87.0% — 18/21 21/25 29/31 26/31 | 87.3% | **0.0453** |
+
+**Twice the parameters, same corpus, same recipe — and it is worse on both evals.** 87.0% vs 90.7%
+and 87.3% vs 89.1%. It is also no better than the 9B trained on the *weaker* corpus for *one*
+epoch (88.0% / 87.3%), so at 9B the corpus stopped mattering too.
+
+**Val loss went the other way, decisively.** The 9B beat the 4B at both epochs (0.0678 vs 0.0726,
+0.0453 vs 0.0553) and lost on both evals at both epochs. In the stage 11 write-up I cited val loss
+tracking the eval as corroboration that killing epoch 2 would have been wrong. That was true
+*within* a run and is now shown to be false *across* sizes: a 9B fits this corpus better and
+selects worse. Nothing here should be decided on val loss again.
+
+#### The epoch-1 collapse is `:has()`, not noise
+
+72.2% with tier 4 at 18/31 looked like a broken run. It is not — tier 4 is the `:has()` tier, and
+**epoch 1 of the 9B has not learned `:has()` yet.** It writes a descendant combinator or a bare
+name where the reference wants containment:
+
+    t4-p07   e1 `.fn .throw`              e2 `.fn:has(.throw)`            ✓
+    t4-p31   e1 `.loop .call#append`      e2 `.loop:has(.call#append)`    ✓
+    t4-p12   e1 `.fn#open`                e2 `.fn:has(.call#open)`        ✓
+    t4-p23   e1 `with_statement .call#write`  e2 `with_statement:has(.call#write)` ✓
+
+Nine of the thirteen tier-4 misses flip to correct at epoch 2. The 4B already had `:has()` at
+epoch 1 (26/31). So the second epoch is doing something specific and legible at 9B — acquiring one
+construct — rather than generally tightening.
+
+The mirror image: epoch 1 scored *higher* on `eval_t5` (89.1% vs 87.3%), which is one pair and is
+noise. Read together, the honest summary of epoch 2 at 9B is "+14.8 on the 108 by learning
+`:has()`, flat on eval_t5".
+
+#### What this means for the device
+
+The 9B is still the only deployable size — the device has a `qwen3.5-9b` toolkit and no 4B one —
+so 87.0% / 87.3% remains the best number we can actually ship, and it ties cold haiku on `eval_t5`.
+But it should be shipped knowing the 4B beats it, that the gap is the model and not the data, and
+that spending 15.5 h of GPU to find this out was the point of running it.
