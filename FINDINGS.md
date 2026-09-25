@@ -1958,3 +1958,64 @@ entirely. `judge.judge()` would bucket every one of those "malformed" however co
 so `mutator/score_fluent.py` derives the op vocabulary from the corpus and uses `judge.score()`,
 which is op-agnostic (it parses both sides and compares). `judge.py` belongs to in-flight work from
 another session, so it is reported here rather than edited.
+
+### Correction: every fluent training row was truncated, and it ate the front of the card (2026-09-25)
+
+The section above concludes that the fluent corpus "taught the mine and destroyed the capability."
+That conclusion was premature. The measurement was real; the cause I assigned to it was wrong.
+
+Both fluent runs trained with `--max-len 1024` (the default). Measured over 3,000 rows with the
+4B's own tokenizer:
+
+    TRUE total length   median 1471   p90 1603   p99 1612   max 1619
+    system card         median 1435   max 1562
+    answer              median    7   max   26
+
+    cap 1024 -> 100.0% of rows truncated
+    cap 2048 ->   0.0% of rows truncated
+
+**Every single row was over the cap.** And `encode()` truncates from the FRONT:
+
+    ids = (prompt_ids + answer_ids)[-max_len:]
+
+which keeps the answer and the request and throws away roughly the first 400 tokens of a
+1,435-token system card — in all 11,550 rows. The card was never shown whole, not once.
+
+The training logs said so and nobody read it. `train rows 11550 (median 1024 tokens, max 1024)`:
+a median that equals the cap exactly, and a max that equals it too, is the signature of universal
+truncation, not of a corpus whose rows happen to be that long. Compare the tier-5 selector corpus
+in the same field: `median 580 tokens, max 670` — comfortably under, never clipped. That is why
+the selector track was clean and this one was not.
+
+#### It explains every symptom I attributed to the corpus
+
+- **Invented ops** (`flagSQLInjection`, `retry(3)`, `wrapInList`) — the op table lives in the part
+  of the card that was cut.
+- **Op 54.3% against selector 87.7%** — the semantic-class list and the op list sit in different
+  places in the card; whichever survived at the tail is what got learned.
+- **Collapse to `$('.fn').addArg()`** — a degenerate answer is what a mutilated prompt teaches.
+- **0.8B and 4B identical to the decimal** (op 54.3%, args 85.7%) — both were handicapped
+  identically by the data pipeline, so the ceiling was the truncation, not the parameter count. I
+  filed that as the third instance of "size buys nothing." It was not one.
+- **The base beating the fine-tune on hand-written tasks (45% -> 0%)** — at inference the full card
+  is supplied, and the base can read it. The fine-tune was trained to expect a beheaded card, so it
+  was also evaluated under a train/test mismatch that nothing in the scoring flagged.
+
+#### What is actually known now
+
+Known: those two adapters are void as evidence about the corpus. The truncation is sufficient on
+its own to produce what was measured.
+
+NOT known: whether the mined corpus is any good. That question has never been tested, because the
+only test of it was invalid. The 54.3% op figure, the 47% held-out number and the 0/20 on the
+reference set should all be treated as measurements of a broken pipeline.
+
+#### The cheap fix, and the guard that should have existed
+
+`--max-len 2048` puts 0% of rows over the cap. That is the whole fix; retraining at 2048 is the
+first real test the corpus has had.
+
+The guard: `encode()` should count how many rows it truncates and the trainer should refuse, or at
+minimum shout, when that fraction is not near zero. A silent front-truncation that removes the
+system prompt is not a degradation, it is a different experiment — and the summary line the trainer
+already prints contained the evidence all along.
