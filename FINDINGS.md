@@ -1877,3 +1877,84 @@ The 9B is still the only deployable size — the device has a `qwen3.5-9b` toolk
 so 87.0% / 87.3% remains the best number we can actually ship, and it ties cold haiku on `eval_t5`.
 But it should be shipped knowing the 4B beats it, that the gap is the model and not the data, and
 that spending 15.5 h of GPU to find this out was the point of running it.
+
+### The fluent-mutation corpus taught the mine and destroyed the capability (2026-09-24)
+
+Two adapters were trained on `workspace/datasets/fluent-mutations` (11,550 rows mined from edit
+history) on Sep 21-22 and never scored. Scored now, on two suites:
+
+- **held** — 300 sampled rows of the never-trained `val.jsonl`, each carrying **its own** system
+  card, because the corpus has two variants (9,282 / 2,268 rows) and substituting one for both
+  would confound the card with the model.
+- **ref** — the 20 hand-written tasks in `mutator/tasks.json`, written before any of this existed.
+
+| | held ALL | ref ALL | held selector / op / args |
+|---|---|---|---|
+| base 0.8B (no adapter) | 1.0% | 10.0% | 13.0 / 10.0 / 4.7 |
+| **fluent-0.8b e1** | **47.3%** | **0.0%** | 87.7 / 54.3 / 85.7 |
+| base 4B (no adapter) | 4.0% | **45.0%** | 29.7 / 15.3 / 10.7 |
+| **fluent-4b e1** | **47.0%** | **0.0%** | 87.0 / 54.3 / 85.7 |
+
+**Training made both models strictly worse at the hand-written tasks than doing nothing.** The
+untrained 4B, given the card cold, gets 45% of the 20 reference tasks fully right. After a full
+epoch on 11,550 mined rows it gets **zero**. The 0.8B went 10% → 0%.
+
+Meanwhile in-distribution it looks like a triumph: 4.0% → 47.0%, with parse validity 100% (against
+the base's 47.3%, which included 150 unknown-op answers). The corpus taught the grammar perfectly
+and taught the mine's distribution along with it.
+
+#### It is not card mismatch — I checked, because it was the obvious alternative
+
+The ref suite normally uses `mutator/card.py`'s card, which no training row carried. Re-running ref
+with the card the majority of training rows *did* carry:
+
+| ref, 4B | card.py card | corpus card |
+|---|---|---|
+| base | 45.0% | 30.0% |
+| fluent-4b e1 | 0.0% | 0.0% |
+
+The trained model scores 0/20 under **both** cards. The base scores 45% and 30%. So the collapse is
+the fine-tune, not the prompt. (Secondary: `card.py`'s card is the better card for an untrained
+model, 45% vs 30% — worth knowing before the corpus cards get treated as canonical.)
+
+#### What the failures look like
+
+Two distinct modes on ref, both absent in-distribution:
+
+    M01  want addComment(...)   got  $('.fn#search_users').flagSQLInjection()
+    M04  want addArg("retries=3")  got  $('.fn#create_connection').retry(3)
+    M06  want wrapCall("list")  got  $('.fn#get_user .call#fetch_all').wrapInList()
+
+...inventing a plausible op that does not exist — note the selector is often *exactly* right, so
+it is the operation vocabulary that has gone — and:
+
+    M02, M03, M08, M09  ->  $('.fn').addArg()
+
+...collapsing to one generic answer. Five of the first ten ref tasks got `$('.fn').addArg()`.
+
+#### Size bought nothing again
+
+0.8B and 4B land on held at 47.3% and 47.0%, with **identical** op (54.3%) and args (85.7%)
+figures to the decimal. Five times the parameters, the same score. That is the third time in this
+project the ceiling has turned out to be the data: the selector ladder flattened at 4B→9B, the
+tier-5 9B lost to the 4B, and now the mutator does not move with size at all.
+
+#### The honest state of the mutator track
+
+The grammar is learnable — 87% selector accuracy and 100% parse validity in-distribution is not
+nothing. But **op selection is the bottleneck at 54.3%**, roughly coin-flip, while the selector
+beside it is at 87%: the model finds the right nodes and then does the wrong thing to them. And the
+corpus as mined cannot be trained on as-is without losing more than it gives.
+
+Next step is not another training run. It is the corpus: 35 ops with a long tail
+(`replaceWith` 1823, `addComment` 1702 ... `addField` 125, `addImport` 124), mined labels of unknown
+fidelity, and no held-out set that is independent of the mining. Fix the corpus, then train.
+
+#### A stale judge, left alone
+
+`mutator/judge.py`'s `OPS` set (13 ops, including `setCondition`) predates the corpus, which has
+35 ops, uses `addCondition`, and whose single most common op — `replaceWith` — is absent from `OPS`
+entirely. `judge.judge()` would bucket every one of those "malformed" however correct the answer,
+so `mutator/score_fluent.py` derives the op vocabulary from the corpus and uses `judge.score()`,
+which is op-agnostic (it parses both sides and compares). `judge.py` belongs to in-flight work from
+another session, so it is reported here rather than edited.
