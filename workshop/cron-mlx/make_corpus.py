@@ -69,20 +69,33 @@ def hourly_at(rnd):
 
 
 def hours_window(rnd):
+    """Phrasings are INCLUSIVE on both ends and say so.
+
+    'every hour between 6am and 12pm' was the first wording here and it is ambiguous --
+    a reader can reasonably exclude the endpoint, and a 4B model did. An eval item whose
+    English admits two defensible answers measures the wording, not the model."""
     a, b = sorted(rnd.sample(range(0, 24), 2))
     if a == b:
         b = min(23, b + 1)
     m = rnd.choice([0, 30])
     return "%d %d-%d * * *" % (m, a, b), rnd.choice([
-        "every hour between %s and %s" % (clock(a, m), clock(b, m)),
-        "hourly from %s to %s" % (clock(a, m), clock(b, m))])
+        "hourly from %s through %s inclusive" % (clock(a, m), clock(b, m)),
+        "every hour from %s to %s, including %s" % (clock(a, m), clock(b, m), clock(b, m))])
 
 
 def every_n_hours(rnd):
+    """The minute must be RECOVERABLE FROM THE ENGLISH.
+
+    The first version of this sampled minute 0 or 30 and rendered only 'every 6 hours',
+    so 7 of 120 eval items could not be answered from their request at any skill level --
+    a free 5.8% ceiling penalty on every model. Either state the minute or fix it at 0."""
     n = rnd.choice([2, 3, 4, 6, 8, 12])
     m = rnd.choice([0, 30])
+    if m == 0:
+        return "0 */%d * * *" % n, rnd.choice([
+            "every %d hours on the hour" % n, "once every %d hours, on the hour" % n])
     return "%d */%d * * *" % (m, n), rnd.choice([
-        "every %d hours" % n, "once every %d hours" % n])
+        "every %d hours at half past" % n, "once every %d hours, %d minutes past" % (n, m)])
 
 
 def in_month(rnd):
