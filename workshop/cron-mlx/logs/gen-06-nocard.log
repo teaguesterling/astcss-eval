@@ -1,0 +1,2 @@
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:  18%|█▊        | 56/311 [00:00<00:00, 554.51it/s]Loading weights:  72%|███████▏  | 224/311 [00:00<00:00, 1197.21it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 1177.11it/s]
+120 rows in 31s -> preds-06-tuned-nocard.jsonl

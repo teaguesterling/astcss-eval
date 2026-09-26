@@ -1,0 +1,36 @@
+{
+  "epoch": 1,
+  "val_loss": 0.016715703053584243,
+  "args": {
+    "base": "/home/teague/.cache/huggingface/hub/models--HuggingFaceTB--SmolLM2-360M-Instruct/snapshots/a10cc1512eabd3dde888204e902eca88bddb4951",
+    "data": "data",
+    "out": "adapters/cron-360m",
+    "epochs": 2,
+    "lr": 0.0002,
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "accum": 16,
+    "warmup": 0.05,
+    "max_len": 512,
+    "limit": 0,
+    "save_every_steps": 250,
+    "seed": 18,
+    "embed_cpu": false,
+    "quant": "none"
+  },
+  "prompt_format": "chat-template+gen-prompt+nothink/v1",
+  "dataset_manifest": {
+    "name": "cron-workshop-v1",
+    "task": "plain English -> one five-field cron expression",
+    "generator": "make_corpus.py --train 1200 --valid 150 --eval 120 --seed 7",
+    "labels": "correct by construction: the cron expression is sampled first and the English rendered from it",
+    "held_out": "eval.jsonl draws from 4 shape families disjoint from training's 6; asserted by check_corpus",
+    "card": "data/card.md, ~101 words",
+    "rows": {
+      "train": 1200,
+      "valid": 150,
+      "eval": 120
+    }
+  }
+}

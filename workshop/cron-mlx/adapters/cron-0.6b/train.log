@@ -1,0 +1,23 @@
+22:55:52 train rows 1200 (median 215 tokens, max 224), val rows 150
+22:55:53 trainable params 10092544; embedding on gpu; allocated 1175 MiB
+22:56:17 val loss before training 0.8829 (23.6s for 150 rows)
+22:56:29 epoch 1 step 1/150 loss 0.6976 lr 5.71e-05 grad 9.89 skipped 0  0.79s/row  eta 32 min  peak 1582 MiB
+22:56:41 epoch 1 step 2/150 loss 0.6140 lr 8.57e-05 grad 8.13 skipped 0  0.75s/row  eta 30 min  peak 1582 MiB
+22:56:52 epoch 1 step 3/150 loss 0.6344 lr 1.14e-04 grad 8.23 skipped 0  0.74s/row  eta 29 min  peak 1582 MiB
+22:58:06 epoch 1 step 10/150 loss 0.2769 lr 2.00e-04 grad 3.03 skipped 0  0.68s/row  eta 26 min  peak 1582 MiB
+22:59:58 epoch 1 step 20/150 loss 0.0267 lr 1.96e-04 grad 0.162 skipped 0  0.69s/row  eta 24 min  peak 1582 MiB
+23:01:48 epoch 1 step 30/150 loss 0.0258 lr 1.88e-04 grad 0.878 skipped 0  0.69s/row  eta 22 min  peak 1582 MiB
+23:03:36 epoch 1 step 40/150 loss 0.0345 lr 1.75e-04 grad 0.154 skipped 0  0.69s/row  eta 20 min  peak 1582 MiB
+23:05:20 epoch 1 step 50/150 loss 0.0040 lr 1.59e-04 grad 0.0752 skipped 0  0.68s/row  eta 18 min  peak 1582 MiB
+23:07:07 epoch 1 step 60/150 loss 0.0079 lr 1.40e-04 grad 0.0238 skipped 0  0.68s/row  eta 16 min  peak 1582 MiB
+23:08:55 epoch 1 step 70/150 loss 0.0149 lr 1.19e-04 grad 0.0742 skipped 0  0.68s/row  eta 14 min  peak 1582 MiB
+23:10:08 epoch 1 done: val loss 0.0016 (19.2s) -> adapters/cron-0.6b/epoch1; peak 1582 MiB
+23:11:04 epoch 2 step 80/150 loss 0.0012 lr 9.67e-05 grad 0.0566 skipped 0  0.69s/row  eta 13 min  peak 1582 MiB
+23:12:55 epoch 2 step 90/150 loss 0.0050 lr 7.50e-05 grad 0.00341 skipped 0  0.69s/row  eta 11 min  peak 1582 MiB
+23:14:40 epoch 2 step 100/150 loss 0.0004 lr 5.45e-05 grad 0.007 skipped 0  0.69s/row  eta 9 min  peak 1582 MiB
+23:16:29 epoch 2 step 110/150 loss 0.0003 lr 3.62e-05 grad 0.00264 skipped 0  0.69s/row  eta 7 min  peak 1582 MiB
+23:18:21 epoch 2 step 120/150 loss 0.0001 lr 2.09e-05 grad 0.00926 skipped 0  0.69s/row  eta 6 min  peak 1582 MiB
+23:20:23 epoch 2 step 130/150 loss 0.0004 lr 9.50e-06 grad 0.00777 skipped 0  0.70s/row  eta 4 min  peak 1582 MiB
+23:22:14 epoch 2 step 140/150 loss 0.0001 lr 2.40e-06 grad 0.00904 skipped 0  0.70s/row  eta 2 min  peak 1582 MiB
+23:24:03 epoch 2 step 150/150 loss 0.0002 lr 0.00e+00 grad 0.00778 skipped 0  0.69s/row  eta 0 min  peak 1582 MiB
+23:24:24 epoch 2 done: val loss 0.0002 (20.4s) -> adapters/cron-0.6b/epoch2; peak 1582 MiB
