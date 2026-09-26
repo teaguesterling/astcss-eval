@@ -1,0 +1,8 @@
+11:46:38 train rows 150 (median 286 tokens, max 294), val rows 150
+11:46:40 trainable params 10092544; embedding on gpu; allocated 1175 MiB
+11:47:01 val loss before training 0.5708 (21.5s for 150 rows)
+11:47:14 epoch 1 step 1/10 loss 0.5850 lr 2.00e-04 grad 11.8 skipped 0  0.76s/row  eta 2 min  peak 1582 MiB
+11:47:24 epoch 1 step 2/10 loss 0.1851 lr 1.94e-04 grad 3.5 skipped 0  0.71s/row  eta 2 min  peak 1582 MiB
+11:47:35 epoch 1 step 3/10 loss 0.0613 lr 1.77e-04 grad 2.35 skipped 0  0.70s/row  eta 1 min  peak 1582 MiB
+11:48:44 epoch 1 step 10/10 loss 0.0179 lr 0.00e+00 grad 0.0927 skipped 0  0.64s/row  eta 0 min  peak 1582 MiB
+11:49:02 epoch 1 done: val loss 0.0079 (18.0s) -> adapters/qlang-0.6b-150/epoch1; peak 1582 MiB

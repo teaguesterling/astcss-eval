@@ -1,0 +1,2 @@
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:34,  3.28it/s]Loading weights:  46%|████▋     | 144/311 [00:00<00:00, 458.41it/s]Loading weights:  90%|█████████ | 281/311 [00:00<00:00, 742.62it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 590.63it/s]
+150 rows in 90s -> preds-scale-300.jsonl
