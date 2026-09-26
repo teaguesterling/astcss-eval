@@ -1,0 +1,20 @@
+21:20:28 cron fine-tune start
+21:20:40 trained exit 1: 
+21:20:56 e2 train-shapes: 
+21:20:56 cron fine-tune done
+21:21:26 cron fine-tune start
+21:51:33 trained exit 0: 21:21:35 train rows 1200 (median 220 tokens, max 229), val rows 150;21:36:52 epoch 1 done: val loss 0.0027 (21.1s) -> adapters/cron-0.8b/epoch1; peak 1678 MiB;21:51:32 epoch 2 done: val loss 0.0001 (23.4s) -> adapters/cron-0.8b/epoch2; peak 1678 MiB;
+21:52:06 e1 with card:  n=120   parses  78.3%   EXECUTION   4.2%   string   4.2%
+21:52:52 e1 NO card:    n=120   parses   0.0%   EXECUTION   0.0%   string   0.0%
+21:53:23 e2 with card:  n=120   parses  78.3%   EXECUTION   0.8%   string   0.8%
+21:54:10 e2 NO card:    n=120   parses   0.0%   EXECUTION   0.0%   string   0.0%
+21:54:47 e2 train-shapes: n=150   parses 100.0%   EXECUTION 100.0%   string 100.0%
+21:54:47 cron fine-tune done
+22:10:18 cron fine-tune start
+22:41:06 trained exit 0: 22:10:28 train rows 1200 (median 220 tokens, max 229), val rows 150;22:26:07 epoch 1 done: val loss 0.0000 (21.7s) -> adapters/cron-0.8b-clean/epoch1; peak 1678 MiB;22:41:04 epoch 2 done: val loss 0.0000 (23.0s) -> adapters/cron-0.8b-clean/epoch2; peak 1678 MiB;
+22:41:39 e1 with card:  n=120   parses  83.3%   EXECUTION   0.0%   string   0.0%
+22:42:25 e1 NO card:    n=120   parses   0.0%   EXECUTION   0.0%   string   0.0%
+22:42:58 e2 with card:  n=120   parses  77.5%   EXECUTION   0.0%   string   0.0%
+22:43:45 e2 NO card:    n=120   parses   0.0%   EXECUTION   0.0%   string   0.0%
+22:44:22 e2 train-shapes: n=150   parses 100.0%   EXECUTION 100.0%   string 100.0%
+22:44:22 cron fine-tune done

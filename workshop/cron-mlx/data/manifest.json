@@ -1,0 +1,7 @@
+{"name": "cron-workshop-v1",
+ "task": "plain English -> one five-field cron expression",
+ "generator": "make_corpus.py --train 1200 --valid 150 --eval 120 --seed 7",
+ "labels": "correct by construction: the cron expression is sampled first and the English rendered from it",
+ "held_out": "eval.jsonl draws from 4 shape families disjoint from training's 6; asserted by check_corpus",
+ "card": "data/card.md, ~101 words",
+ "rows": {"train": 1200, "valid": 150, "eval": 120}}

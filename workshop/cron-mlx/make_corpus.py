@@ -134,18 +134,35 @@ Examples
 """
 
 
-def rows(shapes, n, seed):
+def pool(shapes, n, seed, taken=None):
+    """n DISTINCT (request, label) pairs, excluding anything in `taken`.
+
+    The first version of this deduplicated per call, so train and valid were drawn
+    independently from the same generator and 80.7% of the validation split turned out to
+    be verbatim training rows. The trained model then scored 100% on it, and the val loss
+    fell to 0.0001, and neither number meant anything. Dedup has to be GLOBAL across splits.
+    """
     rnd = random.Random(seed)
-    seen, out = set(), []
+    seen = set(taken or ())
+    out, stall = [], 0
     while len(out) < n:
-        expr, text = rnd.choice(shapes)(rnd)
-        if (expr, text) in seen:
+        pair = rnd.choice(shapes)(rnd)
+        if pair in seen:
+            stall += 1
+            if stall > 20000:
+                raise SystemExit("cannot draw %d distinct pairs from these shapes; got %d"
+                                 % (n, len(out)))
             continue
-        seen.add((expr, text))
-        out.append({"messages": [{"role": "system", "content": CARD},
-                                 {"role": "user", "content": text},
-                                 {"role": "assistant", "content": expr}]})
+        stall = 0
+        seen.add(pair)
+        out.append(pair)
     return out
+
+
+def as_rows(pairs):
+    return [{"messages": [{"role": "system", "content": CARD},
+                          {"role": "user", "content": text},
+                          {"role": "assistant", "content": expr}]} for expr, text in pairs]
 
 
 def main():
@@ -157,14 +174,28 @@ def main():
     ap.add_argument("--seed", type=int, default=7)
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
-    # mlx_lm expects train.jsonl and valid.jsonl in one directory.
-    for name, data in (("train", rows(TRAIN_SHAPES, a.train, a.seed)),
-                       ("valid", rows(TRAIN_SHAPES, a.valid, a.seed + 1)),
-                       ("eval", rows(EVAL_SHAPES, a.eval, a.seed + 2))):
-        with open(os.path.join(a.out, name + ".jsonl"), "w") as fh:
-            for r in data:
-                fh.write(json.dumps(r) + "\n")
-        print("%-6s %4d rows -> %s/%s.jsonl" % (name, len(data), a.out, name))
+    # mlx_lm expects train.jsonl + valid.jsonl; the PyTorch trainer in the companion article
+    # expects train.jsonl + val.jsonl. Writing BOTH names costs nothing and means the same
+    # directory feeds either toolchain -- worth doing in a workshop repo where somebody will
+    # inevitably try the other one.
+    # One pool per shape group, partitioned -- so valid holds UNSEEN INSTANCES of the
+    # training shapes, and eval holds unseen SHAPES. Two different questions, two splits.
+    train_pairs = pool(TRAIN_SHAPES, a.train, a.seed)
+    valid_pairs = pool(TRAIN_SHAPES, a.valid, a.seed + 1, taken=train_pairs)
+    eval_pairs = pool(EVAL_SHAPES, a.eval, a.seed + 2)
+    assert not (set(train_pairs) & set(valid_pairs)), "train/valid overlap"
+    assert not ({t for _, t in train_pairs} & {t for _, t in eval_pairs}), "train/eval overlap"
+    splits = (("train", as_rows(train_pairs)),
+              ("valid", as_rows(valid_pairs)),
+              ("eval", as_rows(eval_pairs)))
+    for name, data in splits:
+        names = [name] + (["val"] if name == "valid" else [])
+        for alias in names:
+            with open(os.path.join(a.out, alias + ".jsonl"), "w") as fh:
+                for r in data:
+                    fh.write(json.dumps(r) + "\n")
+        print("%-6s %4d rows -> %s" % (name, len(data),
+              ", ".join("%s/%s.jsonl" % (a.out, x) for x in names)))
     open(os.path.join(a.out, "card.md"), "w").write(CARD)
 
 
