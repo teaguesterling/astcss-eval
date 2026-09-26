@@ -1,1 +1,13 @@
 10:50:04 [qlang] start
+11:04:56 [qlang] trained exit 1: 10:50:16 train rows 1200 (median 288 tokens, max 297), val rows 150;
+11:06:36 [qlang] e1 unseen COMBOS       n=150  json 100.0%  runs 100.0%  EXEC  77.3%  string  77.3%   | where 100.0%  order  78.7%  limit  86.7%  select  98.7%
+11:06:45 [qlang] 
+11:06:55 [qlang] 
+11:06:55 [qlang] done
+11:08:50 [qlang] start
+11:37:02 [qlang] trained exit 0: 11:09:02 train rows 1200 (median 288 tokens, max 297), val rows 150;11:23:13 epoch 1 done: val loss 0.0000 (17.5s) -> adapters/qlang-0.6b/epoch1; peak 1582 MiB;11:37:01 epoch 2 done: val loss 0.0000 (17.7s) -> adapters/qlang-0.6b/epoch2; peak 1582 MiB;
+11:38:47 [qlang] e1 unseen COMBOS       n=150  json 100.0%  runs 100.0%  EXEC  76.0%  string  76.0%   | where 100.0%  order  77.3%  limit  88.7%  select  98.7%
+11:40:28 [qlang] e2 unseen COMBOS       n=150  json 100.0%  runs 100.0%  EXEC  76.7%  string  76.7%   | where 100.0%  order  78.0%  limit  88.7%  select  98.7%
+11:41:29 [qlang] e2 seen shapes         n=150  json 100.0%  runs 100.0%  EXEC 100.0%  string 100.0%   | where 100.0%  order 100.0%  limit 100.0%  select 100.0%
+11:45:23 [qlang] e2 NO card             n=150  json   1.3%  runs   0.0%  EXEC   0.0%  string   0.0%   | where   0.0%  order   0.0%  limit   0.7%  select   0.0%
+11:45:23 [qlang] done

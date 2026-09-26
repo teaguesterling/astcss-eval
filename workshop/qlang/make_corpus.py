@@ -192,6 +192,22 @@ def main():
         print("%-6s %4d rows -> %s" % (name, len(pairs),
               ", ".join("%s/%s.jsonl" % (a.out, x) for x in aliases)))
     open(os.path.join(a.out, "card.md"), "w").write(CARD)
+    # The trainer writes a run.json beside every checkpoint and folds this in, so that in
+    # three weeks a directory of adapters still says which corpus produced which. Without
+    # it the trainer saves the epoch weights and THEN dies on the missing file -- which is
+    # how the first run of this corpus ended: a valid epoch-1 adapter and a traceback.
+    json.dump({"name": "qlang-workshop-v1",
+               "task": "plain English -> a four-clause query as JSON over a fixed table",
+               "generator": "make_corpus.py --train %d --valid %d --eval %d --seed %d"
+                            % (a.train, a.valid, a.eval, a.seed),
+               "labels": "correct by construction: the query is sampled first, the English "
+                         "rendered from it",
+               "held_out": "by clause COMBINATION, not by element -- every element of every "
+                           "eval query appears in training; asserted in main()",
+               "equivalence": "behavioural: same rows in the same order from the same table",
+               "card": "data/card.md",
+               "rows": {"train": a.train, "valid": a.valid, "eval": a.eval}},
+              open(os.path.join(a.out, "manifest.json"), "w"), indent=2)
 
 
 if __name__ == "__main__":
