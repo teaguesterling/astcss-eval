@@ -23,6 +23,7 @@ def main():
     ap.add_argument("--batch", type=int, default=12)
     ap.add_argument("--max-new-tokens", type=int, default=24)
     ap.add_argument("--quant", choices=("4bit","none"), default="none")
+    ap.add_argument("--dtype", choices=("float16","bfloat16"), default="float16")
     ap.add_argument("--card", help="override the system prompt: a file path, or 'none' for no card at all")
     a = ap.parse_args()
 
@@ -48,7 +49,7 @@ def main():
 
     tok = AutoTokenizer.from_pretrained(a.base)
     tok.padding_side = "left"
-    model, dev = load_model(a.base, False, a.quant)
+    model, dev = load_model(a.base, False, a.quant, a.dtype)
     if a.adapter:
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, a.adapter)
