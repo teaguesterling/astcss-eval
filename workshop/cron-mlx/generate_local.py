@@ -23,17 +23,27 @@ def main():
     ap.add_argument("--batch", type=int, default=12)
     ap.add_argument("--max-new-tokens", type=int, default=24)
     ap.add_argument("--quant", choices=("4bit","none"), default="none")
+    ap.add_argument("--card", help="override the system prompt: a file path, or 'none' for no card at all")
     a = ap.parse_args()
 
     import torch
     from transformers import AutoTokenizer
     from train_qlora import load_model
 
+    override = None
+    if a.card == "none":
+        override = False                     # no system message at all
+    elif a.card:
+        override = open(a.card).read()
     rows = []
     for i, line in enumerate(open(a.ref)):
         ms = json.loads(line)["messages"]
-        rows.append({"id": i,
-                     "system": next(m["content"] for m in ms if m["role"] == "system"),
+        card = next(m["content"] for m in ms if m["role"] == "system")
+        if override is False:
+            card = None
+        elif override:
+            card = override
+        rows.append({"id": i, "system": card,
                      "request": next(m["content"] for m in ms if m["role"] == "user")})
 
     tok = AutoTokenizer.from_pretrained(a.base)
