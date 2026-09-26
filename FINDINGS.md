@@ -2019,3 +2019,58 @@ The guard: `encode()` should count how many rows it truncates and the trainer sh
 minimum shout, when that fraction is not near zero. A silent front-truncation that removes the
 system prompt is not a degradation, it is a different experiment — and the summary line the trainer
 already prints contained the evidence all along.
+
+### Stage 15: the truncation was real, and it was not the whole story (2026-09-25)
+
+The fluent 0.8B retrained at `--max-len 2048`, the only variable changed. `train rows 11550
+(median 1473 tokens, max 1619)` — the cap is gone and the card reached the model whole for the
+first time.
+
+| | truncated (1024) | fixed (2048) |
+|---|---|---|
+| held-out ALL | 47.3% | **54.3%** |
+| held-out selector | 87.7% | 87.7% |
+| held-out op | 54.3% | **55.0%** |
+| held-out args | 85.7% | **92.7%** |
+| reference set (20 hand-written) | 0.0% | **0.0%** |
+
+**The truncation was real and cost seven points**, almost all of it in the argument column
+(85.7% → 92.7%). That is what you would expect from restoring the head of a card: the parts of
+the grammar that were cut come back.
+
+**And it explains neither of the two things I blamed on it.**
+
+*Op selection did not move.* 54.3% → 55.0%, still barely better than a coin flip, sitting beside
+a selector column at 87.7% that did not move either. I wrote that the invented ops
+(`flagSQLInjection`, `wrapInList`) were caused by the op table being in the truncated region. With
+the whole table present, op accuracy is unchanged. That hypothesis is dead.
+
+*The reference set is still zero.* 0/20, exactly as before, against an untrained 0.8B that scores
+10% and an untrained 4B that scores 45%. Fine-tuning on this corpus still makes a model strictly
+worse at hand-written tasks than doing nothing.
+
+#### I over-retracted
+
+The first write-up concluded the corpus taught the mine and destroyed out-of-distribution
+capability. The second retracted that entirely, called the adapters "void as evidence", and said
+whether the corpus is any good was "untested". With the confound removed, the original conclusion
+survives in its load-bearing parts:
+
+- the corpus does teach the mined distribution well (47.3% → 54.3%, parse validity 100%)
+- op selection is a genuine bottleneck at ~55%, not an artifact of the pipeline
+- the out-of-distribution collapse to 0/20 is genuine, not an artifact of the pipeline
+
+What the truncation correction legitimately bought was seven points and the knowledge that the
+first numbers understated the corpus. What it did not buy was an excuse. Both of the failures that
+made the corpus look harmful are still there.
+
+The right order was: fix the confound first, *then* conclude. I did it backwards twice — concluded
+before checking the confound, then retracted further than the evidence warranted.
+
+#### What this means for the mutator track
+
+Unchanged from the original recommendation, now on firmer ground: **the corpus needs fixing, not
+scaling.** A larger mine of the same labels buys a model that is more confident about the wrong
+operation. The next artifact is an execution harness that can apply a proposed mutation and check
+the result — `mutator/engine.py` already registers 32 operators that do the applying, and nothing
+has ever wired it into scoring.
