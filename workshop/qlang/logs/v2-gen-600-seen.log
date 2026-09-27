@@ -1,0 +1,2 @@
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:  17%|█▋        | 54/311 [00:00<00:00, 538.24it/s]Loading weights:  66%|██████▌   | 204/311 [00:00<00:00, 1100.02it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 1136.97it/s]
+150 rows in 54s -> v2-seen-600.jsonl

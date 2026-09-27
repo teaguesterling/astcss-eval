@@ -1,0 +1,2 @@
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:  21%|██        | 65/311 [00:00<00:00, 644.02it/s]Loading weights:  63%|██████▎   | 196/311 [00:00<00:00, 1009.64it/s]Loading weights:  95%|█████████▌| 297/311 [00:00<00:00, 334.20it/s] Loading weights: 100%|██████████| 311/311 [00:00<00:00, 406.81it/s]
+150 rows in 85s -> v2-unseen-1200.jsonl

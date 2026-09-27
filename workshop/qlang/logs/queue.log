@@ -21,3 +21,18 @@
 12:04:19 [scale] n=600 trained exit 0
 12:06:02 [scale] n=600 rows             n=150  json 100.0%  runs 100.0%  EXEC  94.0%  string  94.0%   | where 100.0%  order  94.0%  limit  99.3%  select 100.0%
 12:06:02 [scale] data-scaling done
+18:24:41 [v2] cold baseline on the expanded corpus
+18:26:07 [v2] cold                   n=150  json 100.0%  runs  99.3%  EXEC  12.0%  string   0.0%   | where  34.0%  order  49.3%  limit  71.3%  select  28.7%
+18:28:42 [v2] n=150 trained exit 0
+18:30:29 [v2] n=150 UNSEEN           n=150  json  99.3%  runs  99.3%  EXEC  84.7%  string  84.7%   | where  94.7%  order  93.3%  limit  98.7%  select  94.7%
+18:31:34 [v2] n=150 SEEN             n=150  json  99.3%  runs  99.3%  EXEC  91.3%  string  90.7%   | where  95.3%  order  95.3%  limit  98.0%  select  99.3%
+18:35:48 [v2] n=300 trained exit 0
+18:37:26 [v2] n=300 UNSEEN           n=150  json 100.0%  runs 100.0%  EXEC  82.7%  string  82.7%   | where  98.7%  order  98.0%  limit 100.0%  select  85.3%
+18:38:32 [v2] n=300 SEEN             n=150  json 100.0%  runs 100.0%  EXEC  96.0%  string  96.0%   | where 100.0%  order  97.3%  limit  99.3%  select  98.7%
+18:46:00 [v2] n=600 trained exit 0
+18:47:43 [v2] n=600 UNSEEN           n=150  json 100.0%  runs 100.0%  EXEC  95.3%  string  94.7%   | where 100.0%  order  99.3%  limit  96.7%  select  97.3%
+18:48:48 [v2] n=600 SEEN             n=150  json  99.3%  runs  99.3%  EXEC  98.7%  string  98.7%   | where  98.7%  order  99.3%  limit  99.3%  select  99.3%
+19:03:29 [v2] n=1200 trained exit 0
+19:05:06 [v2] n=1200 UNSEEN          n=150  json 100.0%  runs 100.0%  EXEC  88.0%  string  86.7%   | where 100.0%  order  99.3%  limit  98.7%  select  89.3%
+19:06:12 [v2] n=1200 SEEN            n=150  json 100.0%  runs  99.3%  EXEC  99.3%  string  99.3%   | where  99.3%  order 100.0%  limit 100.0%  select 100.0%
+19:06:12 [v2] sweep done

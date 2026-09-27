@@ -1,0 +1,10 @@
+18:31:43 train rows 300 (median 285 tokens, max 296), val rows 150
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:  21%|██        | 66/311 [00:00<00:00, 659.91it/s]Loading weights:  74%|███████▍  | 231/311 [00:00<00:00, 1240.32it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 1235.47it/s]
+18:31:44 trainable params 10092544; embedding on gpu; allocated 1175 MiB
+18:32:04 val loss before training 0.5955 (19.3s for 150 rows)
+[transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+18:32:14 epoch 1 step 1/19 loss 0.4868 lr 2.00e-04 grad 8.08 skipped 0  0.67s/row  eta 3 min  peak 1582 MiB
+18:32:25 epoch 1 step 2/19 loss 0.3279 lr 1.98e-04 grad 5.36 skipped 0  0.67s/row  eta 3 min  peak 1582 MiB
+18:32:35 epoch 1 step 3/19 loss 0.0583 lr 1.94e-04 grad 1.31 skipped 0  0.66s/row  eta 3 min  peak 1582 MiB
+18:33:53 epoch 1 step 10/19 loss 0.0402 lr 1.00e-04 grad 1.44 skipped 0  0.68s/row  eta 2 min  peak 1582 MiB
+18:35:47 epoch 1 done: val loss 0.0104 (17.5s) -> adapters/v2-300/epoch1; peak 1582 MiB

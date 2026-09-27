@@ -43,69 +43,105 @@ Examples
     just the names                     -> {"select": ["name"]}
 """
 
-COLORS = ["red", "green", "silver", "black", "brown", "yellow", "white", "brass"]
+COLORS = ["red", "green", "silver", "black", "brown", "yellow", "white", "brass",
+          "blue", "orange", "steel", "tan", "grey", "copper", "terracotta"]
 CATS = ["tools", "garden", "kitchen", "measuring"]
+FIELDS = ["name", "color", "price", "stock", "category"]
+
+#: Thresholds are drawn from a RANGE, not a handful of constants. The first version of this
+#: generator offered four price cutoffs and three stock cutoffs, which -- with everything
+#: else equally narrow -- made the whole reachable training space 1,512 distinct pairs. At
+#: 1,200 training rows that is 79% of everything there is, so the corpus stopped being a
+#: sample and became an enumeration with repeats. Any "more data hurts" result measured on
+#: that corpus is a result about repetition, not about data.
+PRICE_CUTS = list(range(4, 56, 2))
+STOCK_CUTS = list(range(4, 52, 2))
+LIMITS = list(range(2, 13))
 
 
 # ---- clause builders: each returns (clause_dict, english_fragment) ----------------
 
 def c_where_eq(rnd):
-    if rnd.random() < 0.5:
+    if rnd.random() < 0.6:
         v = rnd.choice(COLORS)
-        return {"where": {"color": v}}, rnd.choice(["%s items" % v, "everything %s" % v,
-                                                    "the %s ones" % v])
+        return {"where": {"color": v}}, rnd.choice(
+            ["%s items" % v, "everything %s" % v, "the %s ones" % v,
+             "anything %s" % v, "%s things" % v])
     v = rnd.choice(CATS)
-    return {"where": {"category": v}}, rnd.choice(["%s" % v, "items in %s" % v,
-                                                   "the %s category" % v])
+    return {"where": {"category": v}}, rnd.choice(
+        ["%s" % v, "items in %s" % v, "the %s category" % v,
+         "anything from %s" % v, "%s stock" % v])
 
 
 def c_where_cmp(rnd):
-    if rnd.random() < 0.6:
-        op, n = rnd.choice([("lt", rnd.choice([10, 15, 20, 25])),
-                            ("gt", rnd.choice([20, 25, 30, 40]))])
-        word = "under $%d" % n if op == "lt" else "over $%d" % n
+    if rnd.random() < 0.55:
+        op = rnd.choice(["lt", "gt", "lte", "gte"])
+        n = rnd.choice(PRICE_CUTS)
+        word = {"lt": "under $%d" % n, "gt": "over $%d" % n,
+                "lte": "$%d or less" % n, "gte": "$%d or more" % n}[op]
         return {"where": {"price": {op: n}}}, rnd.choice(
-            [word, "anything %s" % word, "priced %s" % word])
-    op, n = rnd.choice([("lt", rnd.choice([5, 10, 15])), ("gt", rnd.choice([20, 30, 40]))])
-    word = "fewer than %d in stock" % n if op == "lt" else "more than %d in stock" % n
-    return {"where": {"stock": {op: n}}}, rnd.choice([word, "items with %s" % word])
+            [word, "anything %s" % word, "priced %s" % word, "items %s" % word])
+    op = rnd.choice(["lt", "gt", "lte", "gte"])
+    n = rnd.choice(STOCK_CUTS)
+    word = {"lt": "fewer than %d in stock" % n, "gt": "more than %d in stock" % n,
+            "lte": "at most %d in stock" % n, "gte": "at least %d in stock" % n}[op]
+    return {"where": {"stock": {op: n}}}, rnd.choice(
+        [word, "items with %s" % word, "anything with %s" % word])
 
 
 def c_where_in(rnd):
-    if rnd.random() < 0.5:
-        a, b = rnd.sample(COLORS, 2)
-        return {"where": {"color": {"in": [a, b]}}}, rnd.choice(
-            ["either %s or %s" % (a, b), "%s and %s items" % (a, b)])
-    a, b = rnd.sample(CATS, 2)
-    return {"where": {"category": {"in": [a, b]}}}, rnd.choice(
-        ["%s or %s" % (a, b), "anything in %s or %s" % (a, b)])
+    if rnd.random() < 0.7:
+        k = rnd.choice([2, 2, 3])
+        vs = rnd.sample(COLORS, k)
+        listed = ", ".join(vs[:-1]) + " or " + vs[-1]
+        return {"where": {"color": {"in": vs}}}, rnd.choice(
+            ["either %s" % listed, "%s items" % listed, "anything %s" % listed])
+    k = rnd.choice([2, 3])
+    vs = rnd.sample(CATS, k)
+    listed = ", ".join(vs[:-1]) + " or " + vs[-1]
+    return {"where": {"category": {"in": vs}}}, rnd.choice(
+        ["%s" % listed, "anything in %s" % listed, "items from %s" % listed])
 
 
 def c_order(rnd):
     field, direction = rnd.choice([("price", "asc"), ("price", "desc"),
-                                   ("stock", "asc"), ("stock", "desc")])
-    word = {("price", "asc"): ["cheapest first", "sorted by price, lowest first"],
-            ("price", "desc"): ["most expensive first", "priciest first"],
-            ("stock", "asc"): ["least stocked first", "sorted by stock, lowest first"],
-            ("stock", "desc"): ["best stocked first", "most in stock first"]}[(field, direction)]
+                                   ("stock", "asc"), ("stock", "desc"),
+                                   ("name", "asc"), ("name", "desc")])
+    word = {("price", "asc"): ["cheapest first", "sorted by price, lowest first",
+                               "in ascending price order"],
+            ("price", "desc"): ["most expensive first", "priciest first",
+                                "in descending price order"],
+            ("stock", "asc"): ["least stocked first", "sorted by stock, lowest first",
+                               "rarest first"],
+            ("stock", "desc"): ["best stocked first", "most in stock first",
+                                "sorted by stock, highest first"],
+            ("name", "asc"): ["in alphabetical order", "sorted by name", "A to Z"],
+            ("name", "desc"): ["in reverse alphabetical order", "sorted by name, Z first",
+                               "Z to A"]}[(field, direction)]
     return {"order_by": {field: direction}}, rnd.choice(word)
 
 
 def c_limit(rnd):
-    n = rnd.choice([2, 3, 4, 5, 10])
-    return {"limit": n}, rnd.choice(["just %d" % n, "the first %d" % n, "top %d" % n])
+    n = rnd.choice(LIMITS)
+    return {"limit": n}, rnd.choice(
+        ["just %d" % n, "the first %d" % n, "top %d" % n, "%d of them" % n,
+         "no more than %d" % n])
 
 
 def c_select(rnd):
-    fields = rnd.choice([["name"], ["name", "price"], ["name", "stock"],
-                         ["name", "color"], ["name", "price", "stock"]])
-    if len(fields) == 1:
-        word = rnd.choice(["just the names", "names only"])
-    elif len(fields) == 2:
-        word = rnd.choice(["showing %s and %s" % (fields[0], fields[1]),
-                           "with just %s and %s" % (fields[0], fields[1])])
+    #: every non-empty subset of up to three fields, rather than five fixed lists
+    k = rnd.choice([1, 2, 2, 3])
+    fields = rnd.sample(FIELDS, k)
+    if k == 1:
+        word = rnd.choice(["just the %s" % fields[0], "%s only" % fields[0],
+                           "show only %s" % fields[0]])
+    elif k == 2:
+        word = rnd.choice(["showing %s and %s" % tuple(fields),
+                           "with just %s and %s" % tuple(fields),
+                           "%s and %s only" % tuple(fields)])
     else:
-        word = "showing %s, %s and %s" % tuple(fields)
+        word = rnd.choice(["showing %s, %s and %s" % tuple(fields),
+                           "with %s, %s and %s" % tuple(fields)])
     return {"select": fields}, word
 
 
