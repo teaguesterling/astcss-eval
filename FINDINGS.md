@@ -2144,3 +2144,86 @@ args separately, and that split is where its one genuinely diagnostic finding ca
 (selector 87.7%, op 55.0%). The selector evals still report a single `exec_match`. A per-construct
 breakdown — `:has`, `:not`, combinators, attributes, `::callers` — would turn "90.7%" into a list
 of what to fix, and cost nothing but a grouping in the scorer.
+
+### Five seeds, and a 270M rung on the ladder (2026-09-28)
+
+Two runs, both prompted by the seed replicate found on disk.
+
+#### The seed effect is bigger than the one accidental pair suggested
+
+Three more seeds on the identical `small-langcard` config — same dataset, `epochs 2, lr 2e-4,
+rank 16, alpha 32, accum 16, max_len 1024, quant none` — bringing it to n=5:
+
+| seed | 108-pair | eval_t5 |
+|---|---|---|
+| 17 | 81.5% (88/108) | 34.5% (19/55) |
+| 18 | 82.4% (89/108) | 30.9% (17/55) |
+| 19 | 79.6% (86/108) | 38.2% (21/55) |
+| 20 | 83.3% (90/108) | 34.5% (19/55) |
+| 21 | 78.7% (85/108) | 32.7% (18/55) |
+
+| | mean | sd | **range** |
+|---|---|---|---|
+| 108-pair | 81.1% | 1.92 | **4.6 pts** (5 pairs) |
+| eval_t5 | 34.2% | 2.70 | **7.3 pts** (4 pairs) |
+
+The n=2 estimate was 0.9 and 3.6 points. With five seeds it is **4.6 and 7.3** — the single
+accidental pair happened to be close together on the 108-pair eval, and understated the spread
+on both. Two seeds are not enough to characterise this either.
+
+So the resolution floor is worse than yesterday's entry said. On the 108-pair eval a 4-pair
+difference is inside the noise; on eval_t5, so is a 4-pair difference. Every comparison in this
+file that rests on fewer than five pairs of difference, on a single run per arm, should be read
+as "no difference detected" rather than as a result.
+
+That includes the stage 13 headline on **both** evals, not just eval_t5 as yesterday's entry
+concluded: the 4B-vs-9B gap is 3.7 points on the 108-pair against a 4.6-point seed range. I
+corrected that claim once and did not correct it far enough.
+
+#### The ladder goes down to 270M, and the easy eval cannot see it
+
+`gemma-3-270m-it` on tier-5, same recipe, bf16 (it NaNs in fp16), two epochs, 4.9 h:
+
+| model | params | 108-pair | eval_t5 |
+|---|---|---|---|
+| **gemma-3-270m** | **0.27B** | **78.7%** | **67.3%** |
+| Qwen3.5-0.8B | 0.8B | 82.4% | 83.6% |
+| Qwen3.5-4B | 4B | **90.7%** | **89.1%** |
+| Qwen3.5-9B | 9B | 87.0% | 87.3% |
+
+**On the 108-pair eval the 270M model is 3.7 points behind the 0.8B — inside the 4.6-point seed
+range.** A quarter-billion-parameter model is not distinguishable from one three times its size
+on that eval, and sits twelve points off the best model in the project at a fifteenth of the size.
+
+**On eval_t5 it is 16.4 points behind the 0.8B**, far outside the 7.3-point range. The harder
+relational eval separates them cleanly where the easier one cannot.
+
+That is the sharpest statement of the project's own thesis so far. The 108-pair eval has been
+saturated for some time; it can no longer tell a 270M model from a 4B one to within its own noise.
+**eval_t5 is the only instrument here still measuring anything**, and it is 55 items with a
+1.8-point quantum.
+
+#### Two caveats that are gemma's doing, not choices
+
+**The card is not in the system position.** Gemma's chat template has no system role; it folds
+the card into the first user turn. Every other run in this file put the card in the system
+position. Given that the card is a task trigger before it is a reference, card placement is a
+live alternative explanation for gemma's eval_t5 deficit, and it has not been tested.
+
+**bfloat16, emulated.** Gemma-3 NaNs in float16 — 60 of 60 steps skipped, adapter unchanged,
+loss still printing — and this box is sm_75 with no native bf16.
+
+Cold, before training, it scored 0.0% and emitted Python function definitions rather than
+selectors. The whole 78.7% is the corpus's doing.
+
+#### What to do about the eval
+
+Every remaining question in this project is now noise-limited rather than model-limited. Before
+another training run:
+
+1. **Grow eval_t5.** At 55 items nothing smaller than 4 pairs is visible. The 448 pairs held on
+   upstream defects are the obvious source, and the combinator defect that blocked many of them
+   is fixed.
+2. **Report resolution beside score.** `83.6% (46/55; 1 pair = 1.8 pts; seed range ≈ 7 pts)`.
+3. **Two seeds minimum on any comparison that decides something** — and five if it is going to be
+   written down as a finding.
