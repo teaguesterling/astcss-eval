@@ -2074,3 +2074,73 @@ scaling.** A larger mine of the same labels buys a model that is more confident 
 operation. The next artifact is an execution harness that can apply a proposed mutation and check
 the result — `mutator/engine.py` already registers 32 operators that do the applying, and nothing
 has ever wired it into scoring.
+
+### The seed replicate that was in the repo all along (2026-09-27)
+
+Building a separate teaching corpus surfaced a methodological problem that applies straight
+back here, and the evidence for it was already on disk.
+
+`small-langcard` and `small-langcard-seed18` are the **same configuration** — same dataset
+(`all-langcard-cap8`), same `epochs 2, lr 2e-4, rank 16, alpha 32, accum 16, max_len 1024,
+quant none`. The only difference is `seed` 17 against 18. Nobody ever compared them as a seed
+experiment.
+
+| eval | seed 17 | seed 18 | difference |
+|---|---|---|---|
+| 108-pair | 81.5% | 82.4% | +0.9 pts (1 pair) |
+| **eval_t5** | 34.5% | 30.9% | **−3.6 pts (2 pairs)** |
+| val loss | 0.2832 | 0.3548 | — |
+
+**±3.6 points on eval_t5 from the training seed alone.** That is the resolution floor of the
+instrument, measured rather than assumed, and it is larger than several conclusions in this
+file.
+
+#### Which claims sit below it
+
+| comparison on eval_t5 | gap | |
+|---|---|---|
+| 4B e2 vs 9B e2 — "twice the parameters, worse" | 1.8 | below the floor |
+| merged 4B vs its adapter — "the merge lost nothing" | 1.8 | below the floor |
+| 9B langcard vs 9B mixed — "the corpus stopped mattering at 9B" | 0.0 | below the floor |
+| 4B e2 vs cold haiku — "it beats a frontier model cold" | 1.8 | below the floor |
+| 4B e1 vs e2 — "epoch 2 is the best model" | 5.5 | above |
+
+So the stage 13 headline — **the 9B loses to the 4B** — is supported on the 108-pair eval
+(3.7 points, 4 pairs, against a 0.9-point seed effect there) and **is not supported on
+eval_t5**, where the 1.8-point gap is half the seed noise. I wrote it as though both halves
+were evidence. One half was.
+
+The epoch-2 conclusion survives: 5.5 points on eval_t5 and 3.7 on the 108-pair, both above
+their respective floors. The "I argued four times for killing it and was wrong" account stands.
+
+#### What this does not mean
+
+It does not mean the numbers are wrong — they are correct measurements of single runs. It
+means a 1-to-2-pair difference on a 55-item eval is not a difference, and this project has
+repeatedly treated one as though it were. I did it again on the workshop corpus a week later,
+with a cleaner instrument, and had to retract a headline over it.
+
+#### The cheap fixes, in order
+
+1. **Two seeds on any comparison that decides something.** One extra run per arm. The
+   comparisons above that matter — 4B vs 9B especially — deserve it before they are cited
+   again.
+2. **Print the eval's resolution beside its score.** `89.1% (49/55; 1 pair = 1.8 pts)`. It
+   costs nothing and it would have stopped most of this.
+3. **Grow eval_t5.** 55 items is a 1.8-point quantum, and the best models now miss five of
+   them. The eval, not the model, is the binding constraint on every remaining question.
+
+#### What else the workshop corpus is worth borrowing
+
+**Measure the corpus's reachable space.** The workshop's first generator could only produce
+1,512 distinct pairs, so 1,200 training rows was 79% of everything there was — an enumeration
+with repeats, which produced a dramatic and entirely artefactual result. The tier-5 corpus here
+is healthier — 15,928 rows carry 15,551 distinct (request, answer) pairs — but it holds only
+**4,765 distinct answers**, so each selector appears about 3.3 times under different phrasings.
+Worth knowing before concluding anything about corpus size.
+
+**Decompose the selector eval by construct.** The mutator work already reports selector / op /
+args separately, and that split is where its one genuinely diagnostic finding came from
+(selector 87.7%, op 55.0%). The selector evals still report a single `exec_match`. A per-construct
+breakdown — `:has`, `:not`, combinators, attributes, `::callers` — would turn "90.7%" into a list
+of what to fix, and cost nothing but a grouping in the scorer.
