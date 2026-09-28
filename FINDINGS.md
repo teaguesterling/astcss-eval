@@ -2227,3 +2227,76 @@ another training run:
 2. **Report resolution beside score.** `83.6% (46/55; 1 pair = 1.8 pts; seed range ≈ 7 pts)`.
 3. **Two seeds minimum on any comparison that decides something** — and five if it is going to be
    written down as a finding.
+
+### `:scope` resolved, and a card that teaches a selector the engine cannot run (2026-09-28)
+
+Six attempts. The answer was a distinction between two spellings that this file, the card and
+the oracle each half-recorded.
+
+```
+.fn::scope                      -> 84 nodes    axis form, no argument. WORKS.
+.fn:in-scope(.class#Animal)     ->  5 nodes    argument form. WORKS, and equals .class#Animal .fn
+.fn:scope(.class#Animal)        ->  0 nodes    accepted as a pseudo-class, returns nothing. ALWAYS.
+.fn:totally_made_up(.class#X)   ->  ERROR      "unknown pseudo-class"
+```
+
+`:scope(X)` is **silently unimplemented**. It does not error the way an invented pseudo-class
+does — it is recognised and then returns the empty set for every input. That is why five
+previous attempts to measure it produced nothing: there was nothing to measure, and no error
+saying so.
+
+#### The card and the corpus disagree
+
+| | uses |
+|---|---|
+| `card_t5.md` line 60 | **`:scope(.class#Name)`** — the form that returns nothing |
+| tier-5 training corpus | **`:in-scope(`** — 510 answers, and **zero** `:scope(` |
+| eval_t5 | 3 pairs written as `:scope(`, with oracle references of 3, 2 and 10 nodes |
+
+So the card documents one spelling, every training example shows another, and the eval asks in
+the card's spelling while scoring through the oracle. A model that follows the card faithfully
+writes a selector that returns nothing.
+
+**Fix the card line to `:in-scope(.class#Name)`.** It is one line, and it is currently teaching
+a construct that cannot execute.
+
+#### And the `>` substitution is not a scoring artifact
+
+This file has said twice that "both model families substitute `>` and both are scored wrong",
+with the implication that the scoring was at fault. It is not. On the three `:scope` pairs:
+
+```
+t5-p42  want .fn:scope(.class#Cat)
+        4B     .fn:in-scope(.class#Cat)              PASS
+        haiku  .class#Cat > .fn                      FAIL
+t5-p44  want .var:scope(.fn#create_index)
+        4B     .var:in-scope(.fn#create_index)       PASS
+        0.8B   .fn#create_index > .var               FAIL
+```
+
+The oracle accepts `:in-scope` as equivalent and rejects `>`, correctly: `>` is direct-child
+only, while scope containment reaches any depth. The models answering `>` are simply wrong, and
+the ones answering `:in-scope` — the form they were trained on — are marked right. The scoring
+works. The open question was never a scoring question.
+
+#### The assessment error that surfaced all this
+
+I retired eval pair t5-p55 (`.fn#level2::callees`) on the grounds that it returned the same
+nodes as `.fn#level2 .call`, and therefore "does not test `::callees` at all".
+
+That inference was wrong. Equal node sets on one fixture mean **either** the pair is vacuous
+**or** the two selectors coincide there. `oracle.py` documents `::callees` as "the named calls
+inside the matched function, nested functions included" — which is exactly what the pinned
+engine returns and exactly what the pair's request asks for. On `deep_nesting.py` every call is
+named, so a descendant selector happens to match. The pair is **weak**, not vacuous, and its
+reference is correct against documented semantics. Restored the same day.
+
+Worth generalising, because `verify.py`'s relaxation check makes the same inference
+automatically: **it cannot distinguish "this component does nothing" from "this component
+happens to do nothing on this fixture".** A pair it calls vacuous deserves a look at the
+documented semantics before it is dropped, and a construct that is broken in the engine will
+make every pair using it look vacuous.
+
+(Separately: sitting_duck main now returns 1 node for `.fn#level2::callees` where the pinned
+engine returns 5, which contradicts the oracle's documented "nested functions included". That
+looks like an upstream regression and is worth reporting.)
