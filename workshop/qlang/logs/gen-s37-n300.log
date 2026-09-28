@@ -1,0 +1,2 @@
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:  14%|█▎        | 42/311 [00:00<00:00, 413.72it/s]Loading weights:  65%|██████▍   | 202/311 [00:00<00:00, 1106.47it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 1134.21it/s]
+150 rows in 94s -> s37-n300-unseen.jsonl

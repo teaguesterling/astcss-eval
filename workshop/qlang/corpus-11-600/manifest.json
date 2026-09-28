@@ -1,0 +1,14 @@
+{
+  "name": "qlang-workshop-v1",
+  "task": "plain English -> a four-clause query as JSON over a fixed table",
+  "generator": "make_corpus.py --train 600 --valid 150 --eval 150 --seed 11",
+  "labels": "correct by construction: the query is sampled first, the English rendered from it",
+  "held_out": "by clause COMBINATION, not by element -- every element of every eval query appears in training; asserted in main()",
+  "equivalence": "behavioural: same rows in the same order from the same table",
+  "card": "data/card.md",
+  "rows": {
+    "train": 600,
+    "valid": 150,
+    "eval": 150
+  }
+}

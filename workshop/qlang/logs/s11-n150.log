@@ -1,0 +1,10 @@
+15:14:44 train rows 150 (median 283 tokens, max 295), val rows 150
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:02<10:42,  2.07s/it]Loading weights:  19%|█▉        | 60/311 [00:02<00:06, 38.30it/s]Loading weights:  30%|██▉       | 93/311 [00:02<00:04, 53.86it/s]Loading weights:  37%|███▋      | 116/311 [00:02<00:03, 65.00it/s]Loading weights:  43%|████▎     | 135/311 [00:02<00:02, 77.95it/s]Loading weights:  50%|████▉     | 154/311 [00:02<00:01, 84.91it/s]Loading weights:  55%|█████▍    | 170/311 [00:03<00:01, 89.61it/s]Loading weights:  59%|█████▉    | 185/311 [00:03<00:01, 98.36it/s]Loading weights:  64%|██████▍   | 200/311 [00:03<00:01, 102.48it/s]Loading weights:  69%|██████▉   | 214/311 [00:03<00:00, 105.09it/s]Loading weights:  73%|███████▎  | 227/311 [00:03<00:00, 109.15it/s]Loading weights:  78%|███████▊  | 244/311 [00:03<00:00, 123.44it/s]Loading weights:  83%|████████▎ | 258/311 [00:03<00:00, 106.72it/s]Loading weights:  87%|████████▋ | 271/311 [00:03<00:00, 110.48it/s]Loading weights:  92%|█████████▏| 285/311 [00:04<00:00, 117.09it/s]Loading weights:  96%|█████████▌| 299/311 [00:04<00:00, 122.08it/s]Loading weights: 100%|██████████| 311/311 [00:04<00:00, 73.58it/s] 
+15:14:50 trainable params 10092544; embedding on gpu; allocated 1175 MiB
+15:15:09 val loss before training 0.5922 (19.5s for 150 rows)
+[transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+15:15:20 epoch 1 step 1/10 loss 0.5529 lr 2.00e-04 grad 10.3 skipped 0  0.70s/row  eta 2 min  peak 1582 MiB
+15:15:31 epoch 1 step 2/10 loss 0.1889 lr 1.94e-04 grad 3.92 skipped 0  0.68s/row  eta 1 min  peak 1582 MiB
+15:15:42 epoch 1 step 3/10 loss 0.0915 lr 1.77e-04 grad 1.92 skipped 0  0.67s/row  eta 1 min  peak 1582 MiB
+15:16:49 epoch 1 step 10/10 loss 0.0278 lr 0.00e+00 grad 0.112 skipped 0  0.62s/row  eta 0 min  peak 1582 MiB
+15:17:08 epoch 1 done: val loss 0.0145 (17.8s) -> adapters/s11-n150/epoch1; peak 1582 MiB
