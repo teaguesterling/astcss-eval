@@ -65,7 +65,7 @@ def main():
     out = os.path.join(HERE, "workspace/t5-b3-verified.jsonl")
     with open(out, "w") as fh:
         for c, r in ok:
-            fh.write(json.dumps({"id": c["id"], "tier": "5", "fixture": c["fixture"],
+            fh.write(json.dumps({"id": c["id"], "tier": 5, "fixture": c["fixture"],
                                  "css": c["css"], "gloss": c["gloss"],
                                  "distractors": c.get("distractors") or [],
                                  "struct": c.get("struct"),

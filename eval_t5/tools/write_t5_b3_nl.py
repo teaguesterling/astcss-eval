@@ -90,7 +90,7 @@ def main():
         if not hit:
             missing.append(r["css"]); continue
         nl, para = hit
-        out.append({"id": "t5-p%03d" % (100 + i), "tier": "5", "nl": nl,
+        out.append({"id": "t5-p%03d" % (100 + i), "tier": 5, "nl": nl,
                     "paraphrases": [para], "css": r["css"], "fixture": r["fixture"],
                     "distractors": r["distractors"], "struct": r.get("struct"),
                     "reference": r["reference"], "verification": r["verification"],

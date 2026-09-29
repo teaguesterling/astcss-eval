@@ -66,6 +66,12 @@ def load_pairs():
     for kind in kinds:
         for path in sorted(glob.glob(os.path.join(root, "%s-*.jsonl" % kind))):
             pairs.extend(json.loads(line) for line in open(path) if line.strip())
+    # Tier is an int. A hand-written batch once carried "5" as a STRING, and the two forms
+    # are not the same key: sample() raised TypeError comparing them (the lucky outcome),
+    # while the by_tier table would have silently reported T5 and T"5" as separate columns
+    # with half the pairs in each. Coerce once, here, where every eval enters.
+    for p in pairs:
+        p["tier"] = int(p["tier"])
     return pairs
 
 
