@@ -2300,3 +2300,78 @@ make every pair using it look vacuous.
 (Separately: sitting_duck main now returns 1 node for `.fn#level2::callees` where the pinned
 engine returns 5, which contradicts the oracle's documented "nested functions included". That
 looks like an upstream regression and is worth reporting.)
+
+## The call-graph pseudo-forms are near-synonyms of their syntactic lookalikes, fixture-dependently
+
+t5-p55 -- `.fn#level2::callees` credited to a model that answered `.fn#level2 .call` -- was not
+a one-off. Mining all seven rebase120 runs for predictions that earned `exec_match` with a
+DIFFERENT string turns up 24 of the 98 pseudo-form eval pairs in the same shape:
+
+    :called-by(X) <- .fn#X .call         8 pairs
+    :calls(X)     <- :has(.call#X)       5
+    ::callees     <- .fn#X .call         4
+    ::callers     <- :has(.call#X)       3
+    :scope(X)     <- descendant / :in-scope(X)   3
+    :is-called    <- :has(.call)         1
+
+A further 13 are conjunction reordered (`:not(A):has(B)` vs `:has(B):not(A)`). Those are
+genuinely equivalent and correctly credited; they are not defects and are not counted above.
+
+### What the engine actually does (train/audit/probe_pseudo.py, pinned sd-20260914-1835)
+
+Every form the card teaches, five fixtures, each compared against its bare form:
+
+    :has :not ::callers :is-called :calls :exported :is-referenced ::scope   discriminates 5/5
+    ::callees   4/5 (VACUOUS on py-blq)    :typed  4/5    :called-by()  3/5
+    :in-scope(.class)   ERRORS 5/5 -- "ast_select: unknown"; it requires a NAMED argument
+    :scope(.class)      VACUOUS 5/5 -- returns exactly `.fn`, the constraint ignored
+    :decorated :async   zero nodes on the 3 non-Python fixtures (language-specific, not traps)
+
+TWO EARLIER CLAIMS IN THIS FILE ARE WRONG, and this is the correction:
+
+1. ":scope(X) always returns 0, so it is silently unimplemented" was drawn from one argument
+   (`.class#Animal`). With a named argument `:scope` is neither vacuous nor empty --
+   `.fn:scope(.class#Cat)` is 3 nodes on py-variety, not 84 and not 0. It is vacuous only with
+   an UNNAMED argument. Its actual semantics remain unpinned. The consequence: the queued
+   one-line change to card_t5.md:60 would have "fixed" a line that is not broken. Do not make it.
+
+2. "a fixture with a nested call would make ::callees diverge from a descendant .call" is
+   wrong. oracle.py:722 documents ::callees as including nested functions, and the descendant
+   form includes them too. They part company over how the call graph resolves a name, which is
+   fixture- and target-specific and cannot be predicted from the fixture's shape.
+
+### The gate answers it per target, and the answer is usually "no distinction"
+
+140 contrastive candidates (five fixtures, six named targets each), each side declaring the
+other as its distractor, run through verify.py's engine gate:
+
+    ACCEPTED  24        rejected 116: distractor ties 86, node bounds 38, errors 6
+
+`:calls(X)` tied `:has(.call#X)` on 32 of 32 -- on this engine it is not call-graph-resolved,
+and there is no distinction to teach. `::callers` tied on 23 of 32, `::callees` on 23 of 30.
+
+So the finding is not that the eval is broken. It is that ON THE PINNED ENGINE these forms are
+usually extensionally EQUAL to their syntactic lookalikes, and diverge only on particular
+targets. Where they coincide, crediting the lookalike is correct and the pair tests nothing.
+Where they diverge the distinction is real -- and only a per-target engine check can say which.
+
+### The three `:scope` pairs are a different defect: they are not scored by the engine
+
+13 of the 120 eval_t5 pairs carry `reference.source == "oracle"`, and `qualify.score` branches
+on that: an oracle-sourced pair is scored against oracle.py's Python model of the semantics,
+not against the engine. All three `:scope` pairs are oracle-sourced. The engine says
+`.call:scope(.fn#load)` and `.fn#load .call` return DIFFERENT node sets; the oracle's model
+equates them, which is why six models answered the descendant form and were credited. Those
+pairs are simultaneously non-discriminating and measured by something other than the engine.
+
+### What this means for reading the ladder
+
+The audit (workspace/audit_eval_pseudo.py, engine, mined near-misses declared as distractors)
+says 23 of the 46 probed pairs cannot withhold credit from the near-miss. Any gain a model
+makes on those pairs is invisible, because both the right and the wrong answer score correct.
+So a full-eval exec_match delta is not the number to read for this distinction -- the
+discriminating subset and the near-miss rate are.
+
+Engine identity is recorded with every accepted pair: these encode PINNED semantics, and
+`::callees` is contested between pinned and sitting_duck main (main returns 1 node for
+`.fn#level2::callees` where pinned returns 5).

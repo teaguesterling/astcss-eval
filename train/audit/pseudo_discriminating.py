@@ -45,17 +45,30 @@ import json, os, re, sys
 HERE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, HERE)
 
-OUT = os.path.join(HERE, "train/candidates/pseudo-d1.jsonl")
+OUT = os.path.join(HERE, "train/candidates/pseudo-d3.jsonl")
 INV = os.path.join(HERE, "train/audit/inventories/%s.json")
 
 # fixture -> (language word for the NL, forms that discriminate there)
+# Every fixture with functions. The per-fixture form sets of v1 are gone: the ENGINE gate
+# decides what discriminates, and hardcoding my expectation was just a slower way of being
+# wrong. `:calls(X)` IS dropped -- it tied `:has(.call#X)` on 32 of 32 candidates across five
+# fixtures, so on the pinned engine it is not call-graph-resolved and there is no distinction
+# to teach. Keeping it would spend the gate's budget re-proving that.
 FIXTURES = {
-    "py-lackpy":  ("python",     {"callees", "callers", "called_by", "calls", "is_called", "typed", "exported"}),
-    "py-blq":     ("python",     {"callers", "called_by", "calls", "is_called", "typed", "exported"}),
-    "js-messe":   ("javascript", {"callees", "callers", "called_by", "calls", "is_called", "exported"}),
-    "rs-magic":   ("rust",       {"callees", "callers", "calls", "is_called", "typed", "exported"}),
-    "go-rosetta": ("go",         {"callees", "callers", "calls", "is_called", "typed", "exported"}),
+    "c-duckhts": "c", "cpp-duck-hunt": "cpp", "cpp-duckdb-mcp": "cpp",
+    "cpp-duckdb-yaml": "cpp", "go-rosetta": "go", "java-rosetta": "java",
+    "js-messe": "javascript", "js-rosetta": "javascript", "py-blq": "python",
+    "py-lackpy": "python", "py-pluckit": "python", "py-umwelt": "python",
+    "rs-cosmic-goo": "rust", "rs-magic": "rust", "rs-rosetta": "rust",
+    "sh-homelab": "bash", "sh-mixed": "bash",
 }
+
+#: A bare-class contrast (`.fn:typed` vs `.fn`) needs `.fn` itself inside verify's 1..50
+#: bound, or the pair is rejected on node count before its distractor is ever consulted --
+#: which is how 38 of v1's 140 candidates died. Only these fixtures qualify.
+SMALL_FN = {"go-rosetta": 38, "java-rosetta": 70, "rs-rosetta": 43,
+            "sh-homelab": 12, "sh-mixed": 8}
+
 
 
 def names(fixture, key):
@@ -63,19 +76,31 @@ def names(fixture, key):
     return {m.group(1): int(m.group(2)) for m in re.finditer(r'([\w$]+)\((\d+)\)', raw)}
 
 
-def targets(fixture, k=6):
-    """Names defined ONCE as a function and called a handful of times: a call-graph question
-    about them has one unambiguous subject, and enough call sites for the graph to matter."""
+def targets(fixture, k=20):
+    """Two pools, because the forms need different things of a name -- and the inventories
+    are TRUNCATED to the 60 commonest names, so intersecting two truncated lists starved v2
+    to one target on some fixtures (c-duckhts: 24 uniquely-defined functions, 2 of them also
+    in the call list).
+
+      subject   defined exactly ONCE, so `.fn#name` has one unambiguous subject. Enough for
+                ::callees and :called-by(), which ask what the function calls -- nothing
+                requires it to be called itself.
+      called    also appears as a call, which ::callers needs: a function nobody calls has
+                no callers, the reference returns 0 nodes, and verify rejects it on the lower
+                bound before the distractor is consulted.
+    """
     fns, calls = names(fixture, "fn_names"), names(fixture, "call_names")
-    out = [n for n, c in sorted(calls.items(), key=lambda kv: -kv[1])
-           if fns.get(n) == 1 and 2 <= c <= 20 and not n.startswith("__")]
-    return out[:k]
+    once = [n for n in fns if fns[n] == 1 and not n.startswith("__")]
+    subject = sorted(once, key=lambda n: -calls.get(n, 0))[:k]
+    called = [n for n in subject if 2 <= calls.get(n, 0) <= 40][:k]
+    return subject, called
 
 
 # Each entry: the two sides of one contrast. Both get written as training rows, each with the
 # other as its distractor, so whichever the model answers it has committed to a distinction.
 # The English is the load-bearing part: "makes, per the call graph" vs "written inside".
-def contrasts(fx, lang, name):
+def contrasts(fx, lang, name, needs_called=True):
+    """needs_called: include the forms that require the name to be CALLED (::callers)."""
     c = []
     c.append(("callees",
               (".fn#%s::callees" % name,
@@ -86,15 +111,16 @@ def contrasts(fx, lang, name):
                ["every call expression written inside the body of %s" % name,
                 "the call syntax that appears textually within %s" % name,
                 "call nodes nested under %s" % name])))
-    c.append(("callers",
-              (".fn#%s::callers" % name,
-               ["the functions that call %s, per the call graph" % name,
-                "who calls %s?" % name,
-                "%s's callers" % name]),
-              (".fn:has(.call#%s)" % name,
-               ["functions whose body literally contains a call written %s" % name,
-                "functions with %s appearing as a call inside them" % name,
-                "any function containing the call syntax %s" % name])))
+    if needs_called:
+        c.append(("callers",
+                  (".fn#%s::callers" % name,
+                   ["the functions that call %s, per the call graph" % name,
+                    "who calls %s?" % name,
+                    "%s's callers" % name]),
+                  (".fn:has(.call#%s)" % name,
+                   ["functions whose body literally contains a call written %s" % name,
+                    "functions with %s appearing as a call inside them" % name,
+                    "any function containing the call syntax %s" % name])))
     c.append(("called_by",
               (".call:called-by(%s)" % name,
                ["the calls %s makes, per the call graph" % name,
@@ -104,15 +130,6 @@ def contrasts(fx, lang, name):
                ["call expressions written inside %s" % name,
                 "the calls appearing textually in %s's body" % name,
                 "call nodes under the %s definition" % name])))
-    c.append(("calls",
-              (".fn:calls(%s)" % name,
-               ["functions that call %s, following the call graph" % name,
-                "call-graph callers of %s" % name,
-                "which functions reach %s?" % name]),
-              (".fn:has(.call#%s)" % name,
-               ["functions containing a literal call to %s" % name,
-                "functions where %s appears written as a call" % name,
-                "functions with the call syntax %s inside" % name])))
     return c
 
 
@@ -152,13 +169,16 @@ def unary(fx, lang):
 
 def main():
     rows, n = [], 0
-    for fx, (lang, ok) in sorted(FIXTURES.items()):
-        tg = targets(fx)
-        pool = [(k, a, b) for name in tg for k, a, b in contrasts(fx, lang, name)]
-        pool += unary(fx, lang)
+    for fx, lang in sorted(FIXTURES.items()):
+        subject, called = targets(fx)
+        pool = [(k, a, b) for name in subject
+                for k, a, b in contrasts(fx, lang, name, needs_called=(name in called))]
+        # The bare-class contrast only where `.fn` fits the node bound (see SMALL_FN).
+        if fx in SMALL_FN and SMALL_FN[fx] <= 50:
+            pool += unary(fx, lang)
+        elif fx in SMALL_FN:
+            pool += [t for t in unary(fx, lang) if t[0] == "is_called"]
         for kind, (css_a, nl_a), (css_b, nl_b) in pool:
-            if kind not in ok:
-                continue
             for side, (css, nl, other) in (("a", (css_a, nl_a, css_b)), ("b", (css_b, nl_b, css_a))):
                 n += 1
                 rows.append({"id": "tr-pd-%s-%04d%s" % (fx.split("-")[0], n, side),
@@ -173,6 +193,8 @@ def main():
     print("wrote %d candidate rows -> %s" % (len(rows), OUT))
     print("by fixture: %s" % dict(collections.Counter(r["fixture"] for r in rows)))
     print("by contrast: %s" % dict(collections.Counter(r["contrast"]["kind"] for r in rows)))
+    sels = {(r["fixture"], r["css"]) for r in rows}
+    print("distinct (fixture, selector) engine calls: %d" % len(sels))
 
 
 if __name__ == "__main__":
