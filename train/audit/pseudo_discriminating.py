@@ -181,7 +181,7 @@ def main():
         for kind, (css_a, nl_a), (css_b, nl_b) in pool:
             for side, (css, nl, other) in (("a", (css_a, nl_a, css_b)), ("b", (css_b, nl_b, css_a))):
                 n += 1
-                rows.append({"id": "tr-pd-%s-%04d%s" % (fx.split("-")[0], n, side),
+                rows.append({"id": "tr-%s-t5-pd%04d%s" % (lang, n, side),
                              "tier": 5, "fixture": fx, "nl": nl[0], "paraphrases": nl[1:],
                              "css": css, "distractors": [other], "treeql": None,
                              "tags": ["sitting_duck_supported", "pseudo-discriminating", "v0"],
