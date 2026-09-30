@@ -2493,3 +2493,52 @@ What stands from the earlier section: the near-miss metric IS flawed (arm A's 7 
 answers were all costless, on pairs where the lookalike returns the reference's nodes), and
 `--cap-template 8` admitting only 55 of 152 pairs IS template poverty. What does NOT stand is
 the memorisation verdict.
+
+## sitting_duck silently DISCARDS pseudo-class arguments (third instance)
+
+Measured on the pinned engine, py-variety:
+
+    .fn:decorated                       2 nodes
+    .fn:decorated(by="property")        2 nodes   IDENTICAL to bare
+    .fn:decorated(by="zzzznotathing")   2 nodes   IDENTICAL to bare
+    .fn:decorated(property)             2 nodes   IDENTICAL to bare
+    .fn[annotation*="property"]         1 node    (the actual answer)
+
+    .fn:typed                           9 nodes
+    .fn:typed(None)                     9 nodes   IDENTICAL to bare
+    .fn:typed(Zzzznotatype)             9 nodes   IDENTICAL to bare
+    .fn[signature="None"]               1 node    (the actual answer)
+
+The parenthesised argument is parsed, thrown away, and the bare form's result returned. A
+deliberately nonsense argument behaves exactly like a real one, and nothing errors. This is
+the same failure as `:scope(X)` being vacuous with an unnamed argument -- the THIRD form found
+to accept and discard an argument. Worth reporting upstream: it makes an entire class of
+selector mistake unobservable.
+
+### It also manufactured a false pass in the eval
+
+t5-p31 wants `.fn[annotation*="classmethod"]`. With the arity card the 9B answered
+`.class .fn:decorated(by="method")` and EXEC-MATCHED -- because that reduces to
+`.class .fn:decorated`, which happens to return the same single node as
+`.class .fn[annotation*="classmethod"]` on this fixture. The pair credited an invented form by
+coincidence, so t5-p31 belongs with the non-discriminating pairs.
+
+### The card cannot fix this; the weights have to
+
+Same 9B adapter, card_t5 vs card_t5_arity (which names `:typed(None)` and
+`:decorated(by=...)` as wrong and gives the attribute replacements verbatim):
+
+    plain  93.2%      arity  94.0%      +0.8
+    won  t5-p31 (coincidence), t5-p42, t5-p52
+    lost t5-p33, t5-p34
+
+`::call -> ::callees` (p52) and the `:scope`/`:in-scope` shape (p42) did respond to being
+told. But p30 and p38 -- the two attribute-vs-pseudo errors -- did NOT move, despite the card
+naming them exactly. Telling the model is not enough for these.
+
+The likely cause is overgeneralisation from training, not ignorance: the corpus is full of
+LEGITIMATELY parameterised pseudo-classes (`:in-scope(` 198 rows, `:called-by(` 138,
+`:calls(` 24), so `:typed(None)` is the natural extension of a pattern the model has seen
+hundreds of times. And because the engine never errors on it, nothing has ever contradicted
+that generalisation. That is what the arity batch has to undo, and it is why a card line
+could not.
