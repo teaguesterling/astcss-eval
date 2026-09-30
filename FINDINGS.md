@@ -2442,3 +2442,54 @@ Two testable consequences, neither run yet:
 - Diversify the NL an order of magnitude (~20 phrasings per contrast) before retrying. That
   also lifts the `--cap-template 8` ceiling that discarded 97 of 152 pairs -- template poverty
   and the cap are the same defect seen from two sides.
+
+### CORRECTION: it was not template memorisation. It is a language trade.
+
+The section above concluded the batch "taught the template, not the distinction". The
+falsification test refutes that, and a subset breakdown explains the apparent contradiction.
+
+**Test 1 -- re-word the eval.** eval_pd2 is the same 43 pairs, same fixtures, same
+engine-verified references, with every REQUEST rewritten to share no phrasing with training
+(`.fn#X::callees` asked as "resolve the call graph out of X and list what it reaches" rather
+than "the calls X makes, resolved through the call graph"). Adapters unchanged; only the
+English differs.
+
+    arm            eval_pd (train wording)   eval_pd2 (re-worded)
+    base epoch1           74.4%                    58.1%
+    plus epoch1           97.7%                    90.7%
+    base epoch2           67.4%                    53.5%
+    plus epoch2          100.0%                    81.4%
+
+Both arms degrade on unseen wording, but the GAP survives: +23.3 -> +32.6 at epoch 1,
++32.6 -> +27.9 at epoch 2. A memorised template would have collapsed the gap, not held it.
+The batch teaches something that generalises across surface form.
+
+**Test 2 -- which eval_t5 pairs could it have helped?** Splitting eval_t5 by whether a pair
+uses a call-graph form AND discriminates:
+
+    subset                            n    base e2   plus e2
+    all                             118     85.6%     83.9%   -1.7
+    call-graph forms (any)           38     94.7%     92.1%   -2.6
+    call-graph AND discriminating    18    100.0%     88.9%  -11.1
+    discriminating, non-call-graph    65     78.5%     76.9%   -1.5
+
+The baseline already scores 100% on exactly the pairs the batch targets. There was no headroom
+on eval_t5, and arm B gave 2 of those 18 pairs back.
+
+**The reconciliation is language.** eval_t5 is entirely py-variety and repo-small-py, i.e.
+Python -- the dominant language in the training corpus. eval_pd/pd2 are mostly NOT Python
+(java 8, js 18, rust 10, go 3, bash 2, python 2 of 43). So:
+
+  - on PYTHON the baseline had already learned the call-graph distinction (94-100%), and the
+    batch REGRESSED it (-11.1 points at epoch 2, 2 pairs of 18)
+  - on the other five languages the baseline was weak (53-74%) and the batch fixed it
+    (+28 to +33 points, robust to re-wording)
+
+That is a trade, not a failure and not a win: real transfer where the model was weak, a real
+cost where it was already strong. Reported as a single eval_t5 number it reads as a small
+regression, which is why the Python-only headline eval cannot see what this batch did.
+
+What stands from the earlier section: the near-miss metric IS flawed (arm A's 7 lookalike
+answers were all costless, on pairs where the lookalike returns the reference's nodes), and
+`--cap-template 8` admitting only 55 of 152 pairs IS template poverty. What does NOT stand is
+the memorisation verdict.
