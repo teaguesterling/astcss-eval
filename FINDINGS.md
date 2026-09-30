@@ -2375,3 +2375,70 @@ discriminating subset and the near-miss rate are.
 Engine identity is recorded with every accepted pair: these encode PINNED semantics, and
 `::callees` is contested between pinned and sitting_duck main (main returns 1 node for
 `.fn#level2::callees` where pinned returns 5).
+
+## The contrastive pseudo batch taught the TEMPLATE, not the distinction
+
+Same-seed A/B on the 0.8B. Arm A is the 15,928-row baseline; arm B is the identical corpus
+plus 55 contrastive pseudo-form pairs (109 offered, `--cap-template 8` admitted 55). Verified
+each launch: 0 rows displaced from A, 0 held-out pairs leaked into B. Both arms 2 epochs,
+seed 18, max-len 1024, card_v1c for training. Val losses are indistinguishable
+(A 0.0823/0.0581, B 0.0858/0.0587), so this is not an over/under-fitting story.
+
+### The headline looks decisive and is misleading
+
+eval_pd -- 43 held-out pairs, every one engine-confirmed to discriminate:
+
+    arm            exec     lookalike
+    base epoch1   74.4%       2/43
+    base epoch2   67.4%       4/43
+    plus epoch1   97.7%       0/43
+    plus epoch2  100.0%       0/43
+
++32.6 points and every lookalike gone. But eval_pd was held out BY TARGET, not by PHRASING:
+its requests are the same six NL templates the training pairs use, with a different function
+name substituted. So 100% is consistent with completing a memorised template, and does not
+by itself show the semantic distinction was learned.
+
+### On independently written requests there is no transfer, and a small regression
+
+eval_t5's 118 requests were written by a separate process (batches b1/b2/b3), not from this
+generator's templates. There, arm B at epoch 2 is 3 pairs won, 5 lost:
+
+    metric                 base e1  plus e1   base e2  plus e2
+    full (118)              81.4%    84.7%     85.6%    83.9%
+    pseudo subset (98)      89.8%    90.8%     95.9%    92.9%
+    DISCRIM subset (83)     83.1%    80.7%     83.1%    79.5%
+
+The discriminating subset -- the only one where the distinction can be scored -- is WORSE for
+arm B at both epochs (-2.4 and -3.6). Small, one seed, so not a demonstrated regression; but
+there is no evidence of benefit where the wording is not ours.
+
+The clinching case is t5-p153, `.fn:not(:is-called):has(.member)`. Arm A answers it correctly.
+Arm B answers `.fn:not(:has(.call)):has(.member)` -- the exact lookalike substitution this
+batch exists to teach out, on a pair that discriminates, introduced BY the batch.
+
+### The near-miss metric I built is flawed: it does not weigh cost
+
+I proposed the lookalike rate as "the sensitive number". Broken down, arm A's 7 lookalike
+answers are ALL on non-discriminating pairs and ALL exec_match TRUE -- on those pairs the
+lookalike returns the reference's nodes, so answering it is correct and costs nothing. Arm B's
+2 are one costless (t5-p55) and one WRONG on a discriminating pair (t5-p153).
+
+So "7 -> 2" is not an improvement. The metric counts lookalike answers without asking whether
+the pair can penalise them, and on this eval most cannot. A corrected metric must count only
+lookalike answers on pairs the engine says discriminate. By that measure arm A scores 0 and
+arm B scores 1 -- the batch made it worse.
+
+### What this costs and what it implies
+
+11.6 h of GPU (two arms, two epochs, with the causal_conv1d kernel at ~11%). The verdict:
+generating contrastive pairs from a handful of NL templates teaches the templates. The gate
+was right about which SELECTOR pairs discriminate; the weakness was entirely in the request
+wording, where 152 pairs drew on six phrasings.
+
+Two testable consequences, neither run yet:
+- Hold out by TEMPLATE rather than by target. If eval_pd's gain survives that, the
+  distinction generalises; if it collapses toward the eval_t5 result, it was memorisation.
+- Diversify the NL an order of magnitude (~20 phrasings per contrast) before retrying. That
+  also lifts the `--cap-template 8` ceiling that discarded 97 of 152 pairs -- template poverty
+  and the cap are the same defect seen from two sides.
