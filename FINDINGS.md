@@ -3159,3 +3159,47 @@ TWO ways -- the declination rows AND the licensed cards -- and the licensed card
 to every row's system prompt. Arm B (licensed cards, no declination rows, 15,928 rows, 0
 declination rows, confirmed at build) separates them. Until it reports, the honest reading is
 "declination is learnable at 3.4% of rows, with a 9-point holdout cost of unknown origin".
+
+## The holdout's seed floor is 2.5 points, so every drop this session is real
+
+Four same-config adapters (small-langcard, seeds 18/19/20/21) scored on the holdout:
+
+    seed 18  76.8%     seed 20  74.9%
+    seed 19  75.9%     seed 21  74.3%     RANGE 2.5 points   (eval_t5's is 8.3)
+
+The holdout is 3.3x quieter than eval_t5. So the deltas read this session are effects, not
+seeds:
+
+    paraphrase arm   -4.6   1.8x the floor
+    abstention arm   -9.0   3.6x
+    arity arm       -13.5   5.4x
+
+That settles the "are we chasing noise" question in the uncomfortable direction: we are not.
+Four interventions, four real losses on the only instrument that tracks generalisation.
+
+### And the measurement that reframes the whole corpus
+
+Those seed adapters are small-langcard: **2,205 rows**, mean 75.5% on the holdout. The control
+is t5-langcard: **15,928 rows**, 79.3%.
+
+    7.2x the training data  ->  +3.8 points on unseen repos  (floor 2.5)
+    the same comparison     ->  ~50 points on eval_t5 (28-35% vs 82.4%)
+
+eval_t5 says the large corpus is transformative. The holdout says it is worth about one and a
+half noise floors. The 50-point gap is tier-5 compound selectors, which t5-langcard trains on
+and small-langcard does not, and which eval_t5 is almost entirely made of -- so that gap
+measures how well the corpus matches eval_t5, not how well the model reads unfamiliar code.
+
+Caveats held: different corpora (not just different sizes), and the holdout is 37% named-fn so
+it may compress real differences. A same-corpus scaling curve (579 / 1,116 / 2,205 rows) is
+running to test the first.
+
+### Why this points at the foundation rather than the next experiment
+
+Every intervention that moved eval_t5 up moved the holdout down or flat (4 for 4); the one that
+moved a held-out measure up moved eval_t5 down; a 7x corpus buys 1.5 noise floors on unseen
+repos; and the untouched 1-epoch 0.8B control beats the 4B and the 9B there. Those four facts
+are consistent with one explanation: the corpus and the eval were co-designed, and almost
+everything built on top has been optimising the fit between them.
+
+FOUNDATION.md records the nine decisions a v2 should make differently, each with its number.
