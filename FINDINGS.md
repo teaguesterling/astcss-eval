@@ -2595,3 +2595,57 @@ small cannot move a 118-pair Python eval, and both times it cost a few pairs els
 honest conclusion is that per-defect contrastive batches are the wrong instrument for moving a
 headline number, even though pseudo-d3 proved they DO teach what they encode (+28-33 points,
 robust to re-wording, where the baseline was weak).
+
+## The holdout suite inverts the ladder: eval_t5's ranking does not survive unseen repos
+
+323 verified questions, 11 languages, repos that appear in no training fixture. All models got
+the same language-neutral card (card_pd.md). Sixteen of my questions began "which file holds
+X", which genuinely asks for a FILE -- `.mod:has(.fn#X)` is a defensible answer there and
+`.fn#X` is not uniquely right -- so the clean column drops them. My flaw, not the models'.
+
+    model                  eval_t5   holdout(307)   delta
+    9b-t5-e2                93.2%        73.3%      -19.9
+    4b-t5-e2                90.8%        76.9%      -13.9
+    0.8b-base-e2            85.6%        74.3%      -11.3
+    0.8b-t5-e1              82.4%        79.5%       -2.9
+    0.8b-arity-e2           82.2%        65.8%      -16.4
+
+THE ORDER REVERSES AT THE EXTREMES. On eval_t5 the 9B is best and the 1-epoch 0.8B is worst.
+On unseen repos the 1-epoch 0.8B is BEST and the 9B is second-worst. Whatever eval_t5 ranks,
+it is not generalisation.
+
+### The second epoch is overfitting, and only the holdout can see it
+
+0.8b-t5-e1 (one epoch) vs 0.8b-base-e2 (two, same corpus):
+
+    eval_t5   82.4% -> 85.6%   +3.2    the headline says epoch 2 is better
+    holdout   79.5% -> 74.3%   -5.2    the holdout says it is worse
+
+Every "epoch 2 beats epoch 1" reading in this file is a statement about eval_t5's distribution.
+
+### How the 9B actually fails: it declines the simple answer
+
+named-fn is 119 of 323 pairs and carries the gap -- 0.8B 89/119, 9B 58/119. By emitted shape:
+
+    0.8B    .fn#N 100   .class#N 12   .call#N 5
+    9B      .fn#N  58   .class#N 28   .mod:has(.fn#N) 9   .jump#N 5   .mod#N 4
+
+Asked "where is StrPrintf defined" the 9B answers `.class#StrPrintf`; asked for
+`.fn#adjustRLimit` it answers `.mod:has(.fn#adjustRLLimit)` -- note the invented second L. It
+ALTERED AN IDENTIFIER, which no amount of selector knowledge recovers. The small model answers
+`.fn#name` and is right; the large one reaches for structure it was not asked for.
+
+### Caveat stated rather than buried
+
+The 4B and 9B run in NF4 4-bit; the 0.8B runs fp16. That is a real confound for comparing
+sizes. It cannot explain a REVERSAL, though: the same quantisation settings produced the 9B's
+93.2% win on eval_t5. And the 1-vs-2-epoch comparison is confound-free -- same model, same
+quantisation, same corpus, same seed.
+
+### What this costs the session's conclusions
+
+Every training result in this file was scored on eval_t5, and eval_t5 ranks models in an order
+the holdout reverses. The two batches that "failed" by moving eval_t5 down (-1.7, -3.4) were
+being judged by an instrument that rewards fitting its own fixtures. pseudo-d3's eval_t5 loss
+and its +28-33 point gain on non-Python held-out pairs are the same finding seen from two
+sides, and the holdout is the side that matters.
