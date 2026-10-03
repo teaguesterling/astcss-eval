@@ -2897,3 +2897,48 @@ dead selector, no silent empty set, and no spelling that neither works nor expla
 Under that resolution card_t5.md:60 is simply wrong and becomes `:in-scope(.class#Name)` -- the
 same edit I had wanted for two previous and wrong reasons, now for a principled one. Still
 after the re-pin, not before.
+
+## #184 is fixed on main (94357a8) but UNRELEASED -- do not re-pin yet
+
+Verified against Teague's spelling-is-operation spec, on the local main build (macros and
+extension rebuilt 2026-10-03 11:38). Not released, so the pin stays where it is; pinning to an
+in-flight state would be worse than the stale pin.
+
+    spec                                              observed on main @94357a8
+    ::scope      map match -> enclosing scope         84 nodes, 1:1            MATCHES
+    :in-scope(X) filter by containment, narrow        requires an arg; error lists the
+                                                      accepted forms           MATCHES
+    :is-scope    bare is OK                           84 nodes                 MATCHES
+    :is-scope(X) filter by BEING a scope              function/class/module accepted;
+                                                      `.call` rejected, deferred to #145
+                                                                               PARTIAL
+    bare :scope  error                                errors                   MATCHES
+    :scope(X)    error naming the alternatives        errors, naming all three MATCHES
+
+The `:scope` message is the model of what these should look like -- it names the operation the
+author probably wanted rather than just refusing:
+
+    :scope is not a pseudo-class -- it was ambiguous between three different operations.
+    Use ::scope (pseudo-element) to MAP each match to its enclosing scope; :is-scope or
+    :is-scope(X) to FILTER to nodes that ARE a scope; or :in-scope(X) to FILTER by the
+    scope a node is IN.
+
+And the zero-arity fix names the attribute form, which is exactly the signal the models were
+missing: ":typed takes no argument ... To filter on the type itself use the attribute form,
+e.g. [signature=\"None\"]". Three of the 9B's eight eval_t5 errors were that confusion, made
+unobservable by the silent discard.
+
+### What the re-pin will cost and gain, when it releases
+
+GAIN: all 198 corpus `:in-scope(` rows become valid. Their argument forms are `.fn#NAME` (156)
+and `.class#NAME` (42), both of which work on the new build. The corpus and the engine stop
+disagreeing.
+
+COST: `card_t5.md:60` stops being merely vacuous and becomes a HARD ERROR -- `:scope(X)` now
+raises. So the card edit is no longer optional at re-pin time, it is required, and any model
+following the current card fails every scope question outright instead of silently matching
+everything.
+
+Also: the 3 oracle-sourced `:scope` eval pairs (t5-p42/43/44) become unexecutable on the new
+engine, which settles their fate -- they were already the pairs where zero of 13 oracle
+references agreed with the engine.
