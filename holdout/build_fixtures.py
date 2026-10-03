@@ -23,7 +23,11 @@ SPEC = [
     # holdout this is better material than first-party code, not worse: it is certainly in no
     # training corpus, and it is written in someone else's style. The vendor/test skips are
     # lifted for these two, which is why they carry allow_vendor.
-    ("ho-js-nghttp2",       "duckdb-bigquery",       "javascript", (".js",),           18, True),
+    # First choice here was vendored rustdoc-js test data, which the engine could not parse at
+    # all ("Catalog Error: Table with name fx_ho_js_nghttp2 does not exist") -- those files are
+    # a rustdoc assertion DSL, not JavaScript. Real game code instead, small but genuine; the
+    # JS family is mainly carried by ho-ts-cockpit anyway.
+    ("ho-js-amongus",       "amongus-clone",         "javascript", (".js",),           12, True, 15),
     ("ho-go-nghttp2",       "duckdb-bigquery",       "go",         (".go",),           8, True),
     ("ho-ts-cockpit",       "cockpit-file-sharing",  "typescript", (".ts",),           20),
     ("ho-rust-fabric",      "cosmic-fabric",         "rust",       (".rs",),           9),
@@ -47,7 +51,7 @@ def sha256(p):
     return h.hexdigest()
 
 
-def pick(base, exts, cap, allow_vendor=False):
+def pick(base, exts, cap, allow_vendor=False, lo=30):
     """Mid-sized files, deepest-first excluded: prefer real source over generated stubs."""
     found = []
     for dp, dns, fns in os.walk(base):
@@ -61,7 +65,7 @@ def pick(base, exts, cap, allow_vendor=False):
                 n = sum(1 for _ in open(p, errors="ignore"))
             except OSError:
                 continue
-            if 30 <= n <= 700:          # big enough to hold structure, small enough to bound
+            if lo <= n <= 700:          # big enough to hold structure, small enough to bound
                 found.append((n, os.path.relpath(p, base), p))
     found.sort(key=lambda t: -t[0])
     return found[:cap]
@@ -72,11 +76,12 @@ def main():
     for spec in SPEC:
         name, repo, lang, exts, cap = spec[:5]
         allow_vendor = len(spec) > 5 and spec[5]
+        lo = spec[6] if len(spec) > 6 else 30
         rp = os.path.join(ROOT, repo)
         base = os.path.join(rp, "main") if os.path.isdir(os.path.join(rp, "main")) else rp
         if not os.path.isdir(base):
             print("%-22s MISSING %s" % (name, base)); continue
-        files = pick(base, exts, cap, allow_vendor)
+        files = pick(base, exts, cap, allow_vendor, lo)
         if not files:
             print("%-22s no files matched" % name); continue
         dest = os.path.join(OUT, name)

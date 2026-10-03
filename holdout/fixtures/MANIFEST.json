@@ -161,136 +161,73 @@
     }
    ]
   },
-  "ho-js-nghttp2": {
-   "repo": "duckdb-bigquery",
+  "ho-js-amongus": {
+   "repo": "amongus-clone",
    "language": "javascript",
-   "commit": "5350aa1721bbb7edd6dae266c39876561d801c95",
+   "commit": "28e82a8df4e11449ec5ff29fb05d8d2c7ba6627b",
    "files": [
     {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/mdbook/src/theme/book.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/mdbook/src/theme/book.js",
-     "lines": 697,
-     "bytes": 25437,
-     "sha256": "ce4cb9bb3c82927ad460186480a3043e3161e1445d270df990ec351bed931dba"
+     "path": "webpack/config.prod.js",
+     "source": "webpack/config.prod.js",
+     "lines": 77,
+     "bytes": 2436,
+     "sha256": "3d41223a10ca30ad8183421047e97ed56b4b3c1c155dd0f34713c397a1ce3a86"
     },
     {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-errors.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-errors.js",
-     "lines": 556,
-     "bytes": 13483,
-     "sha256": "7442968721f61ac07c78bdb657159b572c2a17e1dda33eb2f2a4c8cf27567bd3"
+     "path": "webpack/config.js",
+     "source": "webpack/config.js",
+     "lines": 51,
+     "bytes": 1603,
+     "sha256": "e28e2dd599f4dfbb8c5c8fb11c1a51e9a97818589d6336e2db4f64c0edd57f55"
     },
     {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/clippy/util/gh-pages/script.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/clippy/util/gh-pages/script.js",
-     "lines": 550,
-     "bytes": 21121,
-     "sha256": "59cc9f2ad89a9f1dd3d62e5a9bdcf4e9499a601b1c2cadbde067717f6a58bf06"
+     "path": "src/scenes/Preloader.js",
+     "source": "src/scenes/Preloader.js",
+     "lines": 46,
+     "bytes": 1474,
+     "sha256": "4f8172981e9b531c465020c7dfa6936a5f751f01db5af2031254597dc2573a6f"
     },
     {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/libmimalloc-sys/c_src/mimalloc/docs/navtree.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/libmimalloc-sys/c_src/mimalloc/docs/navtree.js",
-     "lines": 546,
-     "bytes": 15609,
-     "sha256": "5dd7e37a6fbd4accc7192343f119c8175ba5860245ffe457417dc1a004738cb2"
+     "path": "log.js",
+     "source": "log.js",
+     "lines": 36,
+     "bytes": 916,
+     "sha256": "892d377eb4962c73c92c33f18b98671f3bf0d53f6d762c6d1cafbffcf96bf113"
     },
     {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build-py/lib/libscanbuild/resources/sorttable.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build-py/lib/libscanbuild/resources/sorttable.js",
-     "lines": 535,
-     "bytes": 17540,
-     "sha256": "a761793d229ff1bb1fb996745dea25d749ab969c7b1f62a31ef2b56fb659b3db"
+     "path": "src/main.js",
+     "source": "src/main.js",
+     "lines": 28,
+     "bytes": 722,
+     "sha256": "04ab4c638d0169262b7376d76dbc5e0e14a53c66eb9a1042a30a3924a685b047"
     },
     {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/rustdoc-js/tester.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/rustdoc-js/tester.js",
-     "lines": 514,
-     "bytes": 19114,
-     "sha256": "a34c3feaa1150a1e4e29b31b691b83799dc82779641020cdcd0285f5430d492a"
+     "path": "src/scenes/MainMenu.js",
+     "source": "src/scenes/MainMenu.js",
+     "lines": 28,
+     "bytes": 574,
+     "sha256": "bb5553d6dbaa4369091e084a10a0a1c34fe5fe7b4df16acec6c3fd8bb56ca7ed"
     },
     {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build/share/scan-build/sorttable.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build/share/scan-build/sorttable.js",
-     "lines": 492,
-     "bytes": 16818,
-     "sha256": "a457478e9b2bbc85e012c6e60c62c3ec5714bd0ce34440e31692fa36c3b79aec"
+     "path": "src/scenes/Game.js",
+     "source": "src/scenes/Game.js",
+     "lines": 28,
+     "bytes": 650,
+     "sha256": "412ffcd3b9f34653103d1a47a799b19e76618f06d491d6aa01eaf259d17b31bd"
     },
     {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build-py/libscanbuild/resources/sorttable.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build-py/libscanbuild/resources/sorttable.js",
-     "lines": 492,
-     "bytes": 16818,
-     "sha256": "a457478e9b2bbc85e012c6e60c62c3ec5714bd0ce34440e31692fa36c3b79aec"
+     "path": "src/scenes/GameOver.js",
+     "source": "src/scenes/GameOver.js",
+     "lines": 28,
+     "bytes": 606,
+     "sha256": "2b2eefc609154bf934b288492ad8d128b94d427f5db2b2b11646fd45d8793f54"
     },
     {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/mdbook/src/theme/searcher/searcher.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/mdbook/src/theme/searcher/searcher.js",
-     "lines": 483,
-     "bytes": 18474,
-     "sha256": "597b15cf5684c9293e4ecd86ceedbf88d367fe0283ec1874acd54f8b774b545b"
-    },
-    {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/cargo/src/cargo/core/compiler/timings.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/cargo/src/cargo/core/compiler/timings.js",
-     "lines": 478,
-     "bytes": 14318,
-     "sha256": "7c619e2f54a3482de9766d53121e4b6303698942236a685b662af4b88a694ed0"
-    },
-    {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/rustdoc-gui/tester.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/rustdoc-gui/tester.js",
-     "lines": 334,
-     "bytes": 11210,
-     "sha256": "be83678ef25a645f221dc5faaf704f70c06c255ef57f35f41666bfe9cd4900b1"
-    },
-    {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/jsonpath_lib/docs/bootstrap.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/jsonpath_lib/docs/bootstrap.js",
-     "lines": 306,
-     "bytes": 13967,
-     "sha256": "a7066e48a2e3eef70c498f3e7bcef94ce90a0d7f4d561d921a8df235b9f9ae2b"
-    },
-    {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/jsonpath_lib/docs/bench/bootstrap.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/jsonpath_lib/docs/bench/bootstrap.js",
-     "lines": 306,
-     "bytes": 14005,
-     "sha256": "f1a643279902a25823b28f3eb0ad1bc58ea00dcf2855e92c2b49ff99eda0559d"
-    },
-    {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-slice-array.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-slice-array.js",
-     "lines": 305,
-     "bytes": 8288,
-     "sha256": "3bf422d6c69bf4043b20f5785e61013adeb5118ff778be8dfb01d675e74fb5ab"
-    },
-    {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang-tools-extra/pseudo/tool/HTMLForest.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang-tools-extra/pseudo/tool/HTMLForest.js",
-     "lines": 290,
-     "bytes": 10243,
-     "sha256": "374eff29c369d5906cdd8a4bd90c7f8b2148c75cf75b6352ffcf4a7003cdeeea"
-    },
-    {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/librustdoc/html/static/js/settings.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/librustdoc/html/static/js/settings.js",
-     "lines": 282,
-     "bytes": 10046,
-     "sha256": "b17aec94cedb174a1a1d24e7ce345c087d2bdf60c3bcabd58490d2c9cbd86204"
-    },
-    {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js/doc-alias.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js/doc-alias.js",
-     "lines": 268,
-     "bytes": 7257,
-     "sha256": "f270e0540293f03a52bcdefe603aee6ae267a166d15b40effb9caf9cd995d7a3"
-    },
-    {
-     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-bindings.js",
-     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-bindings.js",
-     "lines": 245,
-     "bytes": 6914,
-     "sha256": "8f2a779f75f7eaec07670e7392f25f5fd9b4735e1eb014041d020c6602df24ad"
+     "path": "src/scenes/Boot.js",
+     "source": "src/scenes/Boot.js",
+     "lines": 22,
+     "bytes": 516,
+     "sha256": "b8d1e1a932214d5d1aeea5f1667445866b1e924ddbb2bae3e8786d9874f8ee83"
     }
    ]
   },
