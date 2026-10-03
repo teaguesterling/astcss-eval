@@ -2738,3 +2738,48 @@ every remaining number one instrument's opinion.
 Worth noting against the 95% target: on 105 engine-scored pairs the 9B reads 94.3%, its best
 number anywhere. It is also 73.5% on reworded eval_t5 and 69.7% on unseen repos. The target was
 always a property of the instrument.
+
+## What makes the reworded score drop: four hypotheses, three falsified
+
+The 9B loses 26 of 113 pairs when eval_t5 is reworded. Tested causes:
+
+    LENGTH / REGISTER   falsified. Lost pairs are SHORTER (median 6 words vs 8) and LESS
+                        formal (0 of 26 capitalised+punctuated, vs 9 of 87 kept).
+    SYNONYM RARITY      falsified. Accuracy by training frequency of the rarest word the
+                        reword introduced: absent(0) 66.7%, rare 81.1%, mid 72.3%,
+                        common 62.5%. Not monotonic; n per band 8-47, so noise.
+    SYNONYM PRESENCE    falsified by its own control. 17 of 26 lost pairs had a synonym
+                        introduced -- but so did 44 of 80 KEPT pairs. Conditional accuracy
+                        72% with a synonym vs 80% without: an 8-point effect, not 20.
+    BAD REWORDINGS      partly real but small. 3 of 26 are phantom identifiers, where the
+                        reword said "invoke a target" and the model answered `.call#target`,
+                        taking a generic noun as a name. Those are my paraphrases failing,
+                        not the model.
+
+The training vocabulary IS starkly skewed -- call/calls 10,179 occurrences against 588 for
+the whole invoke family, and yield/assign/populate at zero -- but the control shows that skew
+does not drive the losses. I nearly recommended a 20-hour corpus rebuild on that correlation.
+
+### What survives: a familiarity bonus with no identified mechanism
+
+The one robust statement is comparative, not causal. eval_t5's requests were authored by the
+same process as the training pairs; the holdout's were written fresh. Rewording costs eval_t5
+~20 points and the holdout 0.2-3.9. So roughly 20 points of eval_t5 is familiarity with
+phrasing rather than selector skill, distributed across the pairs rather than concentrated in
+any lexical feature I could find.
+
+CAUTION ON CROSS-SUITE COMPARISON. eval_t5 is tier 5 -- compound `:has`/`:not` selectors --
+while 37% of the holdout is named-fn. The suites differ in difficulty as well as provenance, so
+their absolute numbers are not comparable; only each suite's original-vs-reworded delta is.
+
+### The lever, stated as an untested hypothesis
+
+Paraphrase diversity in training is the obvious candidate: the corpus carries ~3 phrasings per
+pair, all from one authoring process. Generating several model-written paraphrases per pair
+(reword.py already does this, with the identifier guard) would multiply phrasings without
+adding selectors or leakage risk. But the mechanism I proposed for WHY it would work has just
+been falsified, so this is a hypothesis to test, not a recommendation to act on.
+
+The cheap test is one arm, not a corpus rebuild: reword-augment the paraphrases, train the
+0.8B once (~6.5 h), and measure against the existing 0.8b-base-e2 on reworded eval_t5 and
+reworded holdout. If the delta is flat, phrasing diversity is not the lever either.
