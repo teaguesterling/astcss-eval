@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:9b-card_t5_arity",
+    "n": 117,
+    "request_errors": 0,
+    "executes": 117,
+    "exec_match": 110,
+    "exact": 92,
+    "by_tier": {
+      "5": [
+        110,
+        117
+      ]
+    },
+    "median_latency_s": 1.76,
+    "mean_completion_tokens": 11.025641025641026,
+    "thinking": "off"
+  }
+]

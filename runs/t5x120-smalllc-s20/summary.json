@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:smalllc-s20",
+    "n": 120,
+    "request_errors": 0,
+    "executes": 112,
+    "exec_match": 35,
+    "exact": 17,
+    "by_tier": {
+      "5": [
+        35,
+        120
+      ]
+    },
+    "median_latency_s": 0.33,
+    "mean_completion_tokens": 9.191666666666666,
+    "thinking": "off"
+  }
+]

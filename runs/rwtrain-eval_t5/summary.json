@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:rwtrain-e1",
+    "n": 118,
+    "request_errors": 0,
+    "executes": 118,
+    "exec_match": 106,
+    "exact": 88,
+    "by_tier": {
+      "5": [
+        106,
+        118
+      ]
+    },
+    "median_latency_s": 0.33,
+    "mean_completion_tokens": 10.940677966101696,
+    "thinking": "off"
+  }
+]

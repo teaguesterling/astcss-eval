@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:9b-card_t5",
+    "n": 118,
+    "request_errors": 0,
+    "executes": 117,
+    "exec_match": 110,
+    "exact": 93,
+    "by_tier": {
+      "5": [
+        110,
+        118
+      ]
+    },
+    "median_latency_s": 1.66,
+    "mean_completion_tokens": 10.90677966101695,
+    "thinking": "off"
+  }
+]

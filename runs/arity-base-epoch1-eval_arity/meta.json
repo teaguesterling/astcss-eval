@@ -1,0 +1,33 @@
+{
+  "started": "2026-09-30T22:06:32-0700",
+  "models": [
+    "local:arity-base-epoch1"
+  ],
+  "runner": "local",
+  "base": "/home/teague/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17",
+  "adapter": "workspace/adapters/ab-pd1-base/epoch1",
+  "per_tier": 0,
+  "seed": "qualify-v1",
+  "pair_ids": [
+    "tr-python-t5-arh0001a",
+    "tr-python-t5-arh0002b",
+    "tr-python-t5-arh0003a",
+    "tr-python-t5-arh0004b",
+    "tr-python-t5-arh0005a",
+    "tr-python-t5-arh0006b",
+    "tr-python-t5-arh0008b",
+    "tr-python-t5-arh0010b",
+    "tr-python-t5-arh0012b",
+    "tr-python-t5-arh0014b",
+    "tr-python-t5-arh0016b",
+    "tr-python-t5-arh0018b"
+  ],
+  "card": "card_pd.md",
+  "card_sha256": "5d133b93b4461c135b512c8254de8504577856e5863e0a22baef33e0fdbd2b3d",
+  "retrieve": 0,
+  "retrieve_portable": false,
+  "leaked_ids": [],
+  "prompt_format": "chat-template+gen-prompt+nothink/v1",
+  "embed_cpu": false,
+  "lang_tag": null
+}

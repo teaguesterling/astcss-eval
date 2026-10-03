@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:abpd1-base-epoch2",
+    "n": 118,
+    "request_errors": 0,
+    "executes": 117,
+    "exec_match": 101,
+    "exact": 78,
+    "by_tier": {
+      "5": [
+        101,
+        118
+      ]
+    },
+    "median_latency_s": 0.32,
+    "mean_completion_tokens": 11.101694915254237,
+    "thinking": "off"
+  }
+]
