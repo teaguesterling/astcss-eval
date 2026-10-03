@@ -2942,3 +2942,60 @@ everything.
 Also: the 3 oracle-sourced `:scope` eval pairs (t5-p42/43/44) become unexecutable on the new
 engine, which settles their fate -- they were already the pairs where zero of 13 oracle
 references agreed with the engine.
+
+## Phrasing diversity: confirmed on eval_t5, refuted on the holdout
+
+One arm, one epoch, 15,952 rows against the control's 15,928 -- same 8,326 pairs, same
+canonical `nl`, same two paraphrases each, only their SOURCE changed from the original
+authoring process to the 4B. 5,214 pairs got model paraphrases; 3,112 failed the identifier
+guard or could not produce a second distinct rewrite and kept their originals, so the treatment
+is roughly 60%.
+
+                         eval_t5   eval_t5_rw   holdout   holdout_rw
+    control 0.8b-t5-e1    83.1%      61.9%       79.3%      79.1%
+    arm (4B paraphrases)  89.8%      77.0%       74.6%      67.1%
+    delta                 +6.8       +15.0        -4.6      -12.0
+
+    rewording GAP    control: eval_t5 -21.1   holdout -0.2
+                     arm:     eval_t5 -12.8   holdout -7.5
+
+On eval_t5 the hypothesis holds and holds well: the rewording gap closes from 21.1 to 12.8
+points and the absolute score rises 6.8. That is the largest training gain anything produced
+this session, and the first that moved eval_t5 up at all.
+
+On the holdout it is refuted. The arm loses 4.6 points, loses 12.0 reworded, and OPENS a
+rewording gap of 7.5 where the control had 0.2. Training on model-written phrasings made the
+model newly sensitive to phrasing on the suite that was previously immune to it.
+
+Since the holdout is the better instrument -- that is what the inversion and the rewording
+results established -- this intervention is NET NEGATIVE by the measure we trust, while being
+the best thing we have ever done to the measure we do not.
+
+### A measured register collapse, offered as mechanism and NOT as cause
+
+                              words med   <=4 words   interrogative   terse opener
+    HUMAN train paraphrases       8          4.5%        45.5%            -
+    4B train paraphrases          6         19.1%         0.1%           1.0%
+    eval_t5 questions             8         14.3%         0.0%            -
+    holdout questions (mine)      4         62.2%         0.0%          59.8%
+
+Replacing the human paraphrases wiped out an entire register: 45.5% of them were interrogative
+("where is the gather routine that assembles the collections?"), against 0.1% of the 4B's. The
+4B is actually TERSER on average, so terseness is not the story; the loss is one specific
+dimension of variety, and the corpus went from two registers to one.
+
+That is a correlation, and three correlations have already died today -- length, synonym
+rarity, synonym presence. I am not claiming it causes the holdout regression. The clean test is
+cheap and not run: reword with a DIFFERENT generator, or mix human and model paraphrases rather
+than replacing, and see whether the holdout loss disappears while the eval_t5 gain survives.
+
+### What the session's training record now looks like
+
+    pseudo-d3   55 pairs    eval_t5 -1.7    non-Python held-out +28 to +33
+    arity-a1    36 pairs    eval_t5 -3.4    +1 pair on a 12-pair eval
+    card line    0 pairs    eval_t5 +0.8    (9B, no training at all)
+    reword-para  corpus     eval_t5 +6.8    holdout -4.6, reworded holdout -12.0
+
+Every intervention that moved eval_t5 up moved the holdout down or left it alone, and the one
+that moved a held-out measure up (pseudo-d3) moved eval_t5 down. Four for four. On this
+evidence eval_t5 and generalisation are not merely different, they are in tension.
