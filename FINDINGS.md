@@ -2687,3 +2687,54 @@ article ("functions with no a call anywhere"); on four the model repaired the gr
 reinterpreting, turning `:not(:has(.call))` into "never invoked", which is `:not(:is-called)`.
 Excluding them moves the numbers 79.1 -> 80.4 and 65.8 -> 66.9, so they change nothing
 material. eval_t5_rw has zero flagged pairs.
+
+## Adjudication: none of the 13 oracle-sourced pairs agrees with the engine
+
+Every oracle-sourced reference run through the pinned engine and compared with its stored
+digest:
+
+    agree 0        disagree 8        engine REFUSES 5
+
+    ERROR  t5-p15 t5-p17 t5-p18 t5-p19 t5-p37   all `[receiver="..."]` -- "no output for query"
+    DIFFER t5-p23 (13 vs 15)  t5-p28 (26 vs 33)  t5-p39 (1 vs 0)  t5-p40 (23 vs 39)
+           t5-p41 (10 vs 19)  t5-p42 (3 vs 0)    t5-p43 (2 vs 0)  t5-p44 (10 vs 0)
+
+The five ERRORs explain why the oracle exists: it was a workaround for selectors the engine
+will not execute, not a convenience. Those pairs ask questions the pinned engine cannot answer
+at all, so no model can be right or wrong on them in the engine's terms.
+
+### This overturns my own correction about `:scope`, and the lesson is about evidence
+
+Measured directly, py-variety:
+
+    .fn                           84        .fn:in-scope(.class#Cat)       3  == .class#Cat .fn
+    .fn:scope(.class#Cat)          0        .fn:in-scope(.class#Animal)    5
+    .fn:scope(.class#Animal)       0        .call:in-scope(.fn#load)       2
+    .call:scope(.fn#load)          0
+
+`:scope(X)` with a NAMED argument returns ZERO; with an unnamed one it is vacuous. The earlier
+"always 0" claim was RIGHT, and the correction recorded above it -- that a named argument
+constrains, citing 3 nodes -- was WRONG. That 3 was t5-p42's stored `reference.count`, and
+t5-p42 is oracle-sourced: an oracle number read as an engine measurement.
+
+A stored reference is an engine measurement only when `reference.source == "engine"`. Nothing in
+the pair format makes that salient, and I did not check. **card_t5.md:60 should teach
+`:in-scope(` after all** -- the opposite of what the earlier entry concluded.
+
+### Retiring the 13 barely moves eval_t5, which is the point
+
+    model            all 118   engine-only 105
+    9b-t5-e2          93.2%        94.3%
+    4b-t5-e2          90.7%        91.4%
+    0.8b-base-e2      85.6%        84.8%
+    0.8b-t5-e1        83.1%        84.8%
+
+At most 1.7 points either way. So the dual-instrument problem was never distorting the
+headline much -- it was distorting WHICH PAIRS the headline was computed from, and crediting
+models for answers the engine disagrees with (six models were credited on t5-p43 for the
+descendant form while the engine calls it different). Removing them costs nothing and makes
+every remaining number one instrument's opinion.
+
+Worth noting against the 95% target: on 105 engine-scored pairs the 9B reads 94.3%, its best
+number anywhere. It is also 73.5% on reworded eval_t5 and 69.7% on unseen repos. The target was
+always a property of the instrument.
