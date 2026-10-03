@@ -166,13 +166,31 @@ def eval_overlap(rows):
                        + glob.glob(os.path.join(HERE, "holdout", "pairs", "*.jsonl"))):
         if os.path.basename(path).startswith("rejected-"):
             continue
+        holdout = os.sep + "holdout" + os.sep in path
         for line in open(path):
             p = json.loads(line)
             for t in [p.get("nl", "")] + (p.get("paraphrases") or []):
                 if t:
                     ev_nl[norm(t)] = p["id"]
-            if p.get("css"):
-                ev_css[p["css"]] = p["id"]
+            css = p.get("css")
+            # For pairs/ and eval_t5/ every selector is registered: those are drafted to be
+            # distinctive, so a training pair sharing one is teaching the answer.
+            #
+            # The HOLDOUT registers its REQUESTS ONLY, not its selectors, and the reason is
+            # that a selector string is not an answer -- a node set in a fixture is. A holdout
+            # pair asking `.fn#run` about plinking_duck and a training pair asking `.fn#run`
+            # about lackpy are different questions with different answers; the training pair
+            # teaches "find the function named run", which is the SKILL under test, not the
+            # result. And the holdout's fixtures are repos that appear in no training fixture,
+            # so no training pair can carry a holdout answer by construction.
+            #
+            # Two rounds of narrowing got here. Registering every holdout selector blocked 23
+            # legitimate training pairs over generic vocabulary (`.fn:has(.call)`, `.loop`).
+            # Restricting it to selectors naming an identifier still blocked 10, over names as
+            # common as run, constructor, concat and Error. Both were me treating a shared
+            # selector string as leakage when the fixtures differ.
+            if css and not holdout:
+                ev_css[css] = p["id"]
     bad = {}
     for r in rows:
         hits = []

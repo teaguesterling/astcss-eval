@@ -2783,3 +2783,53 @@ been falsified, so this is a hypothesis to test, not a recommendation to act on.
 The cheap test is one arm, not a corpus rebuild: reword-augment the paraphrases, train the
 0.8B once (~6.5 h), and measure against the existing 0.8b-base-e2 on reworded eval_t5 and
 reworded holdout. If the delta is flat, phrasing diversity is not the lever either.
+
+## Measurement-hygiene failure: I compared results from two different engines
+
+Three claims above were measured with `ASTCSS_MACROS` unset. The default is
+`~/Projects/sitting_duck/src/sql_macros/css_selectors.sql` plus that repo's build -- the LIVE
+engine another session has been changing all week -- not the pinned snapshot every verified
+pair and every score uses. Measured deliberately, same selectors, same fixture:
+
+    selector                      PINNED (fix127)   main @ff97ef9
+    .fn                                 84               84
+    .fn:scope(.class#Animal)            84 VACUOUS        0  BROKEN
+    .fn:scope(.class)                   84 VACUOUS        0  BROKEN
+    .fn:in-scope(.class#Animal)    UNKNOWN pseudo-class    5  works
+    .class#Animal .fn                    5                5
+    .class#Animal > .fn                  0                0
+    .fn:typed / :typed(Zzz)           9 / 9            9 / 9  arg discarded
+
+Live macros on the pinned binary error outright ("Scalar Function with name is_constitu... does
+not exist"), so the two are not interchangeable in either direction. `:in-scope` DID NOT EXIST
+at the pin and was added later -- yet the training corpus uses `:in-scope(` 198 times, teaching
+a selector the pinned evaluation engine rejects.
+
+So the earlier entry "`:scope(X)` always returns 0, measured directly" was measuring MAIN. On
+the pinned engine `:scope` is vacuous, not empty. Both are broken; my attribution was not.
+The card line should still change to `:in-scope(`, now for a reason that survives scrutiny.
+
+### And the child combinator is NOT broken -- that claim was mine, and wrong
+
+I wrote that `>` is "unfalsifiable on real code" because all 53 holdout child questions were
+rejected. It works:
+
+    .class#Animal > block    2        .mod > .class   16        .fn > block   74
+    block > .fn             46        .mod > .fn      26
+
+`.class#Animal > .fn` is 0 because a method's AST parent is a `block`, not the
+`class_definition` -- correct tree semantics, surprising only if you expect CSS-DOM behaviour.
+My 53 questions asked for "methods directly on N" and encoded `.class#N > .fn`, which is not
+that; `.class#N > block > .fn` is. The gate rejected them on the lower node bound, and I
+misread bounds rejections as vacuity.
+
+### What is left for upstream: two bugs, both confirmed on main @ff97ef9
+
+1. `:scope(X)` returns 0 for every argument while `:in-scope(X)` returns the right answer.
+   A dead selector still in the grammar, and the card teaches it.
+2. `:typed(X)` and `:decorated(X)` silently DISCARD the argument and return the bare form --
+   `:typed(Zzz)` == `:typed`. Contrast `:totally_made_up(x)`, which correctly errors
+   "unknown pseudo-class". An arity error exists; it just is not raised for these.
+
+Not bugs, recorded so they are not re-filed: attribute filters inside `:has()` are explicitly
+unsupported with a clear error, and `>` is correct as described above.
