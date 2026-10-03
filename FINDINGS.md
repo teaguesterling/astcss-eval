@@ -2874,3 +2874,26 @@ comparability for every score in this file, because `:in-scope` starting to work
 So the sequencing is: land #184, re-pin, re-baseline the ladder, THEN change card_t5.md:60 --
 not the other way round. Changing the card against the current pin would make it teach
 `:in-scope(`, which this engine rejects outright: worse than the vacuous form it teaches now.
+
+### The scope design, resolved: `:scope` is `::scope` misspelled
+
+Measured, py-variety, pinned engine -- `::scope` is a 1:1 map from each match to its enclosing
+scope, cardinality-preserving, node sets differing:
+
+    .fn      84 -> .fn::scope      84        .fn#make_animal   1 -> ::scope  1
+    .var     82 -> .var::scope     82        .call#print       5 -> ::scope  5
+    .class   19 -> .class::scope   19        (one of those 5 is the module node,
+                                              for a top-level print)
+
+So `::scope` and `:in-scope(X)` are INVERSES: one maps nodes to their scopes, the other filters
+nodes by scope. Both already work. `:scope(X)` is not a third operation anyone needs -- it is a
+spelling that collides with the pseudo-element, which is why CSS precedent makes the
+single-colon slip so natural.
+
+Teague's call, filed on #184: normalise bare `:scope` to `::scope`, and make `:scope(X)` with an
+argument an arity error naming `:in-scope(X)`. That folds bug 1 into bug 2's fix and leaves no
+dead selector, no silent empty set, and no spelling that neither works nor explains itself.
+
+Under that resolution card_t5.md:60 is simply wrong and becomes `:in-scope(.class#Name)` -- the
+same edit I had wanted for two previous and wrong reasons, now for a principled one. Still
+after the re-pin, not before.
