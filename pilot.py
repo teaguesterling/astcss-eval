@@ -163,10 +163,14 @@ def eval_overlap(rows):
     # a training pair whose request or selector matches it aborts the build.
     for path in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl"))
                        + glob.glob(os.path.join(HERE, "eval_t5", "pairs", "*.jsonl"))
-                       + glob.glob(os.path.join(HERE, "holdout", "pairs", "*.jsonl"))):
+                       + glob.glob(os.path.join(HERE, "holdout", "pairs", "*.jsonl"))
+                       + glob.glob(os.path.join(HERE, "abstain", "pairs", "*.jsonl"))):
         if os.path.basename(path).startswith("rejected-"):
             continue
-        holdout = os.sep + "holdout" + os.sep in path
+        # abstain/ is request-only for the same reason as holdout/: its unanswerable
+        # pairs carry css "NONE", which is not a selector anyone could leak.
+        holdout = (os.sep + "holdout" + os.sep in path
+                   or os.sep + "abstain" + os.sep in path)
         for line in open(path):
             p = json.loads(line)
             for t in [p.get("nl", "")] + (p.get("paraphrases") or []):
