@@ -1,0 +1,6 @@
+{
+ "question": "Phrase every rewrite as a QUESTION ending in '?', the way a developer would ask a colleague.",
+ "terse": "Make every rewrite TERSE: at most four words, like a grep or a jump-to command. No sentence.",
+ "verbose": "Make every rewrite LONG and explicit: at least twelve words, spelling out what is wanted.",
+ "imperative": "Phrase every rewrite as a blunt IMPERATIVE command: 'show me...', 'find...', 'list...'."
+}

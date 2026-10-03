@@ -3054,3 +3054,56 @@ That also means abstention is the one practical axis where a training batch shou
 the reason the earlier batches failed: pseudo-d3 and arity-a1 were 0.3-0.5% nudges to a
 behaviour the corpus already covered, whereas declination has no representation in the corpus
 at all. A first batch would be teaching something, not outvoting something.
+
+## Register follows the PROMPT, not the model
+
+The plan was nine generators across seven families, on the theory that model diversity buys
+register diversity. Measured on 120 queries sampled from eval_t5, the holdout and the corpus:
+
+    generator                      n   wmed terse<=4 long>=12  quest?  imper  Capped  vocab  TTR
+    REF human paraphrases      14510      8       5%      17%     45%    90%      0%   2216 0.02
+    REF 4B paraphrases (failed) 9012      6      19%       5%      0%     1%      8%   1943 0.04
+    REF holdout questions        323      4      62%       0%      0%    54%      7%    318 0.29
+    claude:haiku                 120      6      27%       0%      0%    18%      3%    254 0.43
+    claude:sonnet                117      6      15%       6%      0%    41%     36%    241 0.36
+    tiiny:Qwen3-30B-A3B-Instruct 118      7       5%      12%      0%    10%      0%    253 0.38
+
+Haiku, Sonnet and the device Qwen differ from each other in real ways -- capitalisation 3% vs
+36% vs 0%, imperative 18/41/10, terseness 27/15/5. But look at `quest?`: ALL THREE ARE ZERO,
+exactly like the 4B whose register collapse cost 12 points on the reworded holdout. The
+interrogative register -- 45% of the human paraphrases -- appears in NO model's output.
+
+So nine generators would have bought nine times the cost of the failure already measured.
+
+### The prompt moves it completely. One generator, four targets:
+
+    target        n  wmed terse<=4 long>=12  quest?  imper   example
+    question     40     9     10%      10%    100%    75%   "Which functions use a with
+                                                             statement without any except
+                                                             handlers?"
+    terse        40     3    100%       0%      0%     0%   "with block, no except"
+    verbose      40    16      0%     100%      0%   100%   "Find all functions that contain
+                                                             a with block statement but do
+                                                             not contain..."
+    imperative   40     8      2%      15%      0%    75%   "Find functions that contain a
+                                                             with statement and lack an
+                                                             except clause"
+
+100% interrogative on demand, 100% terse at four words or fewer, 100% verbose at twelve or
+more. Complete control, from one model, by asking.
+
+### What this changes
+
+Register is a PROMPT axis; model identity is a LEXICAL axis. They are not substitutes, and we
+had been shopping on the wrong one. The corpus needs register coverage the human paraphrases
+supply (45% interrogative) and every model drops to zero unless told.
+
+So: assign registers deliberately -- question, terse, verbose, imperative, conversational --
+and use a handful of generators for lexical variety WITHIN each register, rather than nine
+models all writing the same fluent declarative. That is cheaper, controllable, and testable:
+the register table is now a pre-flight check, so a batch cannot silently collapse a register
+the way the 4B arm did.
+
+Still to measure: whether register-balanced paraphrases actually fix the holdout regression.
+This explains the mechanism the earlier section could not identify, but explaining a mechanism
+is not demonstrating a fix -- four hypotheses have already died on this question.
