@@ -2649,3 +2649,41 @@ the holdout reverses. The two batches that "failed" by moving eval_t5 down (-1.7
 being judged by an instrument that rewards fitting its own fixtures. pseudo-d3's eval_t5 loss
 and its +28-33 point gain on non-Python held-out pairs are the same finding seen from two
 sides, and the holdout is the side that matters.
+
+## Rewording costs eval_t5 twenty points and the holdout nothing
+
+Every question in both suites was reworded by the 9B BASE model (no adapter): same meaning,
+different words, identifiers required to survive verbatim. The identifier guard rejected 6
+rewordings that dropped or altered a name -- those would have become unanswerable questions
+costing every model a point equally, which reads as a robustness failure but is a broken
+question. Rewordings are substantially different, not shuffled: median content-word overlap
+0.29 (holdout) and 0.36 (eval_t5), 6 near-copies in 301 and 0 in 113.
+
+    model         eval_t5  ->  reworded          holdout  ->  reworded
+    0.8b-t5-e1     82.4%      61.9%   -20.5       79.3%      79.1%   -0.2
+    9b-t5-e2       93.2%      73.5%   -19.7       69.7%      65.8%   -3.9
+
+TWENTY POINTS OF eval_t5 IS PHRASING FAMILIARITY. Both models lose ~20 points when the same
+questions are asked in different words, against the same fixtures and the same references.
+Exact-match falls further still (0.8B 66.1 -> 38.9, 9B 78.8 -> 54.0). The holdout loses 0.2
+and 3.9, so its scores are about selectors; eval_t5's are substantially about wording.
+
+The reason is provenance: eval_t5's requests were authored by the same process that wrote the
+training pairs, so its phrasings are in-distribution. The holdout's were written fresh in
+varied registers, which is why there is little left for a rewording to take away.
+
+### Phrasing and repo-novelty are INDEPENDENT axes
+
+Rewording does NOT flip the ladder -- on reworded eval_t5 the 9B still leads (73.5 vs 61.9),
+and on the reworded holdout the 0.8B still leads (65.8 vs 79.1). So:
+
+    changing the WORDS   costs eval_t5 ~20 points, costs the holdout ~0-4, and reorders nothing
+    changing the REPOS   reverses the ladder: 9B best on eval_t5 fixtures, 0.8B best elsewhere
+
+Two separate deficiencies, and eval_t5 alone could see neither.
+
+Five of the 301 reworded holdout pairs are at risk because MY `NOT` template interpolated an
+article ("functions with no a call anywhere"); on four the model repaired the grammar by
+reinterpreting, turning `:not(:has(.call))` into "never invoked", which is `:not(:is-called)`.
+Excluding them moves the numbers 79.1 -> 80.4 and 65.8 -> 66.9, so they change nothing
+material. eval_t5_rw has zero flagged pairs.
