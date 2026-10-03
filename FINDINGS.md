@@ -2999,3 +2999,58 @@ than replacing, and see whether the holdout loss disappears while the eval_t5 ga
 Every intervention that moved eval_t5 up moved the holdout down or left it alone, and the one
 that moved a held-out measure up (pseudo-d3) moved eval_t5 down. Four for four. On this
 evidence eval_t5 and generalisation are not merely different, they are in tension.
+
+## Denial instead of invention: a card granting license has ZERO effect
+
+Three facts explain why no model here has ever declined anything:
+
+    cards granting license to decline     0  -- every card says "Reply with the selector only"
+    eval pairs that are unanswerable      0 of 536
+    predictions containing refusal words  33 of 23,796  (0.14%)
+
+So invention was never a model defect. The protocol forbade declining and no eval ever
+contained a question that should be declined.
+
+New instruments: `card_abstain.md`, which grants `NONE: <what is missing>`, lists what the
+language lacks and warns against over-refusing; and `abstain/`, 33 unanswerable requests over
+8 categories plus 16 engine-verified answerable controls. Scored as a 2x2, because one number
+would hide the trade -- a model that declines everything is perfect on invention and useless.
+
+    run                  ANSWERABLE (16)              UNANSWERABLE (33)
+                         right  wrong  over-refused   declined  INVENTED
+    0.8B  no license       12      4        0             0        33
+    9B    no license       14      2        0             0        33
+    0.8B  with license     12      4        0             0        33
+    9B    with license     15      1        0             0        33
+
+100% INVENTION IN ALL FOUR CONDITIONS. Not one declination, from either size, with the license
+stated explicitly in the system prompt. Config verified: the two cards have different sha256s,
+`card_abstain.md` contains the license text, and each run's meta.json records the card it used.
+
+### The inventions are confident and include hallucinated identifiers
+
+    "the biggest class in this codebase"     -> .class#Gargantuan
+    "functions longer than fifty lines"      -> .fn:has(while_statement)
+    "short helpers, under five lines"        -> .fn:has(continue_statement)
+    "any function whose body runs past one screen" -> .fn:has(.call#scroll)
+
+`.class#Gargantuan` is the striking one: asked for the biggest class, the 9B invented a class
+named after a synonym for big. `dial_port` and `scroll` are likewise not identifiers in the
+fixture. So the failure is not only "answers when it should not" but "fabricates names", and
+every one of these executes and returns a plausible-looking node set.
+
+### Card changes do not move trained behaviour -- twice now
+
+This is the second time a card fix produced nothing. The arity card named `:typed(None)` and
+`:decorated(by=...)` as wrong and gave the replacements verbatim: +0.8 points, and the two
+target errors unmoved. Now an explicit abstention license: zero effect.
+
+Both behaviours are invariants of the corpus -- 100% of training pairs have an answer, so
+"always emit a selector" is learned as absolute, and a sentence in the prompt does not
+contradict 15,928 rows. Getting denial requires TRAINING on declinations. The suite to measure
+it now exists, and the baseline is 0 of 33.
+
+That also means abstention is the one practical axis where a training batch should WORK, for
+the reason the earlier batches failed: pseudo-d3 and arity-a1 were 0.3-0.5% nudges to a
+behaviour the corpus already covered, whereas declination has no representation in the corpus
+at all. A first batch would be teaching something, not outvoting something.
