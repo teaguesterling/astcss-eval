@@ -3107,3 +3107,55 @@ the way the 4B arm did.
 Still to measure: whether register-balanced paraphrases actually fix the holdout regression.
 This explains the mechanism the earlier section could not identify, but explaining a mechanism
 is not demonstrating a fix -- four hypotheses have already died on this question.
+
+## Declination training works, and the capability is in the weights
+
+Arm C: the baseline corpus plus 553 declination rows (+3.4%), licensed per-language cards, one
+epoch, seed 18. Baseline for comparison is 0 declinations of 33 under every card at both model
+sizes.
+
+                            ANSWERABLE (16)           UNANSWERABLE (33)
+                            right wrong over-refused  declined  invented
+    before (any model/card)  12-15   1-4      0           0        33
+    arm C + licensed card       14     2      0          26         7
+    arm C + UNLICENSED card     14     2      0          15        18
+
+0 -> 26 of 33. And 15 of 33 still declined when scored with the UNLICENSED card, which never
+mentions declining -- the behaviour survives removing the permission that was present during
+training, so it is learned, not prompted. That was the control the confounded two-arm design
+could not give, and it is the result that matters: the card alone produced exactly zero
+(measured, all four conditions), so the rows did this.
+
+ZERO OVER-REFUSALS on all 16 answerable controls, in both conditions. The failure mode the
+controls exist to catch -- a model that declines anything oddly worded -- did not appear.
+
+### Transfer is partial, and the held-out split is what shows it
+
+                  licensed      unlicensed
+    TRAINED       22/25  88%    13/25  52%
+    HELD-OUT       4/8   50%     2/8   25%
+
+    by category (licensed): size 5/5  judgement 6/6  superlative 3/3  three-step 3/3
+                            count 4/5  history 4/4  runtime 1/3  dataflow 0/4
+
+`history` was never trained and transferred completely (4/4) -- "changed in the last week" is
+evidently far enough from anything the corpus answers. `dataflow` was never trained and
+transferred not at all (0/4): "variables assigned but never read" still draws
+`.var:assigned:not(:is-referenced)`, inventing two pseudo-classes. `runtime` WAS trained and
+only reached 1/3.
+
+So this is not a keyword rule -- it generalises to one unseen category and to new phrasings of
+trained ones -- but neither is it a learned concept of expressibility. Dataflow questions look
+answerable to it, and the forms it reaches for are invented vocabulary rather than
+near-misses: `.fn:added`, `.var:assigned`.
+
+### Collateral, with a confound the card-only arm will settle
+
+    holdout   79.3% -> 70.3%   -9.0
+    eval_t5   83.1% -> 82.2%   -0.9
+
+A 9-point holdout loss is not acceptable as it stands. But arm C differs from the control in
+TWO ways -- the declination rows AND the licensed cards -- and the licensed card adds ~10 lines
+to every row's system prompt. Arm B (licensed cards, no declination rows, 15,928 rows, 0
+declination rows, confirmed at build) separates them. Until it reports, the honest reading is
+"declination is learnable at 3.4% of rows, with a 9-point holdout cost of unknown origin".
