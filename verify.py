@@ -38,7 +38,9 @@ CLI = os.path.join(SD, "build/release/duckdb")
 EXT = os.path.join(SD, "build/release/extension/sitting_duck/sitting_duck.duckdb_extension")
 MACROS = os.environ.get(
     "ASTCSS_MACROS",
-    os.path.join(SD, "trees/fix/127-combinator-steps/src/sql_macros/css_selectors.sql"))
+    os.path.join(SD, "src/sql_macros/css_selectors.sql")
+    if os.path.exists(os.path.join(SD, "src/sql_macros/css_selectors.sql"))
+    else os.path.join(SD, "trees/fix/127-combinator-steps/src/sql_macros/css_selectors.sql"))
 
 FIXTURES = {
     "py-variety": "fixtures/py-variety/*.py",
@@ -51,6 +53,15 @@ if os.path.exists(_TRAIN_MANIFEST):
     import json as _json
     for _name in _json.load(open(_TRAIN_MANIFEST))["fixtures"]:
         FIXTURES.setdefault(_name, "train/fixtures/%s/**/*.*" % _name)
+# Holdout fixtures (holdout/fixtures/MANIFEST.json): 11 repos that appear in NO training
+# fixture, across 11 languages, two of which (typescript, ruby) are absent from training
+# entirely. Registered the same way so verify/qualify can execute against them; what keeps
+# them out of training is pilot.eval_overlap, not this table.
+_HOLDOUT_MANIFEST = os.path.join(HERE, "holdout", "fixtures", "MANIFEST.json")
+if os.path.exists(_HOLDOUT_MANIFEST):
+    import json as _json
+    for _name in _json.load(open(_HOLDOUT_MANIFEST))["fixtures"]:
+        FIXTURES.setdefault(_name, "holdout/fixtures/%s/**/*.*" % _name)
 MIN_NODES, MAX_NODES = 1, 50
 COMBINATORS = ("child_selector", "descendant_selector", "sibling_selector",
                "adjacent_sibling_selector")

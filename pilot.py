@@ -156,8 +156,14 @@ def eval_overlap(rows):
     allowed. Eval pairs are pairs/{accepted,pending,retired}*.jsonl."""
     norm = lambda s: " ".join(s.lower().split())  # noqa: E731
     ev_nl, ev_css = {}, {}
-    # The tier-5 eval (eval_t5/, 2026-09-15) is held out too.
-    for path in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl")) + glob.glob(os.path.join(HERE, "eval_t5", "pairs", "*.jsonl"))):
+    # The tier-5 eval (eval_t5/, 2026-09-15) is held out too, and so is the holdout
+    # validation suite (holdout/pairs/, 2026-10-02) -- 11 repos in 11 languages that appear in
+    # no training fixture. The suite exists to be the one measurement no training has touched,
+    # so it is enforced HERE, in the gate every dataset build runs, rather than by discipline:
+    # a training pair whose request or selector matches it aborts the build.
+    for path in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl"))
+                       + glob.glob(os.path.join(HERE, "eval_t5", "pairs", "*.jsonl"))
+                       + glob.glob(os.path.join(HERE, "holdout", "pairs", "*.jsonl"))):
         if os.path.basename(path).startswith("rejected-"):
             continue
         for line in open(path):

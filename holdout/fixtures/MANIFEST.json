@@ -1,0 +1,1244 @@
+{
+ "fixtures": {
+  "ho-python-mindmeld": {
+   "repo": "MindMeld",
+   "language": "python",
+   "commit": null,
+   "files": [
+    {
+     "path": "cop-testing/framework/cop_python/runtime.py",
+     "source": "cop-testing/framework/cop_python/runtime.py",
+     "lines": 579,
+     "bytes": 20287,
+     "sha256": "8b5cfe89441734460207fcdf4c4d8b92829fef0ac54a3cb05a918c9d87070d40"
+    },
+    {
+     "path": "cop-testing/framework/cop_python/analysis/extractor.py",
+     "source": "cop-testing/framework/cop_python/analysis/extractor.py",
+     "lines": 537,
+     "bytes": 21224,
+     "sha256": "0f7de7d9ae380e1bfdb6da468d699b0483be71581f4266fd117c351578e0e411"
+    },
+    {
+     "path": "cop-testing/tools/summarize-results.py",
+     "source": "cop-testing/tools/summarize-results.py",
+     "lines": 485,
+     "bytes": 21385,
+     "sha256": "4b21c04c041337d6a474e8a3cd643881f856677323452e746a979dc04089a66f"
+    },
+    {
+     "path": "cop-testing/framework/cop_python/analysis/metrics.py",
+     "source": "cop-testing/framework/cop_python/analysis/metrics.py",
+     "lines": 447,
+     "bytes": 15251,
+     "sha256": "be8a100d5404bee818bf014e73dbeb566943085c579cc65e6b41f3f3dbb2ffe8"
+    },
+    {
+     "path": "cop-testing/framework/cop_python/utils.py",
+     "source": "cop-testing/framework/cop_python/utils.py",
+     "lines": 388,
+     "bytes": 12730,
+     "sha256": "8a215f8d5414ec73faec31f4bb68e94eafc11e9c8f9eb6decd65688c68e5f464"
+    },
+    {
+     "path": "cop-testing/framework/cop_python/testing/verification.py",
+     "source": "cop-testing/framework/cop_python/testing/verification.py",
+     "lines": 388,
+     "bytes": 14507,
+     "sha256": "b973a3334c9be186e47de0578d613b456f1d613aa0550fe2563acf31366eef82"
+    },
+    {
+     "path": "cop-testing/framework/cop_python/analysis/cli.py",
+     "source": "cop-testing/framework/cop_python/analysis/cli.py",
+     "lines": 383,
+     "bytes": 15571,
+     "sha256": "00a9e82132998affb9ffeced2c2b1c0c5a9b295fa6aa31eecb1cdabd7e08e228"
+    },
+    {
+     "path": "cop-testing/framework/cop_python/analysis/test_extractor.py",
+     "source": "cop-testing/framework/cop_python/analysis/test_extractor.py",
+     "lines": 383,
+     "bytes": 16021,
+     "sha256": "cecda2362501f55ca8edd630a4a6194eed0b4c7d16ad1beaa856414107d3dd02"
+    },
+    {
+     "path": "cop-testing/backup/test_cop_features.py",
+     "source": "cop-testing/backup/test_cop_features.py",
+     "lines": 347,
+     "bytes": 11496,
+     "sha256": "bf27cbcaefa58f8bdefa624f7bcfacd66fe09380a9cf5d95122543dd0b6d213c"
+    },
+    {
+     "path": "cop-testing/framework/cop_python/annotations.py",
+     "source": "cop-testing/framework/cop_python/annotations.py",
+     "lines": 339,
+     "bytes": 13499,
+     "sha256": "c0368244ccdd17fbad270b49656cfd7ce223a42c74d3c1ab36b9b6d3d784d2f0"
+    },
+    {
+     "path": "cop-testing/framework/examples/tutorial_ecommerce/src/services/payment_service.py",
+     "source": "cop-testing/framework/examples/tutorial_ecommerce/src/services/payment_service.py",
+     "lines": 334,
+     "bytes": 13674,
+     "sha256": "966f5f8bdc32c681a02c74f56dc1cee39462bd1cda4c16d4ba5b4b7dacfbed32"
+    },
+    {
+     "path": "cop-testing/framework/run_tutorial_analysis.py",
+     "source": "cop-testing/framework/run_tutorial_analysis.py",
+     "lines": 308,
+     "bytes": 10819,
+     "sha256": "a6d4ebf8d27a73e8085dfed791d91d99387bc1646192bdba59728c8f193ad80f"
+    },
+    {
+     "path": "cop-testing/framework/cop_python/core.py",
+     "source": "cop-testing/framework/cop_python/core.py",
+     "lines": 308,
+     "bytes": 10994,
+     "sha256": "6029c36cb4e9e68738041c2e842e205492673387359373735a334c2e4265a617"
+    },
+    {
+     "path": "cop-testing/framework/cop_python/analysis/exporter.py",
+     "source": "cop-testing/framework/cop_python/analysis/exporter.py",
+     "lines": 300,
+     "bytes": 10043,
+     "sha256": "89f952b5bdca4854f06fe2dde2eeec0e74c6d792d1f6442a4fcca1c956f24ac3"
+    },
+    {
+     "path": "cop-testing/tools/generate-assessments.py",
+     "source": "cop-testing/tools/generate-assessments.py",
+     "lines": 280,
+     "bytes": 11802,
+     "sha256": "83d140af04183f40ecf666d5df766d8ad7e8972553c495b99d66fe45207bf3d1"
+    },
+    {
+     "path": "cop-testing/framework/examples/tutorial_ecommerce/src/services/notification_service.py",
+     "source": "cop-testing/framework/examples/tutorial_ecommerce/src/services/notification_service.py",
+     "lines": 269,
+     "bytes": 10281,
+     "sha256": "7f6a750a6262770525d0102d0514292f0e24c3e561e6b04836f881c8cd754b21"
+    },
+    {
+     "path": "cop-testing/tools/generate-assessment-prompt.py",
+     "source": "cop-testing/tools/generate-assessment-prompt.py",
+     "lines": 266,
+     "bytes": 11630,
+     "sha256": "18604915a0a712ad4739b8721caadfb3a13d4e985aa1ba4ac68f8f0c12231ed0"
+    },
+    {
+     "path": "cop-testing/framework/assess/reporter.py",
+     "source": "cop-testing/framework/assess/reporter.py",
+     "lines": 262,
+     "bytes": 12625,
+     "sha256": "57102e68d5c3dbc8ebf477744d8de4be8f38f5153fb003321daee901764f3927"
+    },
+    {
+     "path": "cop-testing/framework/cop_python/test_examples.py",
+     "source": "cop-testing/framework/cop_python/test_examples.py",
+     "lines": 260,
+     "bytes": 10345,
+     "sha256": "02d5442dbe3646f9bfacef3a93ab65294e570262ebd598016a367c262489d54b"
+    },
+    {
+     "path": "cop-testing/test_case-variants/cop-v0.2/anti_patterns/god_object/copmin.py",
+     "source": "cop-testing/test_case-variants/cop-v0.2/anti_patterns/god_object/copmin.py",
+     "lines": 243,
+     "bytes": 8173,
+     "sha256": "bc31afab3f7677e984d201d464030e4beca2667a9017585ec5f0b8b9176531f9"
+    },
+    {
+     "path": "cop-testing/test_case-variants/cop-v0.2/anti_patterns/god_object/copnone.py",
+     "source": "cop-testing/test_case-variants/cop-v0.2/anti_patterns/god_object/copnone.py",
+     "lines": 243,
+     "bytes": 8172,
+     "sha256": "0e8f10c6357817f6ee3b0b65f022a49857f1f5f70d62670e7e270b3f0710a08d"
+    },
+    {
+     "path": "cop-testing/test_case-variants/cop-v0.2/anti_patterns/god_object/cop.py",
+     "source": "cop-testing/test_case-variants/cop-v0.2/anti_patterns/god_object/cop.py",
+     "lines": 243,
+     "bytes": 8172,
+     "sha256": "0e8f10c6357817f6ee3b0b65f022a49857f1f5f70d62670e7e270b3f0710a08d"
+    }
+   ]
+  },
+  "ho-js-nghttp2": {
+   "repo": "duckdb-bigquery",
+   "language": "javascript",
+   "commit": "5350aa1721bbb7edd6dae266c39876561d801c95",
+   "files": [
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/mdbook/src/theme/book.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/mdbook/src/theme/book.js",
+     "lines": 697,
+     "bytes": 25437,
+     "sha256": "ce4cb9bb3c82927ad460186480a3043e3161e1445d270df990ec351bed931dba"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-errors.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-errors.js",
+     "lines": 556,
+     "bytes": 13483,
+     "sha256": "7442968721f61ac07c78bdb657159b572c2a17e1dda33eb2f2a4c8cf27567bd3"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/clippy/util/gh-pages/script.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/clippy/util/gh-pages/script.js",
+     "lines": 550,
+     "bytes": 21121,
+     "sha256": "59cc9f2ad89a9f1dd3d62e5a9bdcf4e9499a601b1c2cadbde067717f6a58bf06"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/libmimalloc-sys/c_src/mimalloc/docs/navtree.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/libmimalloc-sys/c_src/mimalloc/docs/navtree.js",
+     "lines": 546,
+     "bytes": 15609,
+     "sha256": "5dd7e37a6fbd4accc7192343f119c8175ba5860245ffe457417dc1a004738cb2"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build-py/lib/libscanbuild/resources/sorttable.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build-py/lib/libscanbuild/resources/sorttable.js",
+     "lines": 535,
+     "bytes": 17540,
+     "sha256": "a761793d229ff1bb1fb996745dea25d749ab969c7b1f62a31ef2b56fb659b3db"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/rustdoc-js/tester.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/rustdoc-js/tester.js",
+     "lines": 514,
+     "bytes": 19114,
+     "sha256": "a34c3feaa1150a1e4e29b31b691b83799dc82779641020cdcd0285f5430d492a"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build/share/scan-build/sorttable.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build/share/scan-build/sorttable.js",
+     "lines": 492,
+     "bytes": 16818,
+     "sha256": "a457478e9b2bbc85e012c6e60c62c3ec5714bd0ce34440e31692fa36c3b79aec"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build-py/libscanbuild/resources/sorttable.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang/tools/scan-build-py/libscanbuild/resources/sorttable.js",
+     "lines": 492,
+     "bytes": 16818,
+     "sha256": "a457478e9b2bbc85e012c6e60c62c3ec5714bd0ce34440e31692fa36c3b79aec"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/mdbook/src/theme/searcher/searcher.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/mdbook/src/theme/searcher/searcher.js",
+     "lines": 483,
+     "bytes": 18474,
+     "sha256": "597b15cf5684c9293e4ecd86ceedbf88d367fe0283ec1874acd54f8b774b545b"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/cargo/src/cargo/core/compiler/timings.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/cargo/src/cargo/core/compiler/timings.js",
+     "lines": 478,
+     "bytes": 14318,
+     "sha256": "7c619e2f54a3482de9766d53121e4b6303698942236a685b662af4b88a694ed0"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/rustdoc-gui/tester.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/tools/rustdoc-gui/tester.js",
+     "lines": 334,
+     "bytes": 11210,
+     "sha256": "be83678ef25a645f221dc5faaf704f70c06c255ef57f35f41666bfe9cd4900b1"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/jsonpath_lib/docs/bootstrap.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/jsonpath_lib/docs/bootstrap.js",
+     "lines": 306,
+     "bytes": 13967,
+     "sha256": "a7066e48a2e3eef70c498f3e7bcef94ce90a0d7f4d561d921a8df235b9f9ae2b"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/jsonpath_lib/docs/bench/bootstrap.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/jsonpath_lib/docs/bench/bootstrap.js",
+     "lines": 306,
+     "bytes": 14005,
+     "sha256": "f1a643279902a25823b28f3eb0ad1bc58ea00dcf2855e92c2b49ff99eda0559d"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-slice-array.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-slice-array.js",
+     "lines": 305,
+     "bytes": 8288,
+     "sha256": "3bf422d6c69bf4043b20f5785e61013adeb5118ff778be8dfb01d675e74fb5ab"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang-tools-extra/pseudo/tool/HTMLForest.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/llvm-project/clang-tools-extra/pseudo/tool/HTMLForest.js",
+     "lines": 290,
+     "bytes": 10243,
+     "sha256": "374eff29c369d5906cdd8a4bd90c7f8b2148c75cf75b6352ffcf4a7003cdeeea"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/librustdoc/html/static/js/settings.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/src/librustdoc/html/static/js/settings.js",
+     "lines": 282,
+     "bytes": 10046,
+     "sha256": "b17aec94cedb174a1a1d24e7ce345c087d2bdf60c3bcabd58490d2c9cbd86204"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js/doc-alias.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js/doc-alias.js",
+     "lines": 268,
+     "bytes": 7257,
+     "sha256": "f270e0540293f03a52bcdefe603aee6ae267a166d15b40effb9caf9cd995d7a3"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-bindings.js",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/tests/rustdoc-js-std/parser-bindings.js",
+     "lines": 245,
+     "bytes": 6914,
+     "sha256": "8f2a779f75f7eaec07670e7392f25f5fd9b4735e1eb014041d020c6602df24ad"
+    }
+   ]
+  },
+  "ho-go-nghttp2": {
+   "repo": "duckdb-bigquery",
+   "language": "go",
+   "commit": "5350aa1721bbb7edd6dae266c39876561d801c95",
+   "files": [
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/libnghttp2-sys/nghttp2/integration-tests/nghttpx_http3_test.go",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/libnghttp2-sys/nghttp2/integration-tests/nghttpx_http3_test.go",
+     "lines": 393,
+     "bytes": 9369,
+     "sha256": "fd2b405facd257d2877204956cd7686689b595e37bf831a1196377c415c6b928"
+    },
+    {
+     "path": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/libnghttp2-sys/nghttp2/contrib/tlsticketupdate.go",
+     "source": "spack-stage/spack-stage-rust-1.76.0-ig6upta2al7afcfdpxcwza2yvqcmsxml/spack-src/vendor/libnghttp2-sys/nghttp2/contrib/tlsticketupdate.go",
+     "lines": 112,
+     "bytes": 3213,
+     "sha256": "4c92f584aac83f2918a9aa55716a5783a2987945fd238672ffd52c31aa7a12d7"
+    }
+   ]
+  },
+  "ho-ts-cockpit": {
+   "repo": "cockpit-file-sharing",
+   "language": "typescript",
+   "commit": "020c2170342b8e794d4c7f04d67ba1d320f2cc09",
+   "files": [
+    {
+     "path": "houston-common/houston-common-lib/lib/managers/samba/manager.ts",
+     "source": "houston-common/houston-common-lib/lib/managers/samba/manager.ts",
+     "lines": 591,
+     "bytes": 19258,
+     "sha256": "bfdb12c68bce7f344687d08cc728838390fb1de21f4183df103078d3b7b837d0"
+    },
+    {
+     "path": "houston-common/houston-common-lib/lib/scheduler/utils/helpers.ts",
+     "source": "houston-common/houston-common-lib/lib/scheduler/utils/helpers.ts",
+     "lines": 568,
+     "bytes": 14828,
+     "sha256": "4f0961dee5c71135cfc3bf853a5361ab7424a99a13264523264db615a7fa63d2"
+    },
+    {
+     "path": "houston-common/houston-common-lib/lib/server.ts",
+     "source": "houston-common/houston-common-lib/lib/server.ts",
+     "lines": 541,
+     "bytes": 17412,
+     "sha256": "3951357946367f313aac887e0b1415e47c94cef680814b432dd114f39a5c87bf"
+    },
+    {
+     "path": "file-sharing/src/tabs/s3Management/types/types.ts",
+     "source": "file-sharing/src/tabs/s3Management/types/types.ts",
+     "lines": 502,
+     "bytes": 11097,
+     "sha256": "226b6ecd496d3b9b59d62cfe10ccb860d8ff476018d5bb99f786f4c42288151e"
+    },
+    {
+     "path": "file-sharing/src/tabs/iSCSI/types/drivers/ISCSIDriverSingleServer.ts",
+     "source": "file-sharing/src/tabs/iSCSI/types/drivers/ISCSIDriverSingleServer.ts",
+     "lines": 489,
+     "bytes": 24047,
+     "sha256": "7a8a0f1d5f904388dd67b0e74b665a0abb68e40f8fe153d9d6fcd7b098d064bc"
+    },
+    {
+     "path": "file-sharing/src/tabs/nfs/exports-parser.test.ts",
+     "source": "file-sharing/src/tabs/nfs/exports-parser.test.ts",
+     "lines": 459,
+     "bytes": 16427,
+     "sha256": "2e4c93c7932ac3363d7835248b4cdcfb968a1398e9f2ff66a601f876680f06b5"
+    },
+    {
+     "path": "file-sharing/src/common/systemd-manager.ts",
+     "source": "file-sharing/src/common/systemd-manager.ts",
+     "lines": 437,
+     "bytes": 15486,
+     "sha256": "6960a40b0e81e64195d6e292e5117e19927fbe819e1b3b00a81d6299cce23612"
+    },
+    {
+     "path": "houston-common/houston-common-lib/lib/managers/zfs/manager.ts",
+     "source": "houston-common/houston-common-lib/lib/managers/zfs/manager.ts",
+     "lines": 432,
+     "bytes": 13553,
+     "sha256": "648a1dd4872d3da1b81b5759b5177d53e625755d1a80ce67e96007a24ffc2d67"
+    },
+    {
+     "path": "houston-common/houston-common-ui/lib/components/ServerView/MouseEventTranslator.ts",
+     "source": "houston-common/houston-common-ui/lib/components/ServerView/MouseEventTranslator.ts",
+     "lines": 399,
+     "bytes": 13377,
+     "sha256": "fe621e5e45b1003fc6ba27be74336e3226efb1c6379391dfe344dcbfdfb89031"
+    },
+    {
+     "path": "file-sharing/src/tabs/iSCSI/types/cluster/RBDManager.ts",
+     "source": "file-sharing/src/tabs/iSCSI/types/cluster/RBDManager.ts",
+     "lines": 376,
+     "bytes": 16161,
+     "sha256": "355018a16b2a79b6a8f1ad3bc721f63c058af5aafa53915c55212a9c7255bd36"
+    },
+    {
+     "path": "file-sharing/src/tabs/iSCSI/types/cluster/PCSResourceManager.ts",
+     "source": "file-sharing/src/tabs/iSCSI/types/cluster/PCSResourceManager.ts",
+     "lines": 368,
+     "bytes": 15372,
+     "sha256": "11d085a8eeb4b02f6e1a12f27ac9e2fefb1a18a183eda2994ad42ad8751f3c0a"
+    },
+    {
+     "path": "houston-common/houston-common-lib/lib/utils.ts",
+     "source": "houston-common/houston-common-lib/lib/utils.ts",
+     "lines": 362,
+     "bytes": 10649,
+     "sha256": "455c51a554ef501f3805c013cd83c9803f2e014d83076efc0534f641492fb980"
+    },
+    {
+     "path": "file-sharing/src/common/ceph-option-manager.ts",
+     "source": "file-sharing/src/common/ceph-option-manager.ts",
+     "lines": 330,
+     "bytes": 12661,
+     "sha256": "68698b7a0afd359583c585b7db66a8598ba9ce59f03a622bb81b81c50c0f49fc"
+    },
+    {
+     "path": "houston-common/houston-common-lib/lib/scheduler/Tasks.ts",
+     "source": "houston-common/houston-common-lib/lib/scheduler/Tasks.ts",
+     "lines": 314,
+     "bytes": 10967,
+     "sha256": "9ae27e4948b4a7d5cfa6b0f44b87cd1d100e36e8286624914099e757a7eb5305"
+    },
+    {
+     "path": "houston-common/houston-common-lib/lib/utils.test.ts",
+     "source": "houston-common/houston-common-lib/lib/utils.test.ts",
+     "lines": 298,
+     "bytes": 12693,
+     "sha256": "436bd0f642a60b56817832b74799ca76cebeb21c4ca271cd2b23285890167ec8"
+    },
+    {
+     "path": "houston-common/houston-common-ui/lib/components/ServerView/ServerComponent.ts",
+     "source": "houston-common/houston-common-ui/lib/components/ServerView/ServerComponent.ts",
+     "lines": 292,
+     "bytes": 8719,
+     "sha256": "70fa3f956dec9b3d021810023bcfce7207221036e09ab8f7f055e8d122816313"
+    },
+    {
+     "path": "houston-common/cockpit-typings/cockpit.d.ts",
+     "source": "houston-common/cockpit-typings/cockpit.d.ts",
+     "lines": 279,
+     "bytes": 9221,
+     "sha256": "e371f5edee036de02889c01573c30e5df5a95465385c4287764831943c363cbd"
+    },
+    {
+     "path": "houston-common/houston-common-lib/typings/cockpit-typings/cockpit.d.ts",
+     "source": "houston-common/houston-common-lib/typings/cockpit-typings/cockpit.d.ts",
+     "lines": 279,
+     "bytes": 9221,
+     "sha256": "e371f5edee036de02889c01573c30e5df5a95465385c4287764831943c363cbd"
+    },
+    {
+     "path": "houston-common/houston-common-ui/typings/cockpit.d.ts",
+     "source": "houston-common/houston-common-ui/typings/cockpit.d.ts",
+     "lines": 279,
+     "bytes": 9221,
+     "sha256": "e371f5edee036de02889c01573c30e5df5a95465385c4287764831943c363cbd"
+    },
+    {
+     "path": "houston-common/houston-common-ui/typings/cockpit-typings/cockpit.d.ts",
+     "source": "houston-common/houston-common-ui/typings/cockpit-typings/cockpit.d.ts",
+     "lines": 279,
+     "bytes": 9222,
+     "sha256": "a0d11eac455b520876d281e333d5c908d2b754ec8e4ba0717af5be6a4d376b77"
+    }
+   ]
+  },
+  "ho-rust-fabric": {
+   "repo": "cosmic-fabric",
+   "language": "rust",
+   "commit": "277b6f355d619562dc5f6630f8264806cd3ac141",
+   "files": [
+    {
+     "path": "crates/cosmic-fabric-panel/src/daemon.rs",
+     "source": "crates/cosmic-fabric-panel/src/daemon.rs",
+     "lines": 604,
+     "bytes": 24667,
+     "sha256": "66e693544b8a003c264907480da8a204a740717c43695d5832399a0c2a85e8f6"
+    },
+    {
+     "path": "crates/cosmic-fabric-panel/src/session.rs",
+     "source": "crates/cosmic-fabric-panel/src/session.rs",
+     "lines": 487,
+     "bytes": 20843,
+     "sha256": "58bf2217db5a09b8b0a3a7335d22fa63cfa0a38c118865e1c8c2f3b3e2282268"
+    },
+    {
+     "path": "crates/cosmic-fabric-panel/src/window.rs",
+     "source": "crates/cosmic-fabric-panel/src/window.rs",
+     "lines": 379,
+     "bytes": 14328,
+     "sha256": "1f670a335f6aaf9c32c25881c0b46244a169cd71d2d8443b141b6356808b43d2"
+    },
+    {
+     "path": "crates/cosmic-fabric-panel/src/policy.rs",
+     "source": "crates/cosmic-fabric-panel/src/policy.rs",
+     "lines": 307,
+     "bytes": 11294,
+     "sha256": "7709c6426dd34d6d1287906ed99b6f3a51eba073603c0ec0795e3ba930874ff4"
+    },
+    {
+     "path": "crates/cosmic-fabric-panel/src/quick.rs",
+     "source": "crates/cosmic-fabric-panel/src/quick.rs",
+     "lines": 258,
+     "bytes": 9751,
+     "sha256": "70c6922e8bf2f166668a511d6a1d0af0c0626e723c861bb821668c1a14f6f1b3"
+    },
+    {
+     "path": "crates/cosmic-fabric-panel/src/settings.rs",
+     "source": "crates/cosmic-fabric-panel/src/settings.rs",
+     "lines": 252,
+     "bytes": 8499,
+     "sha256": "9c9344bceea8af8277ac3ca1454a46b69a4875705c89a0d7a2747ecdc1d2c84f"
+    }
+   ]
+  },
+  "ho-java-rdkit": {
+   "repo": "rdkit",
+   "language": "java",
+   "commit": null,
+   "files": [
+    {
+     "path": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/ChemReactionTests.java",
+     "source": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/ChemReactionTests.java",
+     "lines": 453,
+     "bytes": 17493,
+     "sha256": "b9cc69dee83c2a44054104fdcad83f5bdcf062221a4af8f38438ac18ed2db4f5"
+    },
+    {
+     "path": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/ChemReactionTests.java",
+     "source": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/ChemReactionTests.java",
+     "lines": 423,
+     "bytes": 16105,
+     "sha256": "8828ab3ee0765fa989badad37ded39c0967f16c3f4d70eacdef7b3715df3ef1e"
+    },
+    {
+     "path": "RDKit_2012_09_1~/Code/Demos/SWIG/java_example/WrapperTests.java",
+     "source": "RDKit_2012_09_1~/Code/Demos/SWIG/java_example/WrapperTests.java",
+     "lines": 384,
+     "bytes": 12756,
+     "sha256": "80c39ad8dcf5ae7d9eb71e071d015b6e453548d3dfdb3f8b51e48f1bfe423086"
+    },
+    {
+     "path": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/DistanceGeometryTests.java",
+     "source": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/DistanceGeometryTests.java",
+     "lines": 353,
+     "bytes": 12304,
+     "sha256": "f41481109ee21cedae16fff2de75ea54f50d6aa71d262783c1a098367e86337b"
+    },
+    {
+     "path": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/DistanceGeometryTests.java",
+     "source": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/DistanceGeometryTests.java",
+     "lines": 352,
+     "bytes": 12200,
+     "sha256": "ca4f86435cefbc45ea4fbcca0c05cbc0e176e2b05b12225bbfeed23a01c7646a"
+    },
+    {
+     "path": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/DescriptorTests.java",
+     "source": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/DescriptorTests.java",
+     "lines": 294,
+     "bytes": 9960,
+     "sha256": "61260cdf22e94297dfe1abb4f4ae20569ccad1580171a185d5e748f388f78076"
+    },
+    {
+     "path": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/AtomPairsTests.java",
+     "source": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/AtomPairsTests.java",
+     "lines": 286,
+     "bytes": 10791,
+     "sha256": "16001628b1ce7860b83d8256101ca90be1a540a86ab0bd9662e4b1f3e0399abc"
+    },
+    {
+     "path": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/AtomPairsTests.java",
+     "source": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/AtomPairsTests.java",
+     "lines": 286,
+     "bytes": 10791,
+     "sha256": "16001628b1ce7860b83d8256101ca90be1a540a86ab0bd9662e4b1f3e0399abc"
+    },
+    {
+     "path": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/DescriptorTests.java",
+     "source": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/DescriptorTests.java",
+     "lines": 238,
+     "bytes": 8077,
+     "sha256": "02180f10947c8aeb5c23a333589bfe5171adfadd99a0029c752e25ad93be9e5e"
+    },
+    {
+     "path": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/WrapperTests.java",
+     "source": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/WrapperTests.java",
+     "lines": 223,
+     "bytes": 7211,
+     "sha256": "58f0655f8dfb0d96c21bdc1e5c8eabe57338011f1896be617e70469dbdd6e4c3"
+    },
+    {
+     "path": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/WrapperTests.java",
+     "source": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/WrapperTests.java",
+     "lines": 223,
+     "bytes": 7211,
+     "sha256": "58f0655f8dfb0d96c21bdc1e5c8eabe57338011f1896be617e70469dbdd6e4c3"
+    },
+    {
+     "path": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/SmilesCreationTests.java",
+     "source": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/SmilesCreationTests.java",
+     "lines": 220,
+     "bytes": 5612,
+     "sha256": "ccddb77fd390fc6fb0b845d16da5c07a76f8c6d406911d15830c766b2aa5a984"
+    },
+    {
+     "path": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/SmilesCreationTests.java",
+     "source": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/SmilesCreationTests.java",
+     "lines": 220,
+     "bytes": 5612,
+     "sha256": "ccddb77fd390fc6fb0b845d16da5c07a76f8c6d406911d15830c766b2aa5a984"
+    },
+    {
+     "path": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/BasicMoleculeTests.java",
+     "source": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/BasicMoleculeTests.java",
+     "lines": 214,
+     "bytes": 7606,
+     "sha256": "1ec31fdd07416e671921a0bbf5e4789456ccca93546eefc3b4e35ed0708802ea"
+    },
+    {
+     "path": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/BasicMoleculeTests.java",
+     "source": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/BasicMoleculeTests.java",
+     "lines": 214,
+     "bytes": 7606,
+     "sha256": "1ec31fdd07416e671921a0bbf5e4789456ccca93546eefc3b4e35ed0708802ea"
+    },
+    {
+     "path": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/SuppliersTests.java",
+     "source": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/SuppliersTests.java",
+     "lines": 175,
+     "bytes": 5269,
+     "sha256": "07ee9dac512b78be7eede24b5d3fed84b5022ec71af300ac3d5f818bdb831bbf"
+    },
+    {
+     "path": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/Chemv2Tests.java",
+     "source": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/Chemv2Tests.java",
+     "lines": 162,
+     "bytes": 5906,
+     "sha256": "653f07628ae81387c9e864a0e4a3e8ab861565b1d52851186828efee7ce84a38"
+    },
+    {
+     "path": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/BasicMolecule2Tests.java",
+     "source": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/BasicMolecule2Tests.java",
+     "lines": 161,
+     "bytes": 5504,
+     "sha256": "a6b1ace49a4c37395a821971ccaa5ad0a8c64f1f778aec38ff70e71bc1d4874f"
+    },
+    {
+     "path": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/SuppliersTests.java",
+     "source": "RDKit_2012_09_1~/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/SuppliersTests.java",
+     "lines": 161,
+     "bytes": 4849,
+     "sha256": "d429971d154b5f506f113942f7d8187344dcb4fc9ce08692af3be94a11e758d0"
+    },
+    {
+     "path": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/BasicMolecule2Tests.java",
+     "source": "rdkit/Code/JavaWrappers/gmwrapper/src-test/org/RDKit/BasicMolecule2Tests.java",
+     "lines": 161,
+     "bytes": 5504,
+     "sha256": "a6b1ace49a4c37395a821971ccaa5ad0a8c64f1f778aec38ff70e71bc1d4874f"
+    }
+   ]
+  },
+  "ho-c-graphqlparser": {
+   "repo": "libgraphqlparser",
+   "language": "c",
+   "commit": "407ff911cdccd6f6bafa31ed07030c9406507a01",
+   "files": [
+    {
+     "path": "parsergen/lexer.h",
+     "source": "parsergen/lexer.h",
+     "lines": 528,
+     "bytes": 12381,
+     "sha256": "eed60ca6ad8596847f9920891a4911570a26834e376f2dea50b3f1b06c50c89e"
+    },
+    {
+     "path": "lexer.h",
+     "source": "lexer.h",
+     "lines": 431,
+     "bytes": 10508,
+     "sha256": "d904a8541b489054bb069e51abfec06093912b42040277aa98e97f70c0f4fc9e"
+    },
+    {
+     "path": "c/GraphQLAst.h",
+     "source": "c/GraphQLAst.h",
+     "lines": 180,
+     "bytes": 10000,
+     "sha256": "a399fb4252d8b3527636e96427b557ac80cd2bf92dcb43d65c49ecd007fe38e4"
+    },
+    {
+     "path": "AstVisitor.h",
+     "source": "AstVisitor.h",
+     "lines": 137,
+     "bytes": 6684,
+     "sha256": "952399efebb3eff5e46034bd0172007055feb4f79da7c86d1ef9f335f2f13f52"
+    },
+    {
+     "path": "JsonVisitor.h",
+     "source": "JsonVisitor.h",
+     "lines": 121,
+     "bytes": 3477,
+     "sha256": "361a6173189b7c1227b7c2731b8acb237d5cc6c7986f7514e22abc10b1a7050b"
+    },
+    {
+     "path": "GraphQLParser.h",
+     "source": "GraphQLParser.h",
+     "lines": 55,
+     "bytes": 1547,
+     "sha256": "0f1d03f1d6cc7ba6566510ebfc3a21813489d9b5a3c47bac1b975701c49c54f6"
+    },
+    {
+     "path": "c/GraphQLParser.h",
+     "source": "c/GraphQLParser.h",
+     "lines": 54,
+     "bytes": 1424,
+     "sha256": "9ed51127bda9b3aba277229d702b890340d3dbaa1a3558ff19d4ffebbd3d8df2"
+    },
+    {
+     "path": "c/GraphQLAstVisitor.h",
+     "source": "c/GraphQLAstVisitor.h",
+     "lines": 53,
+     "bytes": 1765,
+     "sha256": "2af9acc31219247515b3ad8f79575cee1e8f9792f92a4b161ae94976eaf4423f"
+    },
+    {
+     "path": "c/GraphQLAstForEachConcreteType.h",
+     "source": "c/GraphQLAstForEachConcreteType.h",
+     "lines": 44,
+     "bytes": 1752,
+     "sha256": "a20c0d94bf9c3edcacb657679325d249fa2b6b929bf119185d92e10719a9447c"
+    },
+    {
+     "path": "AstNode.h",
+     "source": "AstNode.h",
+     "lines": 36,
+     "bytes": 606,
+     "sha256": "bf81f1939fe1f452a09e1c6fb626f907585dcc935ba6e7e231becba74fb22a3f"
+    },
+    {
+     "path": "c/GraphQLAstNode.h",
+     "source": "c/GraphQLAstNode.h",
+     "lines": 33,
+     "bytes": 763,
+     "sha256": "a86dd91c156a97fd9268b687a25a8c2c8e5bb059d95af9ee711cd8360bee3829"
+    }
+   ]
+  },
+  "ho-cpp-nsjail": {
+   "repo": "nsjail-python",
+   "language": "cpp",
+   "commit": "a0262e12a61b54ad47cf1db3f1aa9d602448da24",
+   "files": [
+    {
+     "path": "_vendor/nsjail/subproc.cc",
+     "source": "_vendor/nsjail/subproc.cc",
+     "lines": 679,
+     "bytes": 19208,
+     "sha256": "266375c0759ac2541e7d5c19ed8ca6d3d5195def9bc84faf47589ef3bdf55dd6"
+    },
+    {
+     "path": "_vendor/nsjail/mnt_newapi.cc",
+     "source": "_vendor/nsjail/mnt_newapi.cc",
+     "lines": 648,
+     "bytes": 17814,
+     "sha256": "c0f880d6ca8368b260e6166f4866ea87bb5d966da75a9005896e7535dade8567"
+    },
+    {
+     "path": "_vendor/nsjail/util.cc",
+     "source": "_vendor/nsjail/util.cc",
+     "lines": 466,
+     "bytes": 11044,
+     "sha256": "0e62aa523cd1c48db015af5d6aa5b06ecbfdba83f54d288cbe6d9633093da296"
+    },
+    {
+     "path": "_vendor/nsjail/user.cc",
+     "source": "_vendor/nsjail/user.cc",
+     "lines": 397,
+     "bytes": 9658,
+     "sha256": "78f8f14d9fc31bcc43ff9f62353222e2c8935bd9062e96fe8f3fa454cd5a6d31"
+    },
+    {
+     "path": "_vendor/nsjail/mnt.cc",
+     "source": "_vendor/nsjail/mnt.cc",
+     "lines": 393,
+     "bytes": 10265,
+     "sha256": "40f6f06539edf0445838b72c36ad96b11bc7944ae056d5a0a2549095b6348653"
+    },
+    {
+     "path": "_vendor/nsjail/contain.cc",
+     "source": "_vendor/nsjail/contain.cc",
+     "lines": 388,
+     "bytes": 11160,
+     "sha256": "33b7ba924545906cb831f312d94444084d193f09a46f6935a6d7851f62ae41e5"
+    },
+    {
+     "path": "_vendor/nsjail/nsjail.cc",
+     "source": "_vendor/nsjail/nsjail.cc",
+     "lines": 378,
+     "bytes": 8759,
+     "sha256": "322e995ee5d4dcc08509f41306188c666cd9715b829db05974477d6c5edc3ee2"
+    },
+    {
+     "path": "_vendor/nsjail/mnt_legacy.cc",
+     "source": "_vendor/nsjail/mnt_legacy.cc",
+     "lines": 352,
+     "bytes": 9308,
+     "sha256": "ea113e3eed7fd3ca61b21fefccc15666170433acdb88b7529435667368d377b6"
+    },
+    {
+     "path": "_vendor/nsjail/caps.cc",
+     "source": "_vendor/nsjail/caps.cc",
+     "lines": 303,
+     "bytes": 8766,
+     "sha256": "6cd805c8ebd717729651345a33892b101c4eb542cb08d2d2e99d79b8e1ec063c"
+    },
+    {
+     "path": "_vendor/nsjail/cgroup2.cc",
+     "source": "_vendor/nsjail/cgroup2.cc",
+     "lines": 281,
+     "bytes": 8840,
+     "sha256": "463d3f030d3d9e10f41eeede12f3facefd7a8c1247f0a888b3e8b16e5d813cf6"
+    },
+    {
+     "path": "_vendor/nsjail/config.cc",
+     "source": "_vendor/nsjail/config.cc",
+     "lines": 222,
+     "bytes": 6122,
+     "sha256": "a6ac89789fad162492ea211d15a6e76eddb659b8feac7854bc0c3dd357db1d7e"
+    },
+    {
+     "path": "_vendor/nsjail/cgroup.cc",
+     "source": "_vendor/nsjail/cgroup.cc",
+     "lines": 212,
+     "bytes": 6735,
+     "sha256": "a962a8f163d9a5304ac43c70146ec4bcde430e8691aff577b2f70ee28a7b7ab0"
+    },
+    {
+     "path": "_vendor/nsjail/logs.cc",
+     "source": "_vendor/nsjail/logs.cc",
+     "lines": 177,
+     "bytes": 4107,
+     "sha256": "11edb6616ee82e6793e55e5575368dad218bd089c7eede4a6712576a41b5a9c0"
+    },
+    {
+     "path": "_vendor/nsjail/sandbox.cc",
+     "source": "_vendor/nsjail/sandbox.cc",
+     "lines": 142,
+     "bytes": 3980,
+     "sha256": "032e7fad01c1700363a9e5e443fd686721f58f65960787a7db45c018f7a87e56"
+    }
+   ]
+  },
+  "ho-bash-plinking": {
+   "repo": "plinking_duck",
+   "language": "bash",
+   "commit": "d59d3226cf29725ef020096b92043936e40c3189",
+   "files": [
+    {
+     "path": "scripts/check_vendored_drift.sh",
+     "source": "scripts/check_vendored_drift.sh",
+     "lines": 186,
+     "bytes": 8896,
+     "sha256": "582ef10fb22e5c0590aecc2bf3784dafe1add00b0fd92e1e2cda4b6f56f783e6"
+    },
+    {
+     "path": "duckdb/scripts/run_extension_medata_tests.sh",
+     "source": "duckdb/scripts/run_extension_medata_tests.sh",
+     "lines": 179,
+     "bytes": 9905,
+     "sha256": "d5b671b2c12c9c42679525565f3e162984fd87f1ff918b971e1c0abe948b8494"
+    },
+    {
+     "path": "duckdb/scripts/extension-upload-from-nightly.sh",
+     "source": "duckdb/scripts/extension-upload-from-nightly.sh",
+     "lines": 109,
+     "bytes": 4144,
+     "sha256": "db59266eb334eae34870452afc6654b1e290eac733d0658dbae5bb3fc5140db8"
+    },
+    {
+     "path": "duckdb/scripts/extension-upload-single.sh",
+     "source": "duckdb/scripts/extension-upload-single.sh",
+     "lines": 101,
+     "bytes": 3171,
+     "sha256": "c3462f2fabdfed0c4f1ea356e4d3dc0d4cb5c06469574d7b44b8da373c4103e6"
+    },
+    {
+     "path": "scripts/extension-upload.sh",
+     "source": "scripts/extension-upload.sh",
+     "lines": 90,
+     "bytes": 3038,
+     "sha256": "ef026ee3ebbced110b72c4e6afe43c204d22982933b12cd599349a28b94e66d1"
+    },
+    {
+     "path": "duckdb/scripts/upload-assets-to-staging.sh",
+     "source": "duckdb/scripts/upload-assets-to-staging.sh",
+     "lines": 64,
+     "bytes": 1546,
+     "sha256": "a6b22aeda8884bc30e10068addfdc42195f90f30f96293303738495a3d715de4"
+    },
+    {
+     "path": "duckdb/scripts/extension-upload-test.sh",
+     "source": "duckdb/scripts/extension-upload-test.sh",
+     "lines": 64,
+     "bytes": 1473,
+     "sha256": "b68c4566c3199df5703c2fe81c48f4515759d64adb483120799042e1a4f3f7b7"
+    },
+    {
+     "path": "duckdb/scripts/extension-upload-repository.sh",
+     "source": "duckdb/scripts/extension-upload-repository.sh",
+     "lines": 64,
+     "bytes": 1972,
+     "sha256": "2d64e5ab074fd4a0edc0b085cfd347e1b34bb55145af082440cb875b9e17aec8"
+    },
+    {
+     "path": "duckdb/scripts/extension-upload-wasm.sh",
+     "source": "duckdb/scripts/extension-upload-wasm.sh",
+     "lines": 59,
+     "bytes": 2476,
+     "sha256": "7d9200b02125ddfd4df229bd5a426549756df65ef33497fdcbee7a59a44ca004"
+    },
+    {
+     "path": "duckdb/scripts/extension-upload-all.sh",
+     "source": "duckdb/scripts/extension-upload-all.sh",
+     "lines": 51,
+     "bytes": 1413,
+     "sha256": "dba4963625593945551e94a47e78a33301eb49c5948f4edf2b452ac15c43c725"
+    },
+    {
+     "path": "duckdb/extension/icu/scripts/makedata.sh",
+     "source": "duckdb/extension/icu/scripts/makedata.sh",
+     "lines": 47,
+     "bytes": 1584,
+     "sha256": "9869e776a7723a032e11da6fb0430c7a20f747dcff6f40677d04371f7d1e74a8"
+    },
+    {
+     "path": "scripts/bench_sample_counts_sparse.sh",
+     "source": "scripts/bench_sample_counts_sparse.sh",
+     "lines": 43,
+     "bytes": 2110,
+     "sha256": "d2eac3f03d43f9aa949be1a4920a51d108e122b7549cc91ec0eecf1c5e71cbf2"
+    },
+    {
+     "path": "duckdb/scripts/generate_presigned_url.sh",
+     "source": "duckdb/scripts/generate_presigned_url.sh",
+     "lines": 30,
+     "bytes": 776,
+     "sha256": "03aeda24299ca6acdcd06a8c76b8c9def0e4a4f96bd837a8c806ac4ab031a40d"
+    }
+   ]
+  },
+  "ho-sql-iceberg": {
+   "repo": "duckdb_iceberg",
+   "language": "sql",
+   "commit": "af458f1b42ef302044b3ab02dd29557f73d76557",
+   "files": [
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/08.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/08.sql",
+     "lines": 428,
+     "bytes": 19157,
+     "sha256": "657f0e625b26009d6ec73d9d09ac32687209af63a3e9f78d2de777833216b5b9"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/66.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/66.sql",
+     "lines": 218,
+     "bytes": 7433,
+     "sha256": "a3a07df1572b10ca5da7db0170b54045ffbfc60f73afe1a40d4d83d4ba3d573f"
+    },
+    {
+     "path": "duckdb/benchmark/imdb_plan_cost/init/schema.sql",
+     "source": "duckdb/benchmark/imdb_plan_cost/init/schema.sql",
+     "lines": 170,
+     "bytes": 4121,
+     "sha256": "d17de60940daf949aae7efe0f32e5c5a7170c3ce1d5363e88f06ed02837a4f23"
+    },
+    {
+     "path": "duckdb/benchmark/ldbc/schema.sql",
+     "source": "duckdb/benchmark/ldbc/schema.sql",
+     "lines": 164,
+     "bytes": 4914,
+     "sha256": "ee9eec47f028780118b56538b09f84d10e0823b2e2ca2051f01880c1a76289b6"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/88.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/88.sql",
+     "lines": 139,
+     "bytes": 5660,
+     "sha256": "45cdbfbeace0830783132bd88c3b1c870d1f53690d13253b8abe05eb27cbd758"
+    },
+    {
+     "path": "duckdb/benchmark/ldbc/queries/bi-14.sql",
+     "source": "duckdb/benchmark/ldbc/queries/bi-14.sql",
+     "lines": 137,
+     "bytes": 3807,
+     "sha256": "14568bb4b5752a06e0f51e938c3179beb0a228eaa5bacd424cb2205e54a379fb"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/14.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/14.sql",
+     "lines": 134,
+     "bytes": 4230,
+     "sha256": "a10708d77bfb2da2b7c2b2b876a51a5141641809af4ca243099faa6e9ea4f0f3"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/64.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/64.sql",
+     "lines": 125,
+     "bytes": 3785,
+     "sha256": "1948dcb9b0d4b108f5a7696d39332b292090128801b513884323fc4012df52d7"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/04.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/04.sql",
+     "lines": 120,
+     "bytes": 4663,
+     "sha256": "97c5894b2651a60ffe18177af6072bc8afd0e50a8f0000699974da771ceeffd3"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/05.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/05.sql",
+     "lines": 112,
+     "bytes": 4239,
+     "sha256": "228fb8f1a69c0899ced8c696d0da63ea1ac712eba99c77d85b490dd76038e84f"
+    },
+    {
+     "path": "duckdb/benchmark/clickbench/queries/load.sql",
+     "source": "duckdb/benchmark/clickbench/queries/load.sql",
+     "lines": 110,
+     "bytes": 3534,
+     "sha256": "4022b82298e6fca7b871f8846c090c9e51e8d9e8ab18c6e4fe21042c1dcbec7f"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/49.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/49.sql",
+     "lines": 103,
+     "bytes": 4355,
+     "sha256": "cc63838caa7eff20a130494b4f8d12ec29de4b2b861bb84748ecd0edd01d7bb3"
+    },
+    {
+     "path": "duckdb/extension/fts/indexing.sql",
+     "source": "duckdb/extension/fts/indexing.sql",
+     "lines": 101,
+     "bytes": 3224,
+     "sha256": "41f652b5cbb90f45b0c865b7602e647c20af8ae4d0606575d850404cdbf407d2"
+    },
+    {
+     "path": "duckdb/benchmark/ingestion/load_tpcds.sql",
+     "source": "duckdb/benchmark/ingestion/load_tpcds.sql",
+     "lines": 99,
+     "bytes": 7067,
+     "sha256": "1c5414bd773052df2c7c9ba7e3e88a46b70fd792f182ccf58bd3005f0aac15ab"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/77.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/77.sql",
+     "lines": 95,
+     "bytes": 3130,
+     "sha256": "e4fff077e327e54143b705d9a3392b0dbca05bfaef67c9dbb4b305d438d05039"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/80.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/80.sql",
+     "lines": 86,
+     "bytes": 3675,
+     "sha256": "b05ac664972bde94ddd71accee4f7b90b43e090c3f349a08c2eb3fcb644b6fee"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/59.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/59.sql",
+     "lines": 86,
+     "bytes": 2783,
+     "sha256": "2137eef7a8171764cf930f56bfc119b1033502880f89e912c9486ebef0a1f794"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/23.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/23.sql",
+     "lines": 84,
+     "bytes": 2430,
+     "sha256": "ac14d74ed9b53d331bd88b6bd001183f273d1e4349b31557f2ab9ab59cbf3895"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/11.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/11.sql",
+     "lines": 81,
+     "bytes": 3008,
+     "sha256": "b9f6dee534ee5dc1c2693fd4d9668f6e8d7e52797ece829968861c4da14aa342"
+    },
+    {
+     "path": "duckdb/extension/tpcds/dsdgen/queries/02.sql",
+     "source": "duckdb/extension/tpcds/dsdgen/queries/02.sql",
+     "lines": 79,
+     "bytes": 2558,
+     "sha256": "20de387d99e0ea6ef34cc333d29021862887e413fb29f492d6f4d79f86817d1c"
+    }
+   ]
+  },
+  "ho-ruby-grit": {
+   "repo": "grit",
+   "language": "ruby",
+   "commit": "ab7e6a3ff8518930119928b5e4af987affbb0174",
+   "files": [
+    {
+     "path": "modules/core/backend/lib/grit/core/entity_loader.rb",
+     "source": "modules/core/backend/lib/grit/core/entity_loader.rb",
+     "lines": 434,
+     "bytes": 16160,
+     "sha256": "296003c36fd633aa29152dad371f6e07f11ac51dfadd1391037de8e40d383446"
+    },
+    {
+     "path": "modules/compounds/backend/app/models/grit/compounds/compound.rb",
+     "source": "modules/compounds/backend/app/models/grit/compounds/compound.rb",
+     "lines": 346,
+     "bytes": 15564,
+     "sha256": "9614405f102c41742f61b1fbdd0b164ad46581d0beac14abcf0f181ae2382cad"
+    },
+    {
+     "path": "modules/core/backend/app/controllers/grit/core/load_set_blocks_controller.rb",
+     "source": "modules/core/backend/app/controllers/grit/core/load_set_blocks_controller.rb",
+     "lines": 341,
+     "bytes": 13258,
+     "sha256": "ef7b365b58c4d4d0d8f0f6145ba1cdcce99c168faf592389414800324c64ba8d"
+    },
+    {
+     "path": "modules/core/backend/db/seeds.rb",
+     "source": "modules/core/backend/db/seeds.rb",
+     "lines": 339,
+     "bytes": 19253,
+     "sha256": "32d596e5850cde3a4b8507ba2bfc7121f81c657866cf82fb5b37e4758ceb659d"
+    },
+    {
+     "path": "modules/core/backend/app/controllers/grit/core/users_controller.rb",
+     "source": "modules/core/backend/app/controllers/grit/core/users_controller.rb",
+     "lines": 321,
+     "bytes": 11628,
+     "sha256": "758c06d3dd42a76e34c29ed852cef7c20167c77f4b97f6b706bbeb5d8a5d5868"
+    },
+    {
+     "path": "modules/core/backend/app/models/grit/core/load_set_block.rb",
+     "source": "modules/core/backend/app/models/grit/core/load_set_block.rb",
+     "lines": 313,
+     "bytes": 11391,
+     "sha256": "6c49b601a7c74ed26fd0a17e2a93473ef6b0905982348d9dd71407edb27183a4"
+    },
+    {
+     "path": "modules/assays/backend/app/models/grit/assays/data_table_column.rb",
+     "source": "modules/assays/backend/app/models/grit/assays/data_table_column.rb",
+     "lines": 311,
+     "bytes": 16231,
+     "sha256": "0ec164034942df9b264665fe0dff4552c8a529773f88cc860a283fcd425d991b"
+    },
+    {
+     "path": "modules/assays/backend/app/models/grit/assays/experiment_data_sheet_record.rb",
+     "source": "modules/assays/backend/app/models/grit/assays/experiment_data_sheet_record.rb",
+     "lines": 288,
+     "bytes": 12797,
+     "sha256": "88e76de7a341803dbe522e713705f0e8f8deef16a9c6b0c3217a2b2f8578e8a6"
+    },
+    {
+     "path": "modules/core/backend/app/controllers/concerns/grit/core/grit_entity_controller.rb",
+     "source": "modules/core/backend/app/controllers/concerns/grit/core/grit_entity_controller.rb",
+     "lines": 282,
+     "bytes": 10451,
+     "sha256": "3f0fdc9c3312a08f65b2cd70ae5ead6836983378807515124b3b10c7066db485"
+    },
+    {
+     "path": "modules/core/backend/app/models/grit/core/user.rb",
+     "source": "modules/core/backend/app/models/grit/core/user.rb",
+     "lines": 263,
+     "bytes": 8341,
+     "sha256": "ca431006eae2d423598b156d1665527875b17e84b1a9e5a966baf2c1b49f3b9a"
+    },
+    {
+     "path": "modules/core/backend/app/models/concerns/grit/core/grit_entity_record.rb",
+     "source": "modules/core/backend/app/models/concerns/grit/core/grit_entity_record.rb",
+     "lines": 259,
+     "bytes": 9766,
+     "sha256": "b537cb1fe62bfce5da6f3af954b4d02ae16a8734ce2a1aa2f3a4917287dc407c"
+    },
+    {
+     "path": "modules/assays/backend/app/models/grit/assays/assay_data_sheet_definition.rb",
+     "source": "modules/assays/backend/app/models/grit/assays/assay_data_sheet_definition.rb",
+     "lines": 249,
+     "bytes": 9684,
+     "sha256": "f6a17ff0de3a58d833dd099789f38aa78fafbc87d9862950c5ea586ea30eabc7"
+    },
+    {
+     "path": "modules/compounds/backend/lib/grit/compounds/compound_loader.rb",
+     "source": "modules/compounds/backend/lib/grit/compounds/compound_loader.rb",
+     "lines": 227,
+     "bytes": 11137,
+     "sha256": "93355537c7d60da371dc9da61d79a7b1b4acb5c8cf2d4f9ee7650d5944d464f8"
+    },
+    {
+     "path": "modules/assays/backend/app/controllers/grit/assays/experiments_controller.rb",
+     "source": "modules/assays/backend/app/controllers/grit/assays/experiments_controller.rb",
+     "lines": 211,
+     "bytes": 7291,
+     "sha256": "e0b04d00f2eaebb40b32135f507b6b0828c714fb380508505ff02ab1f494cef6"
+    },
+    {
+     "path": "modules/core/backend/db/migrate/20241104141754_add_audit.rb",
+     "source": "modules/core/backend/db/migrate/20241104141754_add_audit.rb",
+     "lines": 194,
+     "bytes": 7821,
+     "sha256": "c224dd6330c9fc84c0e8e214c5c73abba566e353fa931e160aa61b11615ee2ed"
+    },
+    {
+     "path": "modules/assays/backend/app/controllers/grit/assays/experiment_attachments_controller.rb",
+     "source": "modules/assays/backend/app/controllers/grit/assays/experiment_attachments_controller.rb",
+     "lines": 186,
+     "bytes": 6278,
+     "sha256": "9105f32fbac5704a5471861083472d38fdb721ab3cba841d2264269e884cbd4c"
+    },
+    {
+     "path": "modules/assays/backend/app/models/grit/assays/experiment.rb",
+     "source": "modules/assays/backend/app/models/grit/assays/experiment.rb",
+     "lines": 168,
+     "bytes": 6619,
+     "sha256": "021fbaa73ee816b71c97fbea647e98437c1753ccefdb71b1fe07c86b9bb1616e"
+    },
+    {
+     "path": "modules/compounds/backend/app/models/grit/compounds/batch.rb",
+     "source": "modules/compounds/backend/app/models/grit/compounds/batch.rb",
+     "lines": 160,
+     "bytes": 6885,
+     "sha256": "d284d7a1fc0fd6e5eabbd3c9f5cf7adfd8fc45544fabd55a42a45d5cfd4d7db5"
+    },
+    {
+     "path": "modules/core/backend/lib/grit/core.rb",
+     "source": "modules/core/backend/lib/grit/core.rb",
+     "lines": 159,
+     "bytes": 5636,
+     "sha256": "88444f77355946b5806c063f6bbbbc08e0677b52deb4d6d0140f37caa23feec6"
+    },
+    {
+     "path": "modules/assays/backend/app/controllers/grit/assays/assay_models_controller.rb",
+     "source": "modules/assays/backend/app/controllers/grit/assays/assay_models_controller.rb",
+     "lines": 155,
+     "bytes": 6361,
+     "sha256": "7cf1b5193f1220afbfebb9ea66402fd9fe215a362513f2d4b96079a54922f319"
+    }
+   ]
+  }
+ },
+ "note": "HOLDOUT ONLY. Never add these to any training corpus."
+}

@@ -1,0 +1,487 @@
+//! The Session surface (`cosmic-fabric-panel session`) — a lightweight IM-style
+//! chat dialog for multi-turn / CoT, backed by fabric **sessions** (`sessionName`,
+//! history kept server-side). Lighter than the Workbench; depth lives here, while
+//! the loom/kit stay single-shot. Turns relay through `raw_query` by default.
+
+use cosmic::iced::futures::StreamExt;
+use cosmic::{
+    app,
+    iced::{widget::Column, Alignment, Length},
+    theme,
+    widget::{button, container, divider, scrollable, text, text_input},
+    Element,
+};
+
+use crate::daemon;
+
+pub const SESSION_APP_ID: &str = "com.github.teaguesterling.CosmicFabric.Session";
+
+pub fn run() -> cosmic::iced::Result {
+    let settings = cosmic::app::Settings::default().size(cosmic::iced::Size::new(560.0, 720.0));
+    cosmic::app::run::<SessionApp>(settings, ())
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Role {
+    User,
+    Assistant,
+}
+
+/// Chat backend (temporary fixed set — until woollama enumerates cloud models in
+/// /v1/models, see woollama#3, this becomes a proper model picker).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum ChatBackend {
+    Local,
+    Claude,
+}
+impl ChatBackend {
+    /// woollama model id this routes to; `None` = fabric/ollama session.
+    fn model_id(self) -> Option<String> {
+        match self {
+            ChatBackend::Local => None,
+            ChatBackend::Claude => Some("claude-code/sonnet".to_string()),
+        }
+    }
+}
+
+pub struct SessionApp {
+    core: cosmic::app::Core,
+    session: String,
+    backend: ChatBackend,
+    messages: Vec<(Role, String)>,
+    input: String,
+    pending: Option<(u64, String, String, Option<String>)>, // (id, session, input, model)
+    run_seq: u64,
+    streaming: bool,
+    error: Option<String>,
+    /// A panel-confirm tool is waiting on the user (id, command preview).
+    /// While `Some`, the chat surface renders an inline Approve/Deny card
+    /// over the input area. The daemon-side run-loop thread is blocked on
+    /// the matching tool-confirm event with a 60s timeout.
+    pending_confirm: Option<(String, String)>,
+    /// Resumable sessions (woollama conversations under our key namespace),
+    /// fetched from the daemon when the picker opens. History is server-side —
+    /// resuming loads the transcript and re-attaches by session name.
+    sessions: Vec<daemon::SessionInfo>,
+    /// The Resume picker card is open.
+    show_sessions: bool,
+}
+
+#[derive(Debug, Clone)]
+pub enum Message {
+    InputChanged(String),
+    Send,
+    ChatEvent(daemon::RunEvent),
+    NewSession,
+    SetBackend(ChatBackend),
+    /// User clicked Approve/Deny on a pending confirm card.
+    ConfirmTool { id: String, approved: bool },
+    /// The tool_confirm op completed (ack from daemon).
+    ConfirmAcked(Result<(), String>),
+    /// Toggle the Resume picker; opening (re)fetches the session list.
+    ToggleSessions,
+    /// The daemon answered `sessions_list` (Err ⇒ older daemon / woollama down
+    /// / no store — the picker just shows why, the app is unaffected).
+    SessionsLoaded(Result<Vec<daemon::SessionInfo>, String>),
+    /// User picked a session to resume — re-attach by NAME and load history.
+    ResumeSession(String),
+    /// The resumed session's transcript arrived (resume-on-open read).
+    TranscriptLoaded(String, Result<Vec<(String, String)>, String>),
+    /// User deleted a session from the picker (ends the woollama handle).
+    DeleteSession(String),
+    /// `session_delete` completed → refresh the picker list.
+    SessionDeleted(Result<bool, String>),
+}
+
+/// One-line, ≤80-char representation of a tool's args for inline display.
+/// `{"url": "https://wikipedia/Tokyo"}` → `url="https://wikipedia/Tokyo"`.
+fn compact_args(args: &serde_json::Value) -> String {
+    let obj = match args.as_object() {
+        Some(o) => o,
+        None => return args.to_string(),
+    };
+    let parts: Vec<String> = obj
+        .iter()
+        .map(|(k, v)| match v {
+            serde_json::Value::String(s) => {
+                let s = if s.len() > 60 { format!("{}…", &s[..60]) } else { s.clone() };
+                format!("{k}={s:?}")
+            }
+            _ => format!("{k}={v}"),
+        })
+        .collect();
+    let joined = parts.join(", ");
+    if joined.len() > 80 { format!("{}…", &joined[..80]) } else { joined }
+}
+
+fn new_session_name() -> String {
+    let ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    format!("chat-{ts}")
+}
+
+impl cosmic::Application for SessionApp {
+    type Message = Message;
+    type Executor = cosmic::SingleThreadExecutor;
+    type Flags = ();
+    const APP_ID: &'static str = SESSION_APP_ID;
+
+    fn init(core: app::Core, _flags: Self::Flags) -> (Self, app::Task<Self::Message>) {
+        // Escalate-from-a-one-off: trailing args (`… session <text>`) seed the
+        // input, so "↪ Chat" on a result drops you into a chat carrying it.
+        let seed = std::env::args().skip(2).collect::<Vec<_>>().join(" ");
+        let me = Self {
+            core,
+            session: new_session_name(),
+            backend: ChatBackend::Local,
+            messages: Vec::new(),
+            input: seed,
+            pending: None,
+            run_seq: 0,
+            streaming: false,
+            error: None,
+            pending_confirm: None,
+            sessions: Vec::new(),
+            show_sessions: false,
+        };
+        (me, app::Task::none())
+    }
+
+    fn core(&self) -> &cosmic::app::Core {
+        &self.core
+    }
+    fn core_mut(&mut self) -> &mut cosmic::app::Core {
+        &mut self.core
+    }
+
+    fn subscription(&self) -> cosmic::iced::Subscription<Message> {
+        match &self.pending {
+            Some(p) => cosmic::iced::Subscription::run_with(
+                p.clone(),
+                |(_, session, input, model): &(u64, String, String, Option<String>)| {
+                    daemon::chat_stream(session.clone(), input.clone(), model.clone())
+                        .map(Message::ChatEvent)
+                },
+            ),
+            None => cosmic::iced::Subscription::none(),
+        }
+    }
+
+    fn update(&mut self, message: Message) -> app::Task<Message> {
+        match message {
+            Message::InputChanged(s) => self.input = s,
+            Message::Send => {
+                let input = self.input.trim().to_string();
+                if input.is_empty() || self.streaming {
+                    return app::Task::none();
+                }
+                self.messages.push((Role::User, input.clone()));
+                self.messages.push((Role::Assistant, String::new()));
+                self.run_seq += 1;
+                self.pending = Some((self.run_seq, self.session.clone(), input, self.backend.model_id()));
+                self.input.clear();
+                self.streaming = true;
+                self.error = None;
+            }
+            Message::ChatEvent(ev) => match ev {
+                daemon::RunEvent::Chunk(c) => {
+                    if let Some(last) = self.messages.last_mut() {
+                        last.1.push_str(&c);
+                    }
+                }
+                daemon::RunEvent::ToolCall { name, args, .. } => {
+                    // Inline annotation on the current assistant turn, so the
+                    // user sees what's happening as the model decides it.
+                    // Phase 1 styling: plain caption lines; pill rendering is
+                    // a follow-on polish slice.
+                    if let Some(last) = self.messages.last_mut() {
+                        let args_summary = compact_args(&args);
+                        if !last.1.is_empty() && !last.1.ends_with('\n') {
+                            last.1.push('\n');
+                        }
+                        last.1.push_str(&format!("\u{1F50E} {name}({args_summary})\n"));
+                    }
+                }
+                daemon::RunEvent::ToolResult { name, summary, .. } => {
+                    if let Some(last) = self.messages.last_mut() {
+                        last.1.push_str(&format!("  \u{2713} {name}: {summary}\n"));
+                    }
+                }
+                daemon::RunEvent::ToolConfirmRequired { id, name, command_preview, .. } => {
+                    // Surface the request inline AND set pending_confirm so the
+                    // view renders an Approve/Deny card. The daemon's run-loop
+                    // is blocked waiting for our `tool_confirm` ack.
+                    if let Some(last) = self.messages.last_mut() {
+                        last.1.push_str(&format!(
+                            "\u{26A0} {name} wants to run: {command_preview}\n"));
+                    }
+                    self.pending_confirm = Some((id, command_preview));
+                }
+                daemon::RunEvent::Done(_) => {
+                    self.streaming = false;
+                    self.pending = None;
+                }
+                daemon::RunEvent::Error(e) => {
+                    self.streaming = false;
+                    self.pending = None;
+                    self.error = Some(e);
+                    // drop the empty assistant placeholder on error
+                    if matches!(self.messages.last(), Some((Role::Assistant, t)) if t.is_empty()) {
+                        self.messages.pop();
+                    }
+                }
+            },
+            Message::NewSession => {
+                self.session = new_session_name();
+                self.messages.clear();
+                self.input.clear();
+                self.error = None;
+                self.streaming = false;
+                self.pending = None;
+                self.pending_confirm = None;
+            }
+            Message::SetBackend(b) => {
+                if b != self.backend {
+                    self.backend = b;
+                    // a different backend = a different conversation → start fresh
+                    self.session = new_session_name();
+                    self.messages.clear();
+                    self.input.clear();
+                    self.error = None;
+                    self.streaming = false;
+                    self.pending = None;
+                    self.pending_confirm = None;
+                }
+            }
+            Message::ConfirmTool { id, approved } => {
+                self.pending_confirm = None;
+                // Append a brief audit line to the current assistant turn so
+                // there's a visible record of what the user decided.
+                if let Some(last) = self.messages.last_mut() {
+                    let v = if approved { "approved" } else { "denied" };
+                    last.1.push_str(&format!("  \u{2192} {v}\n"));
+                }
+                return cosmic::Task::perform(
+                    daemon::send_tool_confirm(id, approved),
+                    |r| cosmic::Action::App(Message::ConfirmAcked(r)),
+                );
+            }
+            Message::ConfirmAcked(Ok(())) => {}  // ack — daemon got it, loop continues
+            Message::ConfirmAcked(Err(e)) => {
+                self.error = Some(format!("confirm failed: {e}"));
+            }
+            Message::ToggleSessions => {
+                self.show_sessions = !self.show_sessions;
+                if self.show_sessions {
+                    // (Re)fetch on open — the list is server-side truth, cheap to read.
+                    return cosmic::Task::perform(daemon::sessions_list(), |r| {
+                        cosmic::Action::App(Message::SessionsLoaded(r))
+                    });
+                }
+            }
+            Message::SessionsLoaded(Ok(sessions)) => {
+                self.sessions = sessions;
+            }
+            Message::SessionsLoaded(Err(e)) => {
+                // Older daemon / woollama down / no store: an empty picker with
+                // the reason — never an app-level failure.
+                self.sessions.clear();
+                self.error = Some(format!("sessions: {e}"));
+            }
+            Message::ResumeSession(name) => {
+                if self.streaming {
+                    return app::Task::none(); // don't yank state mid-turn
+                }
+                self.show_sessions = false;
+                // Re-attach by NAME (the same attach-by-key the send path uses);
+                // the backend toggle follows the session's model so the next turn
+                // continues on the backend that owns its history.
+                if let Some(info) = self.sessions.iter().find(|s| s.session == name) {
+                    self.backend = match info.model.as_deref() {
+                        Some(m) if m.starts_with("claude") => ChatBackend::Claude,
+                        _ => ChatBackend::Local,
+                    };
+                }
+                self.session = name.clone();
+                self.messages.clear();
+                self.error = None;
+                self.pending = None;
+                self.pending_confirm = None;
+                return cosmic::Task::perform(daemon::session_transcript(name.clone()), move |r| {
+                    cosmic::Action::App(Message::TranscriptLoaded(name.clone(), r))
+                });
+            }
+            Message::TranscriptLoaded(name, Ok(msgs)) => {
+                // Ignore a stale load if the user has already moved on.
+                if name == self.session {
+                    self.messages = msgs
+                        .into_iter()
+                        .filter_map(|(role, text)| match role.as_str() {
+                            "user" => Some((Role::User, text)),
+                            "assistant" => Some((Role::Assistant, text)),
+                            _ => None, // system/tool items aren't chat bubbles
+                        })
+                        .collect();
+                }
+            }
+            Message::TranscriptLoaded(name, Err(e)) => {
+                if name == self.session {
+                    self.error = Some(format!("transcript: {e}"));
+                }
+            }
+            Message::DeleteSession(name) => {
+                // Deleting the session we're IN resets to a fresh one (its
+                // server-side history handle is going away).
+                if name == self.session {
+                    self.session = new_session_name();
+                    self.messages.clear();
+                }
+                return cosmic::Task::perform(daemon::session_delete(name), |r| {
+                    cosmic::Action::App(Message::SessionDeleted(r))
+                });
+            }
+            Message::SessionDeleted(Ok(_)) => {
+                // Refresh the (open) picker so the row disappears.
+                if self.show_sessions {
+                    return cosmic::Task::perform(daemon::sessions_list(), |r| {
+                        cosmic::Action::App(Message::SessionsLoaded(r))
+                    });
+                }
+            }
+            Message::SessionDeleted(Err(e)) => {
+                self.error = Some(format!("delete failed: {e}"));
+            }
+        }
+        app::Task::none()
+    }
+
+    fn view(&self) -> Element<'_, Message> {
+        let s = theme::active().cosmic().spacing;
+
+        let local_btn = if self.backend == ChatBackend::Local {
+            button::suggested("Local")
+        } else {
+            button::text("Local").on_press(Message::SetBackend(ChatBackend::Local))
+        };
+        let claude_btn = if self.backend == ChatBackend::Claude {
+            button::suggested("Claude")
+        } else {
+            button::text("Claude").on_press(Message::SetBackend(ChatBackend::Claude))
+        };
+        let header = cosmic::iced::widget::row![
+            text::title3("Fabric chat"),
+            text::caption(self.session.clone()),
+            cosmic::widget::Space::new().width(Length::Fill),
+            local_btn,
+            claude_btn,
+            button::text(if self.show_sessions { "Resume ▴" } else { "Resume ▾" })
+                .on_press(Message::ToggleSessions),
+            button::text("New chat").on_press(Message::NewSession),
+        ]
+        .spacing(s.space_s)
+        .align_y(Alignment::Center);
+
+        let mut convo = Column::new().spacing(s.space_s);
+        for (role, body) in &self.messages {
+            let (who, class) = match role {
+                Role::User => ("You", theme::Container::Card),
+                Role::Assistant => ("Fabric", theme::Container::Primary),
+            };
+            let shown = if body.is_empty() && self.streaming {
+                "…".to_string()
+            } else {
+                body.clone()
+            };
+            let block = Column::new()
+                .spacing(s.space_xxs)
+                .push(text::caption(who))
+                .push(text::body(shown));
+            convo = convo.push(container(block).padding(s.space_xs).class(class).width(Length::Fill));
+        }
+        if self.messages.is_empty() {
+            let hint = if self.input.trim().is_empty() {
+                "Start a conversation — fabric keeps the history for this session."
+            } else {
+                "Carried over from a result — edit / add your question below, then send."
+            };
+            convo = convo.push(text::caption(hint));
+        }
+
+        let input_row = cosmic::iced::widget::row![
+            text_input("Message…", &self.input)
+                .on_input(Message::InputChanged)
+                .on_submit(|_| Message::Send)
+                .width(Length::Fill),
+            if self.streaming {
+                button::suggested("…")
+            } else {
+                button::suggested("Send").on_press(Message::Send)
+            },
+        ]
+        .spacing(s.space_xs)
+        .align_y(Alignment::Center);
+
+        let mut col = Column::new()
+            .spacing(s.space_s)
+            .padding(s.space_m)
+            .push(header)
+            .push(divider::horizontal::default());
+        // Resume picker: server-side sessions (woollama conversations under our
+        // key namespace), newest first. History lives with the store — picking
+        // one loads its transcript and re-attaches by name.
+        if self.show_sessions {
+            let mut list = Column::new().spacing(s.space_xxs).push(text::heading("Resume a session"));
+            if self.sessions.is_empty() {
+                list = list.push(text::caption(
+                    "No resumable sessions (needs woollama + a conversation store).",
+                ));
+            }
+            for info in &self.sessions {
+                let name = info.session.clone();
+                let meta = info.model.clone().unwrap_or_default();
+                let row = cosmic::iced::widget::row![
+                    button::text(name.clone()).on_press(Message::ResumeSession(name.clone())),
+                    text::caption(meta),
+                    cosmic::widget::Space::new().width(Length::Fill),
+                    button::text("\u{2715}").on_press(Message::DeleteSession(name.clone())),
+                ]
+                .spacing(s.space_xs)
+                .align_y(Alignment::Center);
+                list = list.push(row);
+            }
+            col = col.push(container(list).padding(s.space_xs).class(theme::Container::Card));
+        }
+        col = col.push(scrollable(convo).height(Length::Fill).width(Length::Fill));
+        if let Some(e) = &self.error {
+            col = col.push(text::caption(e.clone()));
+        }
+        // Inline confirm card above the input area when a panel-confirm tool
+        // is pending. Daemon's run-loop is blocked on the matching event —
+        // user must click before the 60s timeout fires.
+        if let Some((id, preview)) = &self.pending_confirm {
+            let approve_id = id.clone();
+            let deny_id = id.clone();
+            let preview_txt = preview.clone();
+            let card = Column::new()
+                .spacing(s.space_xxs)
+                .push(text::heading("\u{26A0} Tool wants to run"))
+                .push(text::body(preview_txt))
+                .push(
+                    cosmic::iced::widget::row![
+                        button::standard("Deny").on_press(
+                            Message::ConfirmTool { id: deny_id, approved: false }),
+                        cosmic::widget::Space::new().width(Length::Fixed(8.0)),
+                        button::suggested("Approve").on_press(
+                            Message::ConfirmTool { id: approve_id, approved: true }),
+                    ]
+                    .align_y(Alignment::Center),
+                );
+            col = col.push(container(card).padding(s.space_xs).class(theme::Container::Card));
+        }
+        col = col.push(input_row);
+
+        container(col).width(Length::Fill).height(Length::Fill).into()
+    }
+}
