@@ -73,12 +73,20 @@ def rotate(pool, i):
     return [pool[i % k], pool[(i + 3) % k], pool[(i + 6) % k]]
 
 
-def build(counts, fixtures, scope=None):
+def build(counts, fixtures, scope=None, tag="t"):
+    """tag distinguishes the train and held-out id spaces. Without it both calls restart the
+    counter at 0 and emit the SAME ids -- which silently made 7 held-out ids look present in
+    the training half, i.e. a leak check comparing ids would have been comparing collisions."""
     """counts: {"<fx>|<kind>|<value>": n} from probe_arity. Only 1..50 can be a reference."""
     rows, i = [], 0
     ok = lambda key: 1 <= counts.get(key, -1) <= 50
+    # A key is "<fixture>" for the unscoped decorated contrast, "<fixture>@<Class>" for the
+    # typed one. Typed MUST be class-scoped: bare `.fn:typed` is 171-264 nodes on every Python
+    # fixture, over verify's upper bound, so it cannot be a reference. Scoping both sides to
+    # one class keeps the any-vs-which contrast and brings both into range.
     for fx in fixtures:
-        pre = scope.get(fx, "") if scope else ""
+        real, pre = ((fx.split("@")[0], ".class#%s " % fx.split("@")[1])
+                     if "@" in fx else (fx, ""))
         for kind, bare_sel, bare_pool, attr_fmt, which_pool, prefix in (
             ("decorated", ".fn:decorated", ANY_DECO, '.fn[annotation*="%s"]', WHICH_DECO, "anno"),
             ("typed", ".fn:typed", ANY_TYPE, '.fn[signature="%s"]', WHICH_TYPE, "sig"),
@@ -93,8 +101,8 @@ def build(counts, fixtures, scope=None):
                     i += 1
                     texts = rotate(pool, i)
                     texts = [t % val if "%s" in t else t for t in texts]
-                    rows.append({"id": "tr-python-t5-ar%04d%s" % (i, side), "tier": 5,
-                                 "fixture": fx, "nl": texts[0], "paraphrases": texts[1:],
+                    rows.append({"id": "tr-python-t5-ar%s%04d%s" % (tag, i, side), "tier": 5,
+                                 "fixture": real, "nl": texts[0], "paraphrases": texts[1:],
                                  "css": sel, "distractors": [other], "treeql": None,
                                  "tags": ["sitting_duck_supported", "arity-contrast", "v0"],
                                  "contrast": {"kind": kind + "-" + side, "against": other}})
@@ -102,11 +110,15 @@ def build(counts, fixtures, scope=None):
 
 
 def main():
-    counts = json.load(open(os.path.join(HERE, "workspace/arity_counts.json")))
-    TRAIN_FX = ["py-lackpy", "py-blq", "py-pluckit"]
-    HELD_FX = ["py-umwelt"]          # held out ENTIRELY: the Python trade must stay visible
-    tr = build(counts, TRAIN_FX)
-    ev = build(counts, HELD_FX)
+    counts = json.load(open(os.path.join(HERE, "workspace/arity_counts_merged.json")))
+    allfx = sorted({k.split("|")[0] for k in counts})
+    # py-umwelt is held out ENTIRELY, scoped keys included. pseudo-d3 gained +28-33 points on
+    # five non-Python languages while REGRESSING Python by 11, and the Python-only headline
+    # eval averaged that away. These forms are Python-centric, so the trade has to stay visible.
+    TRAIN_FX = [f for f in allfx if not f.startswith("py-umwelt")]
+    HELD_FX = [f for f in allfx if f.startswith("py-umwelt")]
+    tr = build(counts, TRAIN_FX, tag="t")
+    ev = build(counts, HELD_FX, tag="h")
     for name, rows in (("arity-a1", tr), ("arity-a1-held", ev)):
         p = os.path.join(HERE, "train/candidates/%s.jsonl" % name)
         with open(p, "w") as fh:

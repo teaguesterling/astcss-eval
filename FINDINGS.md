@@ -2542,3 +2542,56 @@ LEGITIMATELY parameterised pseudo-classes (`:in-scope(` 198 rows, `:called-by(` 
 hundreds of times. And because the engine never errors on it, nothing has ever contradicted
 that generalisation. That is what the arity batch has to undo, and it is why a card line
 could not.
+
+## The arity batch failed too, and the verifier's node bound is why
+
+Arm C = arm A's corpus plus 36 arity-contrast pairs (81 rows, 0.5% of 16,009). One new run;
+arm A is the control and already existed. 6.5 h.
+
+    eval_arity (12 held-out, py-umwelt)    base e1  8.3%   base e2 25.0%
+                                           plus e1 25.0%   plus e2 33.3%
+    eval_t5 (118)                          base e2 85.6%   plus e2 82.2%   -3.4
+
+The eval_arity gain is ONE PAIR. Per-pair, the 12 split into three `:decorated` "any-side"
+pairs that BOTH arms already answer correctly, and nine attribute-side pairs -- the actual
+lesson -- where arm A scores 0/9 and arm C scores 1/9. At 8.3 points per pair on a 12-pair
+eval, that is not a measurement. Making the targeted eval this small was my error; the signal
+cannot clear its own quantum.
+
+On eval_t5 it is 1 pair won, 5 lost.
+
+### The bounds workaround became a learned artifact
+
+Bare `.fn:typed` is 171-264 nodes on every Python fixture, over verify.py's MAX_NODES=50, so
+the any-vs-which contrast could only be expressed class-scoped: `.class#Foo .fn:typed` vs
+`.class#Foo .fn[signature="T"]`. The model learned the scope along with the lesson. On t5-p38:
+
+    want   .fn[signature="None"]
+    base   .fn:typed(.jump)                                  (bogus argument)
+    arity  .class#FnAccessor .fn[signature="None"]            (attribute form, spurious scope)
+
+It DID learn the attribute form -- and prefixed a class from py-pluckit, a TRAINING fixture,
+onto an answer about py-variety. A constraint imposed by the verifier leaked into the training
+distribution and was learned as part of the pattern. That is a trap for any future batch whose
+reference has to be narrowed to satisfy the node bound.
+
+t5-p30 moved partway: `.fn:decorated(decorated_definition...)` -> `.fn:decorated`. The bogus
+argument is gone, which is the discarded-argument habit weakening, but it never reaches
+`[annotation*="property"]`.
+
+### Where this leaves the 95% target
+
+Nothing trained in this session beats the untrained baseline on eval_t5. Two batches,
+~18 h GPU:
+
+    pseudo-d3  (55 pairs)   eval_t5 85.6% -> 83.9%   but +28-33 on non-Python held-out
+    arity-a1   (36 pairs)   eval_t5 85.6% -> 82.2%   +1 pair on a 12-pair held-out
+
+The best eval_t5 number produced all session came from a CARD line and no training at all:
+9B 93.2% -> 94.0%. Both training batches moved the headline DOWN.
+
+The common cause is dilution: 55 and 36 pairs are 0.3% and 0.5% of the corpus. A batch that
+small cannot move a 118-pair Python eval, and both times it cost a few pairs elsewhere. The
+honest conclusion is that per-defect contrastive batches are the wrong instrument for moving a
+headline number, even though pseudo-d3 proved they DO teach what they encode (+28-33 points,
+robust to re-wording, where the baseline was weak).
