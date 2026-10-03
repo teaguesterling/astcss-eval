@@ -53,24 +53,49 @@ EXAMPLES
 
 OPERATIONS AND WHAT EACH TAKES
 
-  addComment      the comment text. Optionally pos: "before", "inside" or "after"
-                  (default is before the node). The comment marker is added for you --
-                  write the text, not the # or //.
-  addArg          one argument expression, added to a call
-  removeArg       the name of a keyword argument to drop from a call
-  addParam        one parameter, added to a function definition
-  removeParam     the name of a parameter to drop from a function definition
-  wrapCall        the name of a function to wrap the selected expression in
-  setCondition    the new condition expression
-  setReturn       the new return expression
+  STRUCTURE & MOVEMENT
   append          code to add at the END of the selected node's body
   prepend         code to add at the START of the selected node's body
-  rename          the new name
-  addImport       the whole import line to add
+  insertBefore    code to insert immediately before the node
+  insertAfter     code to insert immediately after the node
+  replaceWith     code to replace the node entirely
+  remove          deletes the selected node
+  moveTo          moves the node: moveTo('.target', {pos: 'inside'|'before'|'after'})
+  addComment      comment text. Optionally pos: "before", "inside", "after"
 
-  wrapInTry       takes no argument of its own. Follow it with one or more
-                  .on(exception, body) clauses IN ORDER, and optionally .finally(body).
-                  Order matters: a narrow exception must come before a broad one.
+  DECLARATIONS & SIGNATURES
+  rename          the new name: $('.fn#old').rename("new_name")
+  addParam        param name, optional default/type: $('.fn#run').addParam("retries=3")
+  removeParam     the param name to drop: $('.fn#run').removeParam("retries")
+  setParamType    param name and type: $('.fn#run').setParamType("retries", "int")
+  setReturnType   the return type annotation: $('.fn#run').setReturnType("bool")
+  addDecorator    decorator expression: $('.fn#view').addDecorator("@login_required")
+  setAsync        mark async/sync: $('.fn#fetch').setAsync(true)
+  setVisibility   set access: $('.fn#internal').setVisibility("pub")
+  addField        field definition: $('.class#User').addField("email: str")
+  addImport       full import line: $('mod').addImport("import json")
+  ensureImport    idempotent import: $('mod').ensureImport("import os")
+
+  CALLS & EXPRESSIONS
+  wrapCall        function name to wrap expression in: $('.call#calc').wrapCall("int")
+  chainCall       method to chain onto expression: $('.call#query').chainCall("filter", "active=True")
+  wrapAwait       wraps expression with await: $('.call#fetch').wrapAwait()
+  addArg          argument expression to append: $('.call#log').addArg("level=DEBUG")
+  removeArg       keyword argument name to drop: $('.call#log').removeArg("verbose")
+  setReturn       new return expression: $('.jump#return').setReturn("False")
+  setCondition    new condition expression: $('.if#check').setCondition("count > 0")
+
+  REFACTORING & CONTROL FLOW
+  extractVariable creates local variable binding: $('.call#compute').extractVariable("result")
+  extractFunction extracts body into helper: $('.fn#main > .loop').extractFunction("process_row")
+  addAssertion    assertion statement: $('.fn#test_case').addAssertion("len(res) == 2")
+  wrapWith        context manager: $('.fn#load').wrapWith("open(path)", as_name="f")
+  wrapInTry       takes no argument. Follow with .on(exc, body) and optional .finally(body)
+
+LATERAL PARAMETERS & FILE REFERENCES
+  Operations taking code or values accept either direct inline literals OR lateral references:
+  params.<name>   binds laterally supplied parameter: $('.fn#calc').replaceWith(params.new_calc)
+  fromFile("path") reads code directly from file:     $('.class#User').append(fromFile("auth.py"))
 
 NAMED ARGUMENTS
   Where an operation takes more than one thing, name them: pos, anchor, code.
@@ -78,8 +103,20 @@ NAMED ARGUMENTS
 
 EXAMPLES
 
-  rename the helper function to run
+  rename helper to run
     -> $('.fn#helper').rename("run")
 
-  wrap save in a try that returns None on KeyError and logs anything else
-    -> $('.fn#save').wrapInTry().on("KeyError", "return None").on("Exception", "log.exception('save failed')")
+  replace calculate_tax with the new_calc parameter
+    -> $('.fn#calculate_tax').replaceWith(params.new_calc)
+
+  append new methods from file auth_methods.py into UserService
+    -> $('.class#UserService').append(fromFile("auth_methods.py"))
+
+  wrap save in a try that returns None on KeyError
+    -> $('.fn#save').wrapInTry().on("KeyError", "return None")
+
+  move helper function into class Service
+    -> $('.fn#helper').moveTo('.class#Service', {pos: "inside"})
+
+  extract loop into helper function process_item
+    -> $('.fn#main > .loop').extractFunction("process_item")

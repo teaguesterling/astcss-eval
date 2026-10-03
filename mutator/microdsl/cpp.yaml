@@ -1,0 +1,178 @@
+language: cpp
+operators:
+  # Structure & Movement
+  replaceWith:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}"
+    example:
+      context:
+        target: "int a = 0;"
+        code: "int a = 10;"
+      expected: "int a = 10;"
+
+  append:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+
+  prepend:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+
+  addComment:
+    match: "${target}"
+    params: [text, pos]
+    rewrite: |
+      // ${text}
+      ${target}
+    example:
+      context:
+        text: "Thread safety required"
+        target: "void sync() {}"
+      expected: |
+        // Thread safety required
+        void sync() {}
+
+  # Declarations & Signatures
+  addImport:
+    match: "mod@target"
+    params: [header]
+    rewrite: |
+      #include <${header}>
+      ${target}
+
+  addInclude:
+    match: "mod@target"
+    params: [header]
+    rewrite: |
+      #include <${header}>
+      ${target}
+    example:
+      context:
+        header: "vector"
+        target: "std::vector<int> v;"
+      expected: |
+        #include <vector>
+        std::vector<int> v;
+
+  ensureInclude:
+    match: "mod@target"
+    params: [header]
+    rewrite: |
+      #include <${header}>
+      ${target}
+
+  addNamespace:
+    match: "mod@target"
+    params: [ns]
+    rewrite: |
+      namespace ${ns} {
+      ${target}
+      }
+    example:
+      context:
+        ns: "duckdb"
+        target: "class Engine {};"
+      expected: |
+        namespace duckdb {
+        class Engine {};
+        }
+
+  addTemplate:
+    match: ".fn@target, .class@target, .struct@target"
+    params: [tparams]
+    rewrite: |
+      template <${tparams}>
+      ${target}
+    example:
+      context:
+        tparams: "typename T"
+        target: "T add(T a, T b) { return a + b; }"
+      expected: |
+        template <typename T>
+        T add(T a, T b) { return a + b; }
+
+  setConst:
+    match: ".fn@target, .decl@target"
+    rewrite: "${target} const"
+
+  setNoexcept:
+    match: ".fn@target"
+    rewrite: "${target} noexcept"
+    example:
+      context:
+        target: "void clear()"
+      expected: "void clear() noexcept"
+
+  setOverride:
+    match: ".fn@target"
+    rewrite: "${target} override"
+
+  setVisibility:
+    match: ".fn@target, .decl@target"
+    params: [vis]
+    rewrite: |
+      ${vis}:
+          ${target}
+
+  # Control Flow & Wrapping
+  wrapInTry:
+    match: ".fn > .body@body"
+    params: []
+    rewrite: |
+      try {
+      ${body|indent(4)}
+      } ${handlers|map_join("catch (const {exc}& e) {\n    {body}\n}")}
+      ${finally|if_present("/* finally */\n{finally}")}
+    example:
+      context:
+        body: "run_query();"
+        handlers:
+          - exc: "std::runtime_error"
+            body: "return false;"
+      expected: |
+        try {
+            run_query();
+        } catch (const std::runtime_error& e) {
+            return false;
+        }
+
+  wrapWith:
+    match: ".fn > .body@body"
+    params: [guard_type, resource]
+    rewrite: |
+      ${guard_type} __guard(${resource});
+      ${body}
+    example:
+      context:
+        guard_type: "std::lock_guard<std::mutex>"
+        resource: "mtx_"
+        body: "queue_.push(item);"
+      expected: |
+        std::lock_guard<std::mutex> __guard(mtx_);
+        queue_.push(item);
+
+  # Expressions & Calls
+  wrapCall:
+    match: ".call@target, .expr@target"
+    params: [fn_name]
+    rewrite: "${fn_name}(${target})"
+
+  chainCall:
+    match: ".call@target, .expr@target"
+    params: [method, args]
+    rewrite: "${target}.${method}(${args})"
+
+  setReturn:
+    match: ".jump#return@target"
+    params: [expr]
+    rewrite: "return ${expr};"
+
+  addAssertion:
+    match: ".fn > .body@body"
+    params: [assertion, msg]
+    rewrite: |
+      ${body}
+      assert((${assertion}) && "${msg}");

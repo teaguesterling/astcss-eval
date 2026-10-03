@@ -1,0 +1,156 @@
+language: go
+operators:
+  # Structure & Movement
+  replaceWith:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}"
+    example:
+      context:
+        target: "count := 0"
+        code: "count := 1"
+      expected: "count := 1"
+
+  append:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+
+  prepend:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+
+  insertBefore:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+
+  insertAfter:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+
+  remove:
+    match: "${target}"
+    rewrite: ""
+
+  addComment:
+    match: "${target}"
+    params: [text, pos]
+    rewrite: |
+      // ${text}
+      ${target}
+    example:
+      context:
+        text: "Ensure lock is held"
+        target: "mu.Lock()"
+      expected: |
+        // Ensure lock is held
+        mu.Lock()
+
+  # Declarations & Signatures
+  addImport:
+    match: "mod@target"
+    params: [pkg]
+    rewrite: |
+      import "${pkg}"
+      ${target}
+    example:
+      context:
+        pkg: "fmt"
+        target: "func main() {}"
+      expected: |
+        import "fmt"
+        func main() {}
+
+  ensureImport:
+    match: "mod@target"
+    params: [pkg]
+    rewrite: |
+      import "${pkg}"
+      ${target}
+
+  addField:
+    match: ".struct@target"
+    params: [field_def]
+    rewrite: |
+      ${target}
+          ${field_def}
+
+  addParam:
+    match: ".fn@target"
+    params: [param_def]
+    rewrite: "${param_def}"
+
+  # Control Flow & Error Handling (Go Idiom: if err != nil)
+  wrapInTry:
+    match: ".fn > .body@body"
+    params: []
+    rewrite: |
+      ${body}
+      if err != nil {
+      ${handlers|map_join('    return fmt.Errorf("{exc}: %w", err)')}
+      }
+      ${finally|if_present("defer {finally}()")}
+    example:
+      context:
+        body: "res, err := doQuery()"
+        handlers:
+          - exc: "db error"
+        finally: "cleanup"
+      expected: |
+        res, err := doQuery()
+        if err != nil {
+            return fmt.Errorf("db error: %w", err)
+        }
+        defer cleanup()
+
+  wrapWith:
+    match: ".fn > .body@body"
+    params: [cleanup_fn]
+    rewrite: |
+      defer ${cleanup_fn}()
+      ${body}
+    example:
+      context:
+        cleanup_fn: "file.Close"
+        body: "data, _ := io.ReadAll(file)"
+      expected: |
+        defer file.Close()
+        data, _ := io.ReadAll(file)
+
+  # Expressions & Calls
+  wrapCall:
+    match: ".call@target, .expr@target"
+    params: [fn_name]
+    rewrite: "${fn_name}(${target})"
+    example:
+      context:
+        fn_name: "len"
+        target: "slice"
+      expected: "len(slice)"
+
+  chainCall:
+    match: ".call@target, .expr@target"
+    params: [method, args]
+    rewrite: "${target}.${method}(${args})"
+
+  addAssertion:
+    match: ".fn > .body@body"
+    params: [assertion, msg]
+    rewrite: |
+      ${body}
+      if !(${assertion}) {
+          t.Fatalf("${msg}")
+      }
+    example:
+      context:
+        body: "res := Calc()"
+        assertion: "res == 42"
+        msg: "unexpected calculation result"
+      expected: |
+        res := Calc()
+        if !(res == 42) {
+            t.Fatalf("unexpected calculation result")
+        }

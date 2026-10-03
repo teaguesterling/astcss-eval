@@ -1,0 +1,131 @@
+language: rust
+operators:
+  # Structure & Movement
+  replaceWith:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}"
+    example:
+      context:
+        target: "let a = 1;"
+        code: "let a = 2;"
+      expected: "let a = 2;"
+
+  append:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+    example:
+      context:
+        target: "let a = 1;"
+        code: "let b = 2;"
+      expected: |
+        let a = 1;
+        let b = 2;
+
+  prepend:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+
+  addComment:
+    match: "${target}"
+    params: [text, pos]
+    rewrite: |
+      // ${text}
+      ${target}
+    example:
+      context:
+        text: "Initialize buffer"
+        target: "let mut buf = Vec::new();"
+      expected: |
+        // Initialize buffer
+        let mut buf = Vec::new();
+
+  # Declarations & Signatures
+  addDecorator:
+    match: ".fn@target, .struct@target"
+    params: [attr]
+    rewrite: "#[${attr}]\n${target}"
+    example:
+      context:
+        attr: "derive(Clone, Debug)"
+        target: "struct Config {}"
+      expected: |
+        #[derive(Clone, Debug)]
+        struct Config {}
+
+  setVisibility:
+    match: ".fn@target, .struct@target"
+    params: [vis]
+    rewrite: "${vis} ${target}"
+    example:
+      context:
+        vis: "pub(crate)"
+        target: "fn internal_fn() {}"
+      expected: "pub(crate) fn internal_fn() {}"
+
+  setAsync:
+    match: ".fn:not(.async)@target"
+    rewrite: "async ${target}"
+    example:
+      context:
+        target: "fn load_data() {}"
+      expected: "async fn load_data() {}"
+
+  # Expressions & Calls
+  wrapAwait:
+    match: ".call@target, .expr@target"
+    rewrite: "${target}.await"
+    example:
+      context:
+        target: "fetch_record(id)"
+      expected: "fetch_record(id).await"
+
+  wrapCall:
+    match: ".call@target, .expr@target"
+    params: [fn_name]
+    rewrite: "${fn_name}(${target})"
+    example:
+      context:
+        fn_name: "Some"
+        target: "value"
+      expected: "Some(value)"
+
+  chainCall:
+    match: ".call@target, .expr@target"
+    params: [method, args]
+    rewrite: "${target}.${method}(${args})"
+    example:
+      context:
+        target: "items"
+        method: "unwrap_or_default"
+        args: ""
+      expected: "items.unwrap_or_default()"
+
+  # Control Flow & Error Handling
+  wrapInTry:
+    match: ".fn > .body@body"
+    params: []
+    rewrite: |
+      match (|| -> Result<_, _> {
+      ${body|indent(4)}
+      })() {
+      ${handlers|map_join("    Err({exc}) => { {body} },")}
+      ${finally|if_present("    _ => { {finally} },")}
+          Ok(val) => val,
+      }
+    example:
+      context:
+        body: "let data = read_file()?;\nOk(data)"
+        handlers:
+          - exc: "io::Error"
+            body: "return None"
+      expected: |
+        match (|| -> Result<_, _> {
+            let data = read_file()?;
+            Ok(data)
+        })() {
+            Err(io::Error) => { return None },
+            Ok(val) => val,
+        }
