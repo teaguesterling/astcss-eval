@@ -2833,3 +2833,44 @@ misread bounds rejections as vacuity.
 
 Not bugs, recorded so they are not re-filed: attribute filters inside `:has()` are explicitly
 unsupported with a clear error, and `>` is correct as described above.
+
+## The card, the corpus and the engine disagree about scope selection, three ways
+
+Every pseudo-form the training corpus teaches, probed against the PINNED evaluation engine:
+
+    :has 4432  :not 2044  :is-called 181  ::callees 166  :called-by 138  ::callers 117
+    :typed 112  :calls 24  :async 15  :decorated 14  :is-referenced 6  :exported 3
+        -- all supported --
+    :in-scope 198                                           -- UNSUPPORTED: unknown pseudo-class
+
+One form of thirteen, and it is the one 198 training rows teach. So:
+
+    card_t5.md:60  teaches `:scope(X)`      -> pinned engine: VACUOUS (84 nodes = all `.fn`)
+    the corpus     teaches `:in-scope(X)`   -> pinned engine: UNKNOWN PSEUDO-CLASS, errors
+    the engine     supports neither usefully
+
+Three artefacts, three different answers, and no single one of them is self-consistent with
+the others. A model that learns the corpus writes a selector the instrument refuses; one that
+follows the card writes a selector that silently matches everything.
+
+### `executes` means two different things and nothing marks which
+
+84 predictions across all runs use `:in-scope(`. 55 "executed" -- and every one of those is on
+t5-p42 or t5-p44, both ORACLE-sourced, where `qualify.score` evaluates through oracle.py and
+never reaches the engine. The 29 that failed are all engine-scored, erroring with
+"unknown pseudo-class". So `executes: True` means "the oracle parsed it" on an oracle pair and
+"the engine ran it" on the other 105, and the field does not say which. Any aggregate over
+`executes` mixes the two. This is the dual-instrument problem inside a column I had been
+reading as uniform.
+
+### Consequence for sitting_duck #184
+
+The fix is being worked on, and it cannot improve any number here until the engine is
+RE-PINNED -- the pin is what insulates these measurements, which is why nothing recorded in
+this file moved when main went from v1.5.5 to v1.5.6 and back to green. And a re-pin resets
+comparability for every score in this file, because `:in-scope` starting to work changes what
+198 training rows mean and what the three `:scope` eval pairs measure.
+
+So the sequencing is: land #184, re-pin, re-baseline the ladder, THEN change card_t5.md:60 --
+not the other way round. Changing the card against the current pin would make it teach
+`:in-scope(`, which this engine rejects outright: worse than the vacuous form it teaches now.
