@@ -3203,3 +3203,58 @@ are consistent with one explanation: the corpus and the eval were co-designed, a
 everything built on top has been optimising the fit between them.
 
 FOUNDATION.md records the nine decisions a v2 should make differently, each with its number.
+
+## Correction: the two suites measure disjoint skills, and "the holdout is the better
+## instrument" was overreach
+
+Composition, by the coarse question families a user would recognise:
+
+                                   corpus   eval_t5   holdout
+    compound filter (2+ :has/:not)  23.5%    46.7%      3.1%
+    call-graph / pseudo              8.0%    21.9%      0.0%
+    attribute                       15.8%    19.0%      0.0%
+    single filter                   18.9%    11.4%      6.8%
+    NAMED LOOKUP (.fn#x)            10.7%     0.0%     74.6%
+    combinator                       9.4%     0.0%      0.0%
+    named + combinator               8.5%     0.0%      7.4%
+    bare class                       5.1%     1.0%      8.0%
+
+eval_t5 is 68.6% compound-filter plus call-graph. The holdout is 74.6% plain `.fn#name`, with
+ZERO attribute and ZERO call-graph questions. They barely overlap.
+
+So I have been wrong in a way worth stating plainly: I called the holdout "the better
+instrument" repeatedly. It is better at ONE thing -- generalisation to unseen repos and
+independent phrasing -- and it badly under-tests composition, which is most of what the
+language is for. A suite that is three-quarters named lookups cannot adjudicate compound
+selectors, and I used it to do exactly that.
+
+That also deflates the ladder inversion. "The 0.8B beats the 9B on unseen repos" is largely
+"the holdout mostly asks the one question every model can answer, and the 9B over-thinks it" --
+which matches its measured failure mode: `.class#StrPrintf` for "where is StrPrintf defined",
+`.mod:has(.fn#adjustRLLimit)` for `.fn#adjustRLimit`. Real, but far narrower than I implied.
+
+### Where the 9-point abstention drop actually landed
+
+    family          n    control   abstain-arm   delta
+    named-fn      119       75%         59%      -16.0
+    named-call     53       70%         53%      -17.0
+    not            10       80%         60%      -20.0
+    named-class    69       87%         86%       -1.4
+    bare           26       96%         92%       -3.8
+    descendant     24       96%        100%       +4.2
+    has            22       64%         73%       +9.1
+    ALL           323     79.3%       70.3%       -9.0
+
+The loss is concentrated in NAMED LOOKUPS -- named-fn -16, named-call -17 -- which are 53% of
+the suite. `:has` actually IMPROVED (+9.1) and descendants improved. So the declination rows
+did not damage compositional skill; they damaged the model's willingness to answer a simple
+"where is X defined" with `.fn#X`.
+
+That is a specific, plausible mechanism: 553 rows whose answer is "NONE" taught it that some
+questions have no selector, and the questions most likely to be mistaken for those are the
+terse ones -- "take me to X", "which file holds X" -- which is exactly the holdout's register.
+Over-refusal did not show up on the 16 answerable controls because those are compound and
+attribute-shaped, not terse lookups. The controls were the wrong shape to catch it.
+
+**So the abstention batch needs answerable TERSE controls, not just answerable complex ones** --
+and that is a corpus-crafting defect in my own suite, of exactly the kind FOUNDATION.md is about.
