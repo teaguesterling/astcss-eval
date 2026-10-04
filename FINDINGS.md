@@ -3362,3 +3362,46 @@ documented.
 
 That is a better reason to rebuild than any of the accuracy deltas, because it is not a tuning
 problem. No amount of training on the documented half discovers `.def`.
+
+## The 9-point abstention drop splits in half: the CARD cost 5 points, the rows cost 4
+
+Three arms, one epoch each, seed 18, same base:
+
+    arm                                holdout   eval_t5   declined (of 33)
+    A  control, original cards          79.3%     83.1%       0
+    B  LICENSED cards, no new rows      74.3%     87.3%       0
+    C  licensed cards + 553 declines    70.3%     82.2%      26
+
+    B - A  isolates the CARD:   holdout -5.0   eval_t5 +4.2   declined +0
+    C - B  isolates the ROWS:   holdout -4.0   eval_t5 -5.1   declined +26
+
+Both halves clear the 2.5-point holdout noise floor, so both are real.
+
+### Two things worth separating
+
+**The card is inert for TEACHING and expensive for TRAINING.** Arm B declined 0 of 33 -- the
+licence text, present in every training row's system prompt, produced not one declination. That
+is the third independent measurement of the card's inertness (inference on an untrained model:
+0/33; the arity card: 2 target errors unmoved; now training: 0/33). So arm C's 26/33 is
+attributable to the 553 rows alone, which is the clean attribution the two-arm design could not
+give.
+
+But the same inert text cost **5 points of holdout accuracy** -- more than the rows did. Ten
+lines added to 15,928 system prompts, teaching nothing, and the single largest holdout
+regression of the three arms. Card text is not neutral scaffolding; it is a training-time
+intervention with a measurable price.
+
+**And it reproduces the session's trade exactly.** The card alone: eval_t5 +4.2, holdout -5.0.
+Every lever found this session moves the two in opposite directions, including one that was
+supposed to be a no-op control.
+
+### Where that leaves the abstention work
+
+Declination is learnable and the capability lands in the weights (26/33 licensed, 15/33 under a
+card that never mentions declining). The cost is 4 points of holdout, concentrated entirely in
+named lookups (named-fn -16, named-call -17) while `:has` improved -- so the rows taught
+"some questions have no selector" and the terse questions got caught in it.
+
+Two fixes follow, neither tried: a much terser licence line (the 5-point card cost is pure
+overhead given it teaches nothing), and answerable TERSE controls in the abstain suite, which
+my compound-shaped controls were the wrong shape to catch.
