@@ -3305,3 +3305,60 @@ the card's vocabulary rather than a reasoning failure. So:
 The honest version: a chunk of what this session measured as generalisation failure is a
 vocabulary gap in the card, inherited by the corpus, and amplified by an eval I wrote to ask
 exactly the question that gap makes ambiguous.
+
+## The card documents 25 classes; the engine supports at least 22 more
+
+Teague asked whether other constructs are missing. Enumerated properly this time, from
+`ast_type_map('python')` -- the extension's own taxonomy, 15 `kind` values -- then probed
+against the engine rather than guessed:
+
+    VALID, and absent from card_t5.md          nodes on py-variety
+      .name / .identifier                       693 / 650
+      .block                                    306
+      .def / .definition                        202   (== .fn + .class + .var + .mod)
+      .access                                   166
+      .operator / .op                           139
+      .literal                                  137
+      .statement / .stmt                        114
+      .flow                                      89
+      .type                                      82
+      .qualified                                 38
+      .conditional                               22
+      .external                                  20
+      .struct                                    19
+      .list                                      13
+      .pattern                                    9
+      .error                                      8
+      .transform                                  4
+      .syntax                                     2
+
+The card teaches 25 classes and omits these. `.name`/`.identifier` is the largest class in the
+language (693 nodes, more than `.call`) and no pair in the corpus uses it, because nothing told
+the authors it existed. `.def` is the one that makes "where is X defined" answerable as asked.
+
+### A FOURTH silent-acceptance bug: unknown classes return 0 nodes
+
+    .zzzznotathing   0 nodes, no error
+    .frobnicate      0 nodes, no error
+
+So an invented or mistyped class is indistinguishable from a correct selector that matches
+nothing. This is the same failure as `:scope(X)` (vacuous), `:typed(X)` (argument discarded)
+and `:decorated(X)` -- three of which sitting_duck #184 has now fixed -- but in the CLASS
+resolution path rather than the pseudo-class path, so #184's fix does not cover it.
+
+It also explains why the models' inventions looked plausible all session. `.fn:added`,
+`.var:assigned` and the rest executed and returned a clean empty set; nothing in the pipeline
+could tell "there is no such thing" from "there is nothing of that kind here". A model trained
+against this engine gets no corrective signal for inventing vocabulary.
+
+### What this does to the foundation argument
+
+The card is not merely narrow, it is 47% of the vocabulary. The corpus inherited that gap
+(0 of 8,326 pairs use `.def`, `.name`, `.block`, `.access`, `.literal`, `.statement`, `.flow`,
+`.type`), and the evals inherited it from the corpus. So "we built it on the wrong content" is
+measurable: we taught a subset of the language, tested the same subset, and the questions users
+actually ask -- "where is X defined", "what references X" -- land squarely in the half we never
+documented.
+
+That is a better reason to rebuild than any of the accuracy deltas, because it is not a tuning
+problem. No amount of training on the documented half discovers `.def`.
