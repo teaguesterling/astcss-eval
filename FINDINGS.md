@@ -3258,3 +3258,50 @@ attribute-shaped, not terse lookups. The controls were the wrong shape to catch 
 
 **So the abstention batch needs answerable TERSE controls, not just answerable complex ones** --
 and that is a corpus-crafting defect in my own suite, of exactly the kind FOUNDATION.md is about.
+
+## `.def#X` already exists, is undocumented, and would dissolve most named-lookup failures
+
+Teague's proposal: "where is X defined" should be `:def#X` rather than forcing a choice between
+`.fn#X`, `.class#X`, `.var#X`. There is no `:def` pseudo-class -- but `.def` exists as a
+semantic CLASS, and it is exactly the union:
+
+    .def   202 nodes  ==  .fn 84 + .class 19 + .var 82 + .mod 17
+    .def#Animal       == .class#Animal   (2 nodes)    .fn#Animal is 0 -- Animal is a class
+    .def#make_animal  == .fn#make_animal (1 node)
+
+So the capability is already there and `card_t5.md` never mentions it. The card lists `.fn
+.func .method .class .mod .var .call ...` and omits the one class that makes a name lookup
+answerable without first knowing what kind of thing the name is.
+
+### Why that matters more than it sounds
+
+Of the holdout's named-lookup FAILURES, almost all are right name, wrong class:
+
+    model          named-lookup failures   RIGHT NAME, wrong class   wrong name   no #name
+    9B                      92                     87 (95%)              3           2
+    0.8B control            55                     38 (69%)             16           1
+    abstention arm          84                     73 (87%)              6           5
+
+The 9B gets the identifier right and the class wrong in 95% of its failures: `.class#StrPrintf`
+for a function, `.mod#StrAppend` for a function. It is not failing to find the name -- it is
+being forced to guess a kind the English never specified, and being marked wrong for guessing.
+
+`.def#X` makes those questions answerable as asked. On the holdout that is up to 87 of the 9B's
+92 named-lookup failures, i.e. roughly 27 points of a 323-pair suite, from documenting one class
+that already works.
+
+### What this says about the foundation argument
+
+The holdout is 74.6% named lookups, and ~90% of its failures are a class-guessing artefact of
+the card's vocabulary rather than a reasoning failure. So:
+
+  - the "ladder inversion" is further deflated: much of the 9B's holdout deficit is this one
+    artefact, and the 0.8B wins partly by guessing `.fn` more often, which the suite rewards
+    because `named-fn` is its largest family
+  - the corpus never teaches `.def` (0 of 8,326 pairs use it, since the card does not list it)
+  - my holdout questions ("where is X defined", "take me to X") are themselves under-specified
+    against the documented vocabulary -- a corpus-crafting defect in MY instrument, again
+
+The honest version: a chunk of what this session measured as generalisation failure is a
+vocabulary gap in the card, inherited by the corpus, and amplified by an eval I wrote to ask
+exactly the question that gap makes ambiguous.
