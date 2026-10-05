@@ -3446,3 +3446,65 @@ skills; and the engine cannot distinguish an invented class from an empty result
 So the rebuild argument is about CONTENT COVERAGE, not corpus size -- and this curve makes that
 sharper rather than softer. Scale evidently converts rows into generalisation at a good rate.
 We have been spending that rate on half a language.
+
+## The full vocabulary audit: 35 constructs missing from a card that documents ~40
+
+Probed every construct category against the pinned engine. Unknown ATTRIBUTES and
+PSEUDO-ELEMENTS error cleanly (`.fn[zzznotathing]`, `.fn::zzznotathing`), and unknown
+pseudo-classes error too, so only the CLASS path is silent (#188) -- which makes the rest of
+this audit reliable.
+
+### Classes — 22 missing (listed earlier)
+
+`.def`/`.definition` 202, `.name`/`.identifier` 693/650, `.block` 306, `.access` 166,
+`.operator`/`.op` 139, `.literal` 137, `.statement`/`.stmt` 114, `.flow` 89, `.type` 82,
+`.qualified` 38, `.conditional` 22, `.external` 20, `.struct` 19, `.list` 13, `.pattern` 9,
+`.error` 8, `.transform` 4, `.syntax` 2.
+
+### Pseudo-classes — 5 missing
+
+    .fn:first-child      23      .fn:empty        5
+    .fn:last-child       28      .fn:is-scope    84
+    .fn:nth-child(1)     23      (:only-child ERRORS -- not supported)
+
+Position and structure are expressible. I had assumed they were not, and built an abstention
+category on that assumption before catching it.
+
+### Pseudo-elements — 2 missing
+
+    .fn::scope     84        .call::parent    84      (::children ::siblings ::body ::name
+                                                       all ERROR -- not supported)
+
+`::parent` is new: it maps each match to its syntactic parent, as `::scope` maps to its
+enclosing scope.
+
+### Attributes — 6 missing, and two of them are whole capabilities
+
+    [language="python"]                  84    filter by source language
+    [type="function_definition"]         74    exact node type as an ATTRIBUTE
+    [semantic="DEFINITION_FUNCTION"]    159    the 44-value semantic taxonomy as a filter
+    [semantic="NAME_IDENTIFIER"]        650
+    [qualified*="Animal"]                 5    QUALIFIED name matching
+    [modifier="async"]                    2    async / static / etc.
+    [peek*="def "]                       74    MATCHES THE SOURCE TEXT
+
+`[peek*="..."]` is a text search inside a structural selector -- grep and AST query in one
+expression -- and nothing in the project uses or documents it. `[semantic=...]` exposes the
+entire taxonomy `ast_type_map` publishes (44 values) as a selector dimension. `[qualified*=]`
+answers "methods of Animal" without a combinator at all, which matters because combinators are
+capped at two steps.
+
+Note the card teaches bare node types as SELECTORS (`function_definition`) but not
+`[type="function_definition"]` as a filter, so `.call[type="..."]` compositions were unreachable.
+
+### Sum
+
+    documented in card_t5.md   ~40 constructs
+    missing and working         35  (22 classes, 5 pseudo-classes, 2 pseudo-elements,
+                                     6 attributes)
+
+The card is roughly half the language. The corpus inherited exactly that half -- 0 of 8,326
+pairs use any of the 35 -- and both evals were written from the corpus. The practically useful
+questions land in the missing half: "where is X defined" (`.def#X`), "what references X"
+(`.name#X`), "find the text TODO inside a function" (`[peek*=]`), "methods of Animal"
+(`[qualified*=]`), "the async ones" (`[modifier="async"]`).
