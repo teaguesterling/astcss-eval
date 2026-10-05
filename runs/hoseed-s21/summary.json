@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:hoseed-s21",
+    "n": 323,
+    "request_errors": 0,
+    "executes": 321,
+    "exec_match": 240,
+    "exact": 237,
+    "by_tier": {
+      "5": [
+        240,
+        323
+      ]
+    },
+    "median_latency_s": 0.43,
+    "mean_completion_tokens": 6.170278637770898,
+    "thinking": "off"
+  }
+]

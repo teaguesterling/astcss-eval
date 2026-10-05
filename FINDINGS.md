@@ -3508,3 +3508,446 @@ pairs use any of the 35 -- and both evals were written from the corpus. The prac
 questions land in the missing half: "where is X defined" (`.def#X`), "what references X"
 (`.name#X`), "find the text TODO inside a function" (`[peek*=]`), "methods of Animal"
 (`[qualified*=]`), "the async ones" (`[modifier="async"]`).
+
+## Pre-registration for the vocab-v2 arms: three things I should have checked before predicting
+
+Written 2026-10-04 21:20, while B' trains and ~2.5 h before either arm lands, so this reads as a
+prediction and not as an explanation. `workspace/vocab_ab.sh` carries the committed claim:
+
+> C' should RAISE the holdout ... because the holdout is 74.6% named lookups and 95% of the 9B's
+> failures there are right-name-wrong-class ... If the holdout does not move, the mechanism is
+> wrong and I have misread it.
+
+Checking the instrument while it still mattered found that commitment was stated too strongly.
+
+**1. The references do reproduce (`workspace/refcheck.py`).** Scoring is digest equality against a
+`reference.sha256` stored in the pair file, and three of the four suites deciding tonight
+(`holdout`, `holdout_rw`, `eval_vocab`) carry **no `reference.source` key at all** — so the
+provenance rule from the `:scope` correction ("never read a stored reference without checking its
+source") cannot be applied to them by reading. It has to be re-measured. Re-executing every
+engine-sourced reference on the pinned engine:
+
+```
+eval_vocab   n=113  match 113      holdout      n=323  match 323
+eval_t5      n=105  match 105      holdout_rw   n=301  match 301
+```
+
+842/842, zero mismatches, zero errors; the 13 oracle-sourced eval_t5 pairs are skipped, not
+judged. The result cache cannot hide engine drift either: `_engine_key` hashes the **contents** of
+the CLI, the extension and the macros file (`verify.py:246`), so the measurement I ran with
+`ASTCSS_MACROS` unset landed in a different cache namespace rather than contaminating this one.
+The instrument is sound. **These three suites should still be stamped `source: "engine"`** — not
+for tonight, but so the next session can read what I had to re-execute.
+
+**2. The 95% was the 9B. On the 0.8B being trained it is 58%.** Arm A's stored holdout rows
+(`runs/ho-0.8b-t5-e1/scores.jsonl`, adapter `t5-langcard/epoch1`, card `card_pd.md`):
+
+```
+holdout n=323  correct 256 (79.3%)  fail 67
+   RIGHT NAME, wrong class   39   58.2% of failures
+   wrong name                16   23.9%
+   no name in reference      11   16.4%
+   dropped the name           1    1.5%
+suite: 265/323 (82.0%) pairs carry a #name
+```
+
+Right-name-wrong-class is still the dominant failure mode, so `.def#X` is aimed at the right
+target — but the arithmetic ceiling is 39 of 323 pairs, **+12.1 points**, not whatever "95% of
+failures" implied. I quoted a number measured on one model as a property of another.
+
+**3. The dose is 0.36%.** Of 491 vocabulary pairs, `--cap-template 8` and the val split leave the
+flagship construct at **59 `.def#` rows in 16,288** train rows:
+
+```
+train  .name# 64   .def# 59   ::scope 41   ::parent 39   [qualified 23   [peek 12
+val    .def# 12    .name# 7   ::parent 6   ::scope 3     [qualified 2
+```
+
+**What this does to the commitment.** I wrote that a flat holdout proves the mechanism wrong. It
+does not: a null result now has three live explanations — the mechanism is wrong, the dose is too
+small at 0.36%, or the instrument scores a correct `.def#X` answer as wrong because the reference
+is written `.fn#X`. The third is measurable without the GPU and is running
+(`workspace/def_ceiling.py`); the second is not separable from this run at all. **The honest
+reading is that this experiment can disconfirm the mechanism only if the ceiling test says a
+`.def#X` answer scores correct, and even then a null is confounded with dose.** The commitment
+stands as written — I am not deleting it — but it was written without checking either number.
+
+**4. Two of the four columns had no baseline.** Arm A has `holdout` (79.3%) and `holdout_rw`
+(79.1%) but had never been scored on `eval_vocab` or on the full 118-pair `eval_t5`, so B'−A was
+not computable there. Queued as `astcss-arm-a.service`, which polls until the vocab arms release
+the GPU rather than competing with them: `t5-langcard/epoch1` on `eval_vocab` with `card_pd.md`
+(A's own eval card, so the difference is the treatment and not an eval-prompt change) and on
+`eval_t5` with both `card_pd.md` and `card_t5.md`, so the two conventions are visible instead of
+assumed equal. A is expected to score near zero on `eval_vocab`: it was neither taught the
+constructs nor given a card that documents them, and in arm A those two causes are inseparable.
+
+### The `.def#X` ceiling: +6.2 points, and two flaws in my own test on the way there
+
+`workspace/def_ceiling.py` executes `.def#X` for every holdout pair carrying a single `#name` and
+compares the digest to the stored reference — the question being whether a model that learns the
+*intended* construct would even be scored correct. Three passes, because the first two were wrong:
+
+**Pass 1, all 265 single-named pairs.** Gain 33, loss 73, apparent net **−12.4 points** — which
+would have meant teaching `.def#X` is harmful under this instrument. The breakdown refuted it:
+
+```
+   ref class         same different   zero   n
+   fn                 110         9      0  119
+   class               59        34      0   93
+   call                 0        14     39   53
+```
+
+All 53 `.call#X` pairs diverge, and **that is `.def` answering correctly.** `.call#count` asks
+where `count` is *called*; `.def#count` returning nothing is the right answer to a different
+question. I substituted on the selector's shape and ignored what the pair was asking.
+
+**Pass 2, the 212 `fn`/`class` pairs.** Net −0.9. Still wrong: it keeps descendant selectors like
+`.class#Chemv2Tests .fn` ("the functions inside class X", ref n=10, `.def` n=1), where the
+substitution is just as mis-aimed.
+
+**Pass 3, the 188 bare `.fn#X` / `.class#X` lookups** — the only pairs that actually ask "where is
+X defined":
+
+```
+  A FAILS   n= 39   .def#X same node set 33   different  6
+  A PASSES  n=149   .def#X same node set 136  different 13
+  gain +33 (+10.2 pts)   loss -13 (-4.0 pts)   NET +6.2 points on 323
+  .fn#X    -> .def#X same node set 110/119 (92.4%)
+  .class#X -> .def#X same node set  59/69  (85.5%)
+```
+
+So the mechanism's ceiling is **real and positive: +6.2 points**, not the −12.4 my first pass
+implied. All 13 losses are pairs A currently passes, and all 10 bare-`.class` divergences are
+`.def` matching *more* than the reference — `.def#Compound` returns 8 nodes where
+`.class#Compound` returns 1, because `.def` also finds the variable, the method and the
+constructor of that name. Defensible semantics, scored wrong.
+
+**What this does to tonight's reading.** The prediction's direction survives, with a quantified
+ceiling: C' should raise the holdout by somewhere in `0 .. +6.2` points, scaled by how often a
+0.8B trained on **59 `.def#` rows in 16,288** actually emits the construct. The holdout noise
+floor is **2.5 points**, so a true effect of a third of the ceiling is *indistinguishable from
+noise* — the experiment is underpowered for its own mechanism, and that was fixed at dataset-build
+time, not tonight. **A flat holdout will therefore not disconfirm the mechanism**, contrary to what
+I committed in `vocab_ab.sh`; only a *drop* beyond −2.5 would, and the ceiling test says the
+arithmetic cannot produce one from `.def` substitution alone.
+
+The transferable error is the one I keep making in a new costume: pass 1 took the mean over a
+population I had not checked was homogeneous. The `.call` pairs were 20% of the sample and had the
+opposite sign for a principled reason — the same shape as reading the watchdog's 0.25 models/firing
+as one mechanism when 81% of the firings were a different event, and as quoting the 9B's 95% as a
+property of the 0.8B. **Partition before averaging.**
+
+### eval_t5's 13 oracle pairs are biased against the card_v2 arms
+
+The 13 oracle-sourced eval_t5 pairs score predictions through `oracle.parse`, which predates
+`card_v2`. Tested directly:
+
+```
+  .def#foo  .name#foo  .fn::scope  .fn:in-scope(.class#C)  [peek*=]  [qualified*=]  .block
+  .literal  .access                                         -> parsed
+  ::scope (bare)   .fn::parent   .fn:is-scope                -> REFUSED (None)
+```
+
+So a B'/C' prediction using `::parent` or `:is-scope` — both of which `card_v2` teaches — is scored
+`executes: False` on those pairs for a reason that has nothing to do with the engine, which runs
+them fine. The bias is bounded (13 of 118 pairs, and only where the model reaches for those two
+constructs) but it is one-directional: it can only hurt the arms that were taught the new
+vocabulary. **Report eval_t5 as the 105 engine-sourced pairs, with the 13 shown separately rather
+than folded in.** This is the same dual-instrument hazard as the `:scope` correction, now with a
+measured list of which spellings the two instruments disagree about.
+
+## Vocab-v2 verdict: the mechanism is confirmed, the card taxes again, and a new brittleness
+
+Three arms, 0.8B, seed 18, 1 epoch. A = `t5-langcard/epoch1` + `card_pd.md` (original cards and
+corpus); B' = `card_v2` cards, **identical 15,928 rows**; C' = `card_v2` + 491 vocabulary pairs
+(16,288 rows). Scored on the pinned engine; all 842 references re-verified beforehand.
+
+```
+suite                     A       B'       C'      B'-A    C'-B'
+holdout (323)         79.3%    74.0%    77.1%      -5.3     +3.1
+holdout_rw (301)      79.1%    70.8%    69.4%      -8.3     -1.3
+eval_vocab (113)      10.6%    21.2%    85.0%     +10.6    +63.7
+eval_t5 (118)         83.1%    81.4%    80.5%      -1.7     -0.8
+eval_t5 (105 engine)  84.8%    81.0%    79.0%      -3.8     -1.9
+```
+Noise floors: holdout **2.5**, eval_t5 **8.3**. A's eval card made no difference on eval_t5
+(`card_pd` 83.1% == `card_t5` 83.1%), so B'−A there is not an eval-prompt artifact.
+
+**1. The predicted mechanism is confirmed, and the attribution is clean.** C'−B' on the holdout is
+**+3.1 points**, above the 2.5-point floor and the only arm all session to raise it. The +10 net
+pairs decompose as **+9 from pairs where C' emitted `.def#` and +1 from everything else**:
+
+```
+   where C' used .def#     B' -> C'    n          .def# emitted on 24 holdout pairs
+     wrong -> right              9                22 of 24 scored correct (91.7%)
+     right -> right             13                predicted safe-substitute rate: 92.4%
+     wrong -> wrong              2
+     right -> wrong              0   <- no losses
+```
+
+Zero right→wrong flips, and the realized 91.7% hit rate lands on the 92.4% the ceiling test
+predicted for `.fn#X`. +9 pairs is +2.8 points against a +6.2 ceiling — **45% of the ceiling, from
+59 `.def#` training rows (0.36%)**. The pre-registered mechanism was right in direction, in
+magnitude-relative-to-ceiling, and in the specific construct doing the work.
+
+**2. The card taxes again — third replication.** B' changed *only* the card text and lost 5.3
+holdout points, 8.3 reworded, 3.8 on eval_t5's engine pairs, while buying 10.6 points of
+eval_vocab. The pairs bought 63.7 on the same suite. Card text has now cost ~5 holdout points in
+three independent arms (pseudo-d1, abstention, vocab-v2) and has never taught more than a fraction
+of what pairs teach. **Stop paying for vocabulary in card lines.**
+
+**3. New: the v2 arms are brittle to phrasing, and A is not.** Paired on the same 301 ids, original
+wording vs the same query reworded:
+
+```
+arm        n   original   reworded     delta   flips wrong->right / right->wrong
+A        301      78.1%      79.1%      +1.0        28 / 25
+B'       301      72.4%      70.8%      -1.7        26 / 31
+C'       301      75.7%      69.4%      -6.3        18 / 37
+```
+
+A is phrasing-robust to within noise; C' loses 6.3 points, lopsidedly (18 vs 37). This is not `.def`
+over-firing — `.def#` scored **29/30** on reworded queries. Of C's 37 regressions, **23 are shared
+with B'**, so the brittleness is mostly the card and the v2 training, with ~14 pairs specific to the
+vocabulary rows. The failure mode is reversion to raw node types and invention:
+
+```
+  ref .class#DescriptorTests        orig .class#DescriptorTests   rw class_definition#DescriptorTests
+  ref .call#concat                  orig .call#concat             rw .fn#concat::callers
+  ref .call#setBackgroundColor      orig .call#setBackgroundColor rw method_definition:has(.call#setBackgroundColor)
+```
+
+`::callers` does not exist. This is the invention-under-paraphrase that the practical-usefulness
+goal names directly, and it is *created* by this training round rather than inherited.
+
+**Caveat on the instrument:** every `holdout_rw` query carries the same `reword_model` hash — the
+suite is one model's paraphrase style, so "robust to rewording" currently means robust to that one
+voice. Mixing reword models is the fix and is untested.
+
+**4. Net position.** C' vs A on the holdout is −2.2, inside the noise floor. So the round roughly
+breaks even on the existing suite while taking eval_vocab from 10.6% to 85.0% — the model can now
+express `.def`, `.name`, `::scope`, `::parent`, `[peek]`, `[qualified]` at no measurable cost to
+what it already did. The two bills are the card tax (−5.3, avoidable) and the phrasing brittleness
+(−6.3 paired, newly introduced).
+
+### Correction: `::callers` exists, the model did not invent it, and nothing was invented at all
+
+I reported `.fn#concat::callers` as an invented construct and used it as evidence of
+"invention under paraphrase". Teague asked whether `::callers` should exist. It does.
+
+```
+known_pseudo_element_names: parent, parent-definition, scope,
+                            next-sibling, prev-sibling, previous-sibling,
+                            callers, callees          (pinned macros, line 968)
+
+.fn::callers        n=4     .fn#execute::callers  n=4
+.fn::callees        n=41    .fn#execute::callees  n=2
+```
+
+`.fn#concat::callers` returned 0 only because its **left side is empty** — `.fn#concat` is n=0,
+since `concat` is a library method with no definition in that fixture. The selector was
+well-formed and the operation was the right one for "which functions call concat". Worse for my
+claim: **the training corpus contains 155 rows using `::callers`** — the model learned it from our
+own data. I called our own corpus a hallucination.
+
+The strict check kills the invention story entirely: **every prediction executed.** Across all six
+arm/phrasing combinations, 2 of 1,872 predictions were rejected by the engine, and of C's 37
+rewording regressions, **37 of 37 were valid astcss that selected the wrong nodes** — none
+malformed. So the brittleness is real but it is *not* a syntax-hallucination problem: under
+paraphrase these models switch to a different **valid** selector. `class_definition#X` (n=0,
+accepted, selects nothing) is the characteristic shape. That is a better-behaved failure than I
+described, and it means the fix is discrimination training, not a denial licence.
+
+**The card gap is real, though:** `card_v2` documents 2 of the engine's 8 pseudo-elements
+(`::scope`, `::parent`) and omits `::callers`, `::callees`, `::parent-definition`,
+`::next-sibling`, `::prev-sibling`. Given the card tax, the right response is *not* five more card
+lines — the corpus already teaches `::callers` 155 times with no card support and the model used it
+correctly-formed.
+
+### Sixth silent-acceptance defect: `:calls()` / `:called-by()` discard a selector argument
+
+The grammar is a **bare name**, and that form is correct:
+
+```
+.fn:calls(execute)                 n=4    <- matches the stored reference exactly
+.fn:calls(zzzDefinitelyNotAFunction) n=0
+.fn:calls(EXECUTEXX)               n=0
+```
+
+Pass a *selector* instead, or nothing at all, and the argument is silently dropped:
+
+```
+.fn:calls(.fn#execute)   n=38      .call:called-by(load)        n=2
+.fn:calls(.class#Cat)    n=38      .call:called-by(.fn#load)    n=79
+.fn:calls(.literal)      n=38      .call:called-by(.class)      n=79
+.fn:calls(*)             n=38
+.fn:calls()              n=38      <- no argument, same answer
+```
+
+38 and 79 are the unfiltered sets ("functions that call anything", "calls sited in any function").
+This is the #184 / #188 family — a wrong argument *type* accepted and discarded rather than
+refused — on the call-graph pseudo-classes, which neither issue covers. **My first probe of this
+drew the wrong conclusion** because I passed `:calls(.fn#X)` and concluded the argument was always
+ignored; the bare-name form disproves that. Test the grammar the corpus actually uses before
+calling an engine broken.
+
+**Also retracted:** the pending note that "198 corpus rows teach `:in-scope(`, unsupported by the
+pinned engine". The 198 rows are real (`workspace/trainset-t5/pairs.jsonl`) but `:in-scope(` **works
+on this engine** — `.fn:in-scope(.class#Cat)` = 3, identical to `.class#Cat .fn`. Nothing to fix,
+and the re-pin does not need to resolve it.
+
+## Probing the latest sitting_duck (048bd59, 2026-10-05)
+
+Snapshotted the peer session's build into `workspace/engine/sd-20261005-048bd59` rather than
+executing out of `~/Projects/sitting_duck`, which another session owns and had rebuilt 13 minutes
+earlier — nothing in that repo was touched, the macros came out by `git show HEAD:...` (that file
+is clean), and `PROVENANCE.md` records that the tree was **dirty** when the binary was built, so
+every number here is provisional. `v1.15.4-4-g048bd59-dirty`, branch
+`feat/188-call-sites-and-alias-table`, ahead of main (5b38e8f), contains the #184 fix 94357a8.
+
+**#184 is fixed, exactly to the spelling=operation spec** — the macro carries the rationale as a
+comment:
+
+```
+.fn:scope(.class#Cat)   ERROR: :scope is not a pseudo-class     .fn::scope             n=84
+.fn:scope               ERROR: :scope is not a pseudo-class     .fn:is-scope           n=84
+.fn:is-scope(.class#Cat)  n=0                                   .fn:in-scope(.class#Cat) n=3 == .class#Cat .fn
+```
+
+**The `:typed`/`:decorated` half is fixed too**, and more strictly than I expected — the argument
+is now refused outright rather than accepted:
+
+```
+.fn:typed       n=9     .fn:typed(int) / (zzzNope) / (.class)  ERROR: :typed takes no argument
+.fn:decorated   n=2     .fn:decorated(staticmethod)            ERROR: :decorated takes no argument
+```
+
+Unknown pseudo-classes and pseudo-elements now error as well. **Zero corpus rows use `:scope(`,
+`:typed(` or `:decorated(`**, so this fix costs the corpus nothing.
+
+**Still live on the latest build — the defect found today:**
+
+```
+.fn:calls(execute)        n=4     <- bare name, correct
+.fn:calls(.fn#execute)    n=38    .call:called-by(load)       n=2    <- bare name, correct
+.fn:calls(.class#Cat)     n=38    .call:called-by(.fn#load)   n=79
+.fn:calls(*)              n=38    .call:called-by(.class)     n=79
+.fn:calls()               n=38    <- no argument at all
+```
+
+Identical to the pinned engine. A selector or empty argument where a **name** is expected is still
+silently dropped, yielding the unfiltered set. Neither #184 nor #188 covers it.
+
+**#188 is still live, and worse than I filed it.** I reported "unknown semantic class returns 0
+nodes, no error". The compound form is the dangerous one:
+
+```
+.zzzNotARealClass        n=0     <- as filed
+.fn.zzzNotARealClass     n=84    == .fn   <- the unknown class is dropped, not applied
+```
+
+So an unknown class in a compound selector does not merely return nothing — it **silently
+disappears and the selector returns everything the rest of it matches**. A typo widens the result
+set instead of emptying it.
+
+**Re-pin hazard: the call-graph pseudo-elements changed results.** `.fn::callers` 4 → **24**,
+`.fn::callees` 41 → **79** between the pin and 048bd59, and the new engine adds `::call-sites`
+(n=38). The training corpus carries `::callees` 220 rows, `:is-called` 181, `::callers` 155,
+`:called-by(` 138 — so a re-pin touches roughly 700 training rows and ~47 eval pairs. Training rows
+teach selector *strings* and survive a semantics change; **eval references do not**, and the
+full 842-reference re-verification against 048bd59 is running to price that exactly.
+
+### Re-pin price: 6 of 554 eval pairs (1.1%)
+
+All 842 engine-sourced references re-executed against 048bd59:
+
+```
+eval_vocab  n=113  match 113              holdout     n=323  match 318  MISMATCH 5
+eval_t5     n=105  match 104  MISMATCH 1  holdout_rw  n=301  match 296  MISMATCH 5
+```
+
+Six distinct pairs move (holdout and holdout_rw share five, being the same pairs reworded):
+
+```
+ho-0013  .call                  ho-bash-plinking    39 -> 362   "every invocation"
+ho-0004  .fn:has(.call)         ho-bash-plinking     1 ->   3
+ho-0005  .fn:not(:has(.call))   ho-bash-plinking     2 ->   0
+ho-0367  .fn:not(:has(.call))   ho-rust-fabric      15 ->  16
+ho-0060  .import                ho-c-graphqlparser  41 ->  24   "show the includes"
+t5-p55   .fn#level2::callees                          5 ->   1
+```
+
+Paired on the same fixture, pinned vs 048bd59:
+
+```
+ho-bash-plinking    .call  39 -> 362    .access 597 -> 920    .fn 3 -> 3    .member 493 -> 493
+```
+
+So bash **commands** are now classified as calls — defensible (in bash every command is an
+invocation) and almost certainly intentional from the alias-table work; `.fn` and `.member` are
+untouched, so this is not a broad reclassification. Three of the six mismatches are that one change
+and its `:has()` consequences. The C `.import` **narrowing** (41 → 24 `#include`s) and the
+`::callees` narrowing (5 → 1) are the two I cannot attribute to an obvious intent and would ask
+about before re-pinning.
+
+**The named forms are stable.** `.fn#execute::callers` = 4 on both engines; it is the *bare*
+`.fn::callers` that moved (4 → 24) and `.fn::callees` (41 → 79). Eval pairs overwhelmingly use the
+named form, which is why 220 corpus rows of `::callees` cost only one eval pair.
+
+**Verdict: re-pinning is cheap and worth doing** — it buys the whole #184 fix (which costs the
+corpus zero rows, since nothing uses `:scope(`, `:typed(` or `:decorated(`) for the price of
+re-verifying six references. It should be done against a *released* build, not this dirty feature
+branch. The two defects that survive to the latest build — the `:calls()`/`:called-by()` argument
+type, and #188's compound form where `.fn.zzzUnknown` returns all of `.fn` — are unaffected by the
+re-pin either way.
+
+### Correction: the two "unattributed" changes are bug fixes, and our pinned references are the wrong ones
+
+I said I would ask the peer about the `.import` narrowing and the `::callees` narrowing before
+re-pinning. Both are answerable from here, and both are the engine becoming *more* correct.
+
+**`.import` was double-counting an import's own child nodes.** Per node type, pinned vs 048bd59:
+
+```
+ho-js-amongus     .import  40 -> 10     import_statement 10  import_clause 10
+                                        import_specifier 10  named_imports 10   (10+10+10+10 = 40)
+ho-c-graphqlparser .import 41 -> 24     preproc_include  24  system_lib_string 17   (24+17 = 41)
+py-variety        .import  31 -> 20     import_statement  7  import_from_statement 13  (7+13 = 20)
+ho-rust-fabric    .import  27 -> 27     unchanged
+```
+
+The pinned engine matched the `import_statement` **and** its `import_clause`, `import_specifier`
+and `named_imports` children as four separate `.import` nodes; the C case counted the include
+*path string* as an import. Latest returns one node per import statement. So holdout `ho-0060`
+("show the includes", stored n=41 over 24 actual `#include` lines) has a **wrong reference on the
+pinned engine** — 41 was never the right answer. Rust was already correct, which is why it did not
+move.
+
+**`::callees` was returning descendant calls, making it redundant.** On `py-variety`'s
+`deep_nesting.py`:
+
+```
+pinned   .fn#level2::callees  n=5  == .fn#level2 .call  n=5   <- identical: just descendant calls
+latest   .fn#level2::callees  n=1     .fn#level2 .call  n=5
+```
+
+The pinned `::callees` was exactly `.fn#X .call`, so it counted calls made inside *nested*
+functions as level2's callees. The latest returns the one call in level2's own body. That makes
+`::callees` mean "the functions this one calls" rather than duplicating a descendant selector.
+
+**So re-pinning does not cost 6 pairs — it corrects them.** Of the six mismatches, five are these
+two fixes (`.import` ×1, `::callees` ×1, and the bash `.call` change ×3 via `:has()`), and the
+pinned reference is the incorrect one in each. The only change I still cannot adjudicate from
+outside is the bash `.call` broadening (39 → 362, with `.access` 597 → 920, `.fn` and `.member`
+untouched): treating every bash command as an invocation is defensible and looks deliberate, but
+whether it is intended is the one question worth asking.
+
+**The transferable risk this exposes:** our pinned references can be *wrong*, not merely different,
+and an execution-verified corpus cannot detect that by construction — `verify.py` confirms a
+selector's node set is stable and that distractors differ, never that the engine's classification
+is right. `ho-0060` passed every gate with an answer inflated 1.7x. **Re-verification against a
+newer engine is the only check that catches this class of error**, which is an argument for
+re-pinning periodically rather than treating the pin as a safety measure.
+
+**Filed:** sitting_duck **#191** (`:calls()`/`:called-by()` discard a selector or empty argument)
+and a comment on **#188** documenting the compound-widening form (`.fn.zzzUnknown` == `.fn`).

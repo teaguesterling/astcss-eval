@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:armA-card_t5",
+    "n": 118,
+    "request_errors": 0,
+    "executes": 117,
+    "exec_match": 98,
+    "exact": 75,
+    "by_tier": {
+      "5": [
+        98,
+        118
+      ]
+    },
+    "median_latency_s": 0.34,
+    "mean_completion_tokens": 10.983050847457626,
+    "thinking": "off"
+  }
+]
