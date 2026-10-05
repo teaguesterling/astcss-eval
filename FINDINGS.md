@@ -3405,3 +3405,44 @@ named lookups (named-fn -16, named-call -17) while `:has` improved -- so the row
 Two fixes follow, neither tried: a much terser licence line (the 5-point card cost is pure
 overhead given it teaches nothing), and answerable TERSE controls in the abstain suite, which
 my compound-shaped controls were the wrong shape to catch.
+
+## CORRECTION: data scale DOES buy generalisation. The curve is steep, not flat.
+
+I predicted this would come back flat and said so. It did not. Same corpus, same config
+(`--system none`), same model (9B), three fractions, scored on the holdout:
+
+      579 rows   59.1%
+    1,116 rows   68.1%   +9.0
+    2,205 rows   75.5%   +7.4
+
+Still climbing at the top, at ~7-9 points per doubling. Nothing about this says more data
+is worthless.
+
+### What I got wrong, and what the earlier comparison actually showed
+
+Earlier I wrote "7.2x the training data -> +3.8 points on unseen repos", comparing the
+2,205-row small-langcard seeds (75.5% mean) against the 15,928-row t5-langcard control (79.3%).
+That comparison crosses TWO confounds: different model (9B vs 0.8B) and different prompting
+(no system card vs per-language cards). It is not a scaling measurement and I presented it as
+one.
+
+The clean curve above is a scaling measurement, and it says scale works. Whether it flattens
+between 2,205 and 15,928 rows is simply UNTESTED: the only 15,928-row point we have is a
+different model under a different config.
+
+### What would actually test it
+
+t5-langcard at `--train-frac` 0.15 / 0.5 / 1.0, one model, one config -- three training runs,
+~9.5 h. That is the measurement that would say whether the corpus is past its knee. Until it
+exists, "the corpus is too big to help" is my speculation, not a finding.
+
+### What survives, and why the rebuild case is now narrower but not weaker
+
+Unchanged by this: the card documents ~53% of the vocabulary; `.def` and `.name`/`.identifier`
+(the largest class in the language) appear in 0 of 8,326 pairs; 95% of the 9B's named-lookup
+failures are right-name-wrong-class, an artefact of that gap; the two suites measure disjoint
+skills; and the engine cannot distinguish an invented class from an empty result (#188).
+
+So the rebuild argument is about CONTENT COVERAGE, not corpus size -- and this curve makes that
+sharper rather than softer. Scale evidently converts rows into generalisation at a good rate.
+We have been spending that rate on half a language.
