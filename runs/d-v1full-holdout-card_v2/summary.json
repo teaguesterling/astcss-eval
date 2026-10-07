@@ -1,19 +1,19 @@
 [
   {
     "model": "local:d-v1full-card_v2",
-    "n": 323,
+    "n": 320,
     "request_errors": 0,
-    "executes": 322,
-    "exec_match": 248,
-    "exact": 192,
+    "executes": 320,
+    "exec_match": 246,
+    "exact": 190,
     "by_tier": {
       "5": [
-        248,
-        323
+        246,
+        320
       ]
     },
-    "median_latency_s": 0.31,
-    "mean_completion_tokens": 6.080495356037152,
+    "median_latency_s": 0.305,
+    "mean_completion_tokens": 6.08125,
     "thinking": "off"
   }
 ]

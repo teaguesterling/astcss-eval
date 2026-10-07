@@ -489,7 +489,17 @@ def rescore(out_dir, pairs_by_id):
         k = (r["model"], r["id"])
         if k not in latest or not r.get("error") or latest[k].get("error"):
             latest[k] = r
-    scored = score(list(latest.values()), pairs_by_id)
+    # A re-pin can RETIRE pairs (v1.15.4 retired 3 holdout pairs the gates now reject and the 13
+    # oracle-sourced eval_t5 pairs). Runs generated before that carry answers for ids the suite no
+    # longer has, and score() would KeyError on them. Drop them, and say how many: a silently
+    # shrinking denominator is how a re-pin would flatter every earlier arm.
+    kept, dropped = [], []
+    for r in latest.values():
+        (kept if r["id"] in pairs_by_id else dropped).append(r)
+    if dropped:
+        print("skipped %d answer(s) for pairs retired from this suite: %s" % (
+            len(dropped), ", ".join(sorted({r["id"] for r in dropped}))))
+    scored = score(kept, pairs_by_id)
     meta_path = os.path.join(out_dir, "meta.json")
     meta = json.load(open(meta_path)) if os.path.exists(meta_path) else {}
     leaked = set(meta.get("leaked_ids") or [])

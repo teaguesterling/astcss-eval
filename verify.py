@@ -33,12 +33,18 @@ import subprocess
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SD = os.environ.get("SITTING_DUCK", os.path.expanduser("~/Projects/sitting_duck"))
+# The PIN. An unset SITTING_DUCK used to fall back to the live ~/Projects/sitting_duck
+# checkout, whose build and macros move under us -- that default silently invalidated
+# three measurements (two engines compared as one). The default is now the pinned
+# snapshot; the env var still overrides it for deliberate cross-engine probes.
+PIN = "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-v1.15.4-803b35b"
+SD = os.environ.get("SITTING_DUCK", PIN)
 CLI = os.path.join(SD, "build/release/duckdb")
 EXT = os.path.join(SD, "build/release/extension/sitting_duck/sitting_duck.duckdb_extension")
 MACROS = os.environ.get(
     "ASTCSS_MACROS",
-    os.path.join(SD, "src/sql_macros/css_selectors.sql")
+    os.path.join(PIN, "css_selectors-v1.15.4.sql") if SD == PIN
+    else os.path.join(SD, "src/sql_macros/css_selectors.sql")
     if os.path.exists(os.path.join(SD, "src/sql_macros/css_selectors.sql"))
     else os.path.join(SD, "trees/fix/127-combinator-steps/src/sql_macros/css_selectors.sql"))
 

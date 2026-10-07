@@ -4010,3 +4010,148 @@ check — score with the short card and see how far the model falls.
 **The paraphrase brittleness is partly the v2 corpus, not the pairs.** holdout_rw's train-card
 effect is −5.9, larger than the holdout's −3.6, and D (v1 cards + pairs) still drops 72.4 vs 80.2
 original-to-reworded. So the pairs carry some of it too; the instrument question stands open.
+
+## Re-pinned to sitting_duck v1.15.4, and a digest-only re-pin would have been wrong
+
+`v1.15.4` (`803b35b`, tagged 2026-10-03) is the first **release** containing the #184 fix — it is
+the merge of PR #185. Built from a detached worktree at the tag into
+`workspace/engine/sd-v1.15.4-803b35b`, reproducible, no dependence on anyone's working tree. The
+peer's `048bd59` was rejected as a pin target because its tree was dirty; probing both showed every
+behaviour change belongs to the release, with `::call-sites` the only WIP-only addition.
+
+**The price was 4x what the digest check said, and in a different shape.** `workspace/refcheck.py`
+compares stored `reference.sha256` to a fresh execution and found 6 moved references. That is
+necessary and not sufficient: a semantics change can leave a reference untouched while making a
+**distractor collide** with it (the pair stops discriminating) or a **modifier vacuous** (the pair
+stops testing the modifier). `workspace/repin_verify.py` re-runs the real gates by calling
+`verify.verify()` — the same code that accepted these pairs, so the standard cannot drift:
+
+```
+eval_vocab  113   ok 113
+eval_t5     118   ok 107   FAILS GATES 11   (all 11 oracle-sourced)
+holdout     323   ok 320   FAILS GATES  3   + 2 references merely moved
+holdout_rw  301   ok 298   FAILS GATES  3   + 2 references merely moved
+```
+
+**What a digest-only re-pin would have done:** `ho-0013` (`.call`, "every invocation") moved 39 ->
+362 nodes, so it would have been "fixed" by storing 362 — creating a pair that violates the
+suite's own 1..50 bounds gate and asks a model to select 362 nodes. `ho-0004`
+(`.fn:has(.call)`) would have been stored at 3 nodes while `:has(.call)` is no longer
+load-bearing, leaving a pair that tests nothing. Two of the six "moved" pairs needed retirement,
+not re-referencing, and the digest check cannot tell those cases apart.
+
+**Actions taken.** Retired 3 holdout pairs and their reworded counterparts — `ho-0004`
+(`:has(.call)` vacuous: bash commands now count as calls), `ho-0005` (0 nodes), `ho-0013` (362
+nodes) — all three traceable to the one bash `.call` change. Re-referenced `ho-0060` (41 -> 24,
+the inflated `.import`) and `ho-0367` (15 -> 16) in both suites, and `t5-p55` (`::callees`
+5 -> 1). Retired the **13 oracle-sourced eval_t5 pairs**: 11 fail the gates outright on v1.15.4
+(5 use attribute filters inside `:has()`, which the engine now refuses explicitly; 3 use
+`:scope(X)`, retired by #184; the rest went vacuous or out of bounds), and the earlier
+adjudication had already found zero engine agreement across all 13. eval_t5 is now its 105
+engine-verified pairs, which every report already treated as the headline.
+
+```
+after the re-pin:  holdout 320   holdout_rw 298   eval_vocab 113   eval_t5 105
+confirmation run:  836 of 836 pairs pass every gate, zero failures
+```
+
+Every reference in all four suites now carries `source: "engine"`. The three suites that had no
+`source` key at all were stamped only after re-executing them (113/113, 320/320, 298/298 clean),
+so the stamp is earned rather than assumed.
+
+**Two fixes to the harness, both of which had already cost measurements.**
+
+`verify.py`'s `SD` default was `~/Projects/sitting_duck` — the **live** checkout, whose build and
+macros move under us. That default is what silently invalidated three measurements earlier (two
+engines compared as one). It now defaults to the pin, with `SITTING_DUCK`/`ASTCSS_MACROS` still
+overriding for deliberate cross-engine probes. An unset environment can no longer reach a moving
+engine.
+
+`qualify.rescore()` indexed `pairs_by_id[r["id"]]` unconditionally, so any run generated before a
+retirement would `KeyError`. It now skips retired answers **and prints them** — a silently
+shrinking denominator is precisely how a re-pin would flatter every earlier arm.
+
+Arm D's holdout is 80.2% on the old pin and 80.3% on the new one (257/320), so the re-pin does not
+move the comparison; it removes three pairs that no longer mean anything and one reference that was
+simply wrong.
+
+## Haiku 4.5 as an instrument: the tuned 0.8B wins, the rewording suite is vindicated, and my bad-pair detector was built on a false premise
+
+All numbers on the v1.15.4 pin, 33 runs rescored onto it.
+
+```
+model                         holdout      eval_vocab     holdout_rw
+A  0.8B tuned (v1 cards)    79.1% (320)   10.6% (113)    79.2% (298)
+B' 0.8B tuned (v2 cards)    73.8%         21.2%          70.8%
+C' 0.8B v2 cards + pairs    77.2%         85.0%          69.5%
+D  0.8B v1 cards + pairs    80.3%         84.1%          72.5%
+Haiku 4.5 (card_v2)         74.7%         76.1%          77.2%
+```
+
+**1. A 0.8B fine-tune beats Haiku 4.5 by 5.6 points on the holdout and 8.0 on eval_vocab** — and
+eval_vocab is the suite of constructs Haiku had fully documented in its context. That is the
+project's thesis, measured: 491 verified pairs and a 3.2-hour QLoRA run buy more on this task than
+a frontier model reading a specification. Haiku wins the reworded suite (77.2 vs 72.5), which is
+the next section.
+
+**2. `holdout_rw` is a valid instrument, and I was wrong to suspect it.** I had found one reworded
+query that changed the question and suspected the suite was partly measuring its own paraphrase
+noise. Paired on the 298 common ids, original wording vs reworded:
+
+```
+A  (no pairs, v1 card)   +1.3        C' (pairs, v2 card)   -6.4
+B' (no pairs, v2 card)   -1.3        D  (pairs, v1 card)   -6.7
+Haiku 4.5                +4.0
+```
+
+**Haiku gets 4 points BETTER on the reworded queries, and the control gains 1.3.** The reworded
+phrasings are not broken — they are if anything clearer (they are longer and more explicit). The
+drop is a property of the arms that drop.
+
+**3. The brittleness is caused by the vocabulary pairs, not the card — which corrects what I said
+earlier.** I had claimed "23 of C's 37 regressions are shared with B', so the brittleness is mostly
+the card and the v2 training". The arm-level paired numbers say the opposite: both no-pairs arms
+sit inside the noise floor (+1.3, −1.3) and both pairs arms drop ~6.5 **regardless of which card
+they trained on**. Counting shared regressions between two arms that differ in one factor was the
+wrong statistic; the factorial comparison is the right one.
+
+**4. The mechanism: my vocabulary pairs taught frames that CONFLICT with the holdout's own
+labels.** The holdout contains these pairs, and they are the ones every model misses:
+
+```
+ho-0015  "where is AstVisitor defined"        -> .fn#AstVisitor
+ho-0019  "jump to the NodeFieldPrinter definition" -> .fn#NodeFieldPrinter
+ho-0125  "where is string actually used"      -> .call#string
+```
+
+My 491 pairs teach `where is {n} defined` -> `.def#{n}` and `every use of {n}` -> `.name#{n}`.
+Those are the *same frames* with *different* answers. Rewording a holdout query makes it longer and
+more explicit — which makes it **more** likely to match a vocabulary frame, which is precisely why
+the pairs arms lose ground on rewording while the control and Haiku gain it. The vocabulary did not
+make the model worse at astcss; it made the model answer a different question than the holdout asked.
+
+**5. My bad-pair detector rested on a false premise, and the probe says so.** The premise was that
+"a pair every model misses is likelier a bad pair than several independent capability failures".
+14 of 320 holdout pairs are missed by all four models (4.4%), 11 of them `named-fn`. Executing the
+alternatives shows **the references are correct**:
+
+```
+ho-0015   .fn#AstVisitor  n=1  <= reference      .class#AstVisitor  n=0   <- every model's answer
+ho-0018   .fn#JsonVisitor n=1  <= reference      .class#JsonVisitor n=0
+ho-0071   .fn#StrQuote    n=2  <= reference      .class#StrQuote    n=0
+```
+
+`.class#X` returns **zero nodes**. The models are not finding a defensible alternative reading —
+they are wrong, together, because they share a prior: a CamelCase identifier looks like a class, so
+they answer `.class#X`, when in C, C++, Go and TypeScript these are functions. **The failures are
+not independent, so consensus cannot detect a bad pair.** Correlated priors are exactly what
+defeats this design, and a frontier model shares the prior rather than breaking the tie.
+
+The detector's yield of bad pairs was therefore about zero — but it found a crisp, trainable model
+weakness instead: **CamelCase name -> `.class` bias**, costing ~3.4 points of holdout on its own
+(11 of 320). Pairs where a capitalised name is a function are a concrete corpus gap.
+
+Two genuinely ambiguous pairs did surface: `ho-0125`/`ho-0364` ("where is X actually used") have
+reference `.call#X` while every model answers `.name#X`, and the two differ by one node each
+(the call expression vs the identifier inside it, adjacent node ids). Those are under-specified
+rather than wrong, and the holdout has no distractors to adjudicate them.
