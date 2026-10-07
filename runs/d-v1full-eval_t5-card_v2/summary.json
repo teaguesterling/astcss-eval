@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:d-v1full-card_v2",
+    "n": 118,
+    "request_errors": 0,
+    "executes": 111,
+    "exec_match": 95,
+    "exact": 78,
+    "by_tier": {
+      "5": [
+        95,
+        118
+      ]
+    },
+    "median_latency_s": 0.38,
+    "mean_completion_tokens": 10.966101694915254,
+    "thinking": "off"
+  }
+]

@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:x22-v2card-card_pd",
+    "n": 301,
+    "request_errors": 0,
+    "executes": 301,
+    "exec_match": 213,
+    "exact": 210,
+    "by_tier": {
+      "5": [
+        213,
+        301
+      ]
+    },
+    "median_latency_s": 0.27,
+    "mean_completion_tokens": 6.441860465116279,
+    "thinking": "off"
+  }
+]

@@ -3951,3 +3951,62 @@ re-pinning periodically rather than treating the pin as a safety measure.
 
 **Filed:** sitting_duck **#191** (`:calls()`/`:called-by()` discard a selector or empty argument)
 and a comment on **#188** documenting the compound-widening form (`.fn.zzzUnknown` == `.fn`).
+
+## The train-card x eval-card 2x2: the card makes the model card-DEPENDENT
+
+Arm D (A's build config plus the 491 vocabulary pairs, cards held at v1) scored 80.2% on the
+holdout under `card_pd.md` and 76.8% under `card_v2.md` — the same adapter, the same weights, 3.4
+points apart on the inference prompt alone. On that one observation I said the three replications
+of the "card tax" were probably an eval-prompt effect and that my memory note had the mechanism
+wrong. **Completing the 2x2 shows that was an overcorrection.** Every cell on the old pin:
+
+```
+holdout                      eval_vocab                   holdout_rw          eval_t5
+train    eval pd  eval v2    eval pd  eval v2             pd      v2          pd      v2
+v1        79.3%    78.3%      10.6%    26.5%  (+15.9)    79.1%   79.1%       83.1%   83.1%
+v1+p      80.2%    76.8%      84.1%    85.8%  ( +1.8)    72.4%   71.4%       81.4%   80.5%
+v2        75.5%    74.0%       8.8%    21.2%  (+12.4)    70.8%   70.8%       83.1%   81.4%
+v2+p      73.7%    77.1%      56.6%    85.0%  (+28.3)    67.4%   69.4%       80.5%   80.5%
+
+train-card main effect (v2 cards - v1 cards), averaged over eval cards:
+   holdout -3.6    holdout_rw -5.9    eval_vocab -8.8    eval_t5 -0.6
+```
+
+**1. The card tax is a TRAINING effect, and my original note was right.** Averaged over both eval
+cards and both pair conditions, training on the v2 cards costs **−3.6 holdout** and **−5.9
+holdout_rw**. The eval-card deltas, by contrast, have no consistent sign (−0.9, −3.4, −1.5, +3.4;
+mean −0.6) and mostly sit inside the 2.5-point noise floor. Arm D's −3.4 was the largest of four
+and I generalised from it. The magnitude is −3.6, not the −5.3 I first reported, because that
+number confounded the train and eval cards.
+
+**2. The finding worth keeping: the card addendum makes the model depend on the card.** Look at
+`eval_vocab` under `card_pd.md`, a card that never mentions `.def`, `::scope` or `::parent`:
+
+```
+  v1+p (trained on EXAMPLES only)   84.1%  ->  85.8% with the card     drop without it:  1.8
+  v2+p (trained WITH the card)      56.6%  ->  85.0% with the card     drop without it: 28.4
+```
+
+Both arms reach ~85% when the card is present. Remove it at inference and the example-taught model
+loses **1.8 points** while the card-taught model loses **28.4**. Documenting the vocabulary in the
+card taught the model to *read the card* rather than to know the language; teaching the same
+vocabulary by example internalised it. That is a mechanism for the tax, not just a cost: card rows
+spend capacity on prompt-following.
+
+**3. The pairs work with no card support in either place.** D under `card_pd` reaches **84.1%** on
+eval_vocab against arm A's 10.6% on the identical prompt — **+73.5 points** from 491 pairs, with
+the original cards at training time and an eval card that documents none of the constructs. The
+card alone, with no pairs, buys +15.9 (A: 10.6 -> 26.5) and +12.4 (B': 8.8 -> 21.2). So examples
+beat documentation by roughly 5x on the suite the documentation was written for.
+
+**4. Best holdout of the session: D under `card_pd`, 80.2%** — the only arm to exceed arm A (79.3,
+and inside the noise floor of it). Net: the vocabulary is free on the existing suite if it is
+taught by example and the card is left alone.
+
+**Practical rule, now with a mechanism:** add constructs as pairs, never as card lines; and if a
+card must grow, expect the model to become dependent on it. The corollary is a cheap deployment
+check — score with the short card and see how far the model falls.
+
+**The paraphrase brittleness is partly the v2 corpus, not the pairs.** holdout_rw's train-card
+effect is −5.9, larger than the holdout's −3.6, and D (v1 cards + pairs) still drops 72.4 vs 80.2
+original-to-reworded. So the pairs carry some of it too; the instrument question stands open.
