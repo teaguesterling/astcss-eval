@@ -655,7 +655,13 @@ def cmd_run(args):
                         log("%s: 3 consecutive request errors, skipping the rest" % model)
                         break
     finally:
-        if original:
+        # A CLOUD-ONLY run needs nothing from the device, so it must not touch the device's model
+        # state. It used to "restore" whatever models it found resident, issuing start POSTs and
+        # letting ensure_loaded stop other chat models -- pointless churn on hardware another
+        # session is using. Measured: four cloud-only Haiku runs on 2026-10-06 each read
+        # models/running and restored, 37 hours before a device wedge that cost that session a
+        # 2.4-day embedding job. Same defect class as a watchdog acting on models it did not start.
+        if original and has_device:
             # Everything that was resident, not just the first: another client may
             # have loaded a second model (stage 1 found the embedder beside 30B-Instruct).
             try:

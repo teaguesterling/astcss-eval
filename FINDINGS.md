@@ -4155,3 +4155,116 @@ Two genuinely ambiguous pairs did surface: `ho-0125`/`ho-0364` ("where is X actu
 reference `.call#X` while every model answers `.name#X`, and the two differ by one node each
 (the call expression vs the identifier inside it, adjacent node ids). Those are under-specified
 rather than wrong, and the holdout has no distractors to adjudicate them.
+
+### Correction: the frame conflict is ~20% of the brittleness. The rest is the two new constructs failing to discriminate from each other
+
+I wrote that the vocabulary pairs' frames colliding with the holdout's labels was "the mechanism"
+for the 6.5-point paraphrase loss. Auditing it says that was too strong.
+
+**Exact frame collisions are 18 of 320 holdout pairs**, all of them `def` frames
+("where is {n} defined") whose reference is `.fn#{n}`. On those 18, A gets 14 and D gets 10 — a
+loss of 4 pairs, **−1.25 holdout points** — and D's reworded score on them is *better* (13/18),
+which a frame-collision story does not predict.
+
+Decomposing D's extra loss relative to A across the 298 paired ids, by whether the request uses
+definition or reference language at all:
+
+```
+group          n     A orig -> rw          D orig -> rw          D-A      contribution
+def-keyword   85   84.7% -> 82.4% (-2.4)  81.2% -> 76.5% (-4.7)  -2.4        -0.67
+name-keyword  10   30.0% -> 60.0% (+30.0) 40.0% -> 40.0% ( 0.0) -30.0        -1.01
+other        203   77.3% -> 78.8% (+1.5)  80.3% -> 72.4% (-7.9)  -9.4        -6.38
+                                                                 TOTAL       -8.05
+```
+
+**The loss lives in `other` — the 203 pairs that use no definition or reference language
+whatsoever** — contributing −6.4 of the −8.1. The frames that actually collide account for about
+−1.7, roughly a fifth. So the conflict is real and I quantified it, but it is not the mechanism.
+
+**What the mechanism is.** Of D's 27 regressions among those 203, the prediction's head class
+changes like this:
+
+```
+def -> name   5      call -> fn      4      call -> class  3
+call -> call  2      call -> call,class 2   fn,try -> catch,fn 2
+```
+
+`def -> name` is the tell: the model answered `.def#X` on the original phrasing (**correct** — it
+matched the reference) and `.name#X` on the reworded one. Both are constructs the 491 pairs
+introduced, and the pairs taught them with semantically adjacent frames — "where is {n} defined"
+versus "every use of {n}". **The two new constructs do not discriminate from each other under
+paraphrase, and they bleed onto requests that are about neither.** That is why the loss is
+diffuse across `other` rather than concentrated where the frames collide.
+
+**This is the defect the corpus was never built to prevent.** `eval_t5` carries 236 distractors
+across 118 pairs; `holdout`, `holdout_rw` and `eval_vocab` carry **zero**. The vocabulary pairs
+were generated from frames with no contrastive pressure at all — nothing in the 491 ever told the
+model that "where is X defined" and "every use of X" must get *different* answers. Adding a
+construct by example teaches its form; it does not teach its boundary.
+
+**Next:** discrimination pairs that contrast `.def` / `.name` / `.call` / `.fn` on near-identical
+phrasings, with verified distractors, and a retrain. The prediction to record before building it is
+that this recovers the `other` group's −6.4 without giving back eval_vocab's +73.5, because the
+constructs are already learned — only their boundaries are not.
+
+## The eval_defname baseline refuted arm E before it was trained: D already discriminates, and my contrastive frames make it WORSE
+
+I built 174 contrastive training rows to fix a discrimination failure, then baselined the existing
+arms on the 86 held-out contrast pairs before training. The baseline killed the premise.
+
+```
+eval_defname (86 pairs, card_pd.md)       A (no vocab pairs)    D (491 vocab pairs)
+  overall                                      43.0%                 89.5%
+  by construct   def  n=26                     38.5%                100.0%
+                 call n=34                     79.4%                 79.4%
+                 name n=26                      0.0%                 92.3%
+  by phrasing    terse    n=48                 41.7%                100.0%
+                 explicit n=38                 44.7%                 76.3%
+```
+
+**D already discriminates `.def` / `.name` / `.call` at 89.5%.** The 491 vocabulary pairs taught
+the boundary after all. So "the two new constructs do not discriminate from each other" — which I
+wrote as the mechanism one section ago — is wrong as stated: they discriminate fine when the
+request is terse.
+
+**And the direction is inverted: D scores 100% on terse requests and 76.3% on explicit ones.** All
+nine misses are explicitly-framed, and every one is over-elaborated:
+
+```
+  "the call sites of Just, not its definition"     .call#Just      -> .call[receiver="Just"]
+  "the call sites of fst, not its definition"       .call#fst       -> .fn#fst::callees
+  "the call sites of _new, not its definition"      .call#_new      -> .fn#_new::callees
+  "every place the name factorial appears, ..."     .name#factorial -> .name#factorial .fn:is-called
+```
+
+Adding "not its definition" to a request makes the model reach for *more machinery*, not less. A
+verbose request correlates with a complex answer in the training distribution, so the contrastive
+clause reads as a demand for extra constructs. **My contrastive frames are the defect they were
+meant to cure**, and training 834 rows of them would have taught the coupling harder.
+
+**Partial support on the holdout, stated as partial.** The reworded suite's requests are longer
+(4.4 -> 5.2 words), and D drifts toward multi-piece answers five times more than the control:
+
+```
+one-piece-answer rate   A  78.5% -> 77.5%  (-1.0)      D  79.9% -> 74.8%  (-5.0)
+D's 35 reworded regressions: 13 more complex, 14 same, 8 simpler; mean 1.37 -> 1.54
+reference complexity: 1.31 pieces
+```
+
+So verbosity-to-complexity coupling is real and stronger in D, but it accounts for roughly a third
+of the regressions, not all of them. I have already over-claimed one mechanism in this thread and
+am not going to do it again: the remainder is unexplained.
+
+**Arm E is cancelled.** Training 834 rows of explicit contrastive framing would train the exact
+coupling that produces the failure. The baseline cost ~4 minutes of generation and saved a 3.5-hour
+run that the evidence says would have regressed the holdout.
+
+**Why this nearly went wrong, which is the transferable part.** `eval_defname` is
+**survivor-shaped**: the generator only offered names present in both `fn_names` and `call_names`,
+so 69 names were eligible and **136 defined-but-never-called names were never offered to the gate
+at all**. Every pair in the suite is a case where discriminating is correct, so a high score there
+is compatible with a model that over-discriminates — the suite can measure acquisition and
+structurally cannot measure over-firing. The holdout is the control for that, and it is where the
+cost showed up. The gate's 284/300 and 260/276 yields with **zero** distractor collisions should
+have been the tell: a gate that rejects nothing is not filtering, it is confirming that the
+population was pre-filtered.

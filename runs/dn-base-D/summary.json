@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:dn-base-D",
+    "n": 86,
+    "request_errors": 0,
+    "executes": 86,
+    "exec_match": 77,
+    "exact": 77,
+    "by_tier": {
+      "5": [
+        77,
+        86
+      ]
+    },
+    "median_latency_s": 0.26,
+    "mean_completion_tokens": 5.837209302325581,
+    "thinking": "off"
+  }
+]
