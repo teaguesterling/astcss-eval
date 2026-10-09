@@ -41,7 +41,23 @@ failing loudly rather than collapsing into one word:
 - `models/running` — per-instance `active_request_count` and `npu_usage`, parsed from a response
   the watchdog **already fetches** to decide what to stop. No new call, one fewer thing to 404.
 - `models/npu/status` — `npu_used/npu_total/npu_available`.
-- the direct `:8800` socket — the only view carrying actual `active_tasks` objects.
+- the direct `:8800` socket — the only view carrying actual `active_tasks` objects, logged as
+  **age** rather than count: `oldest=+Ns` per model, flagged above 300s. A count of 1 is
+  indistinguishable from healthy work in flight, which is exactly what a wedge looks like from
+  outside; a task 900s old on a device answering nothing is unambiguous. This is the Tiiny
+  session's suggestion and it is stronger than any count. Costs a fourth call and needs a route
+  to the device address (`p8800` will not serve it), so it is best-effort with its own HTTP code
+  and `NOT MEASURED` on failure.
+- `models/running` also carries `last_inference_time`, so a per-instance **lag** comes free with no
+  extra call — weaker (a model holding stuck work may not be listed at all, the 2026-10-08 case)
+  but it distinguishes idle-resident from busy.
+
+**Clock skew was checked before trusting ages.** `started_at` is a device epoch while the watchdog
+computes `now` locally, so skew would manufacture fake ages. Measured 2026-10-09: a live embedding
+task reads **+1.0s** old and the active embedder's `last_inference_time` lag reads **+1.5s**, against
+an embed job doing ~12 units/s where live tasks are sub-second. So the clocks agree within about a
+second and the ages are real. If the device is ever re-imaged or its NTP changes, re-check this
+before reading an age as a stuck task.
 
 **The accounting line is the part worth having.** During the 2026-10-08 wedge `models/running`
 listed only the embedder while `interrupt_all` later found five stuck requests across three chat
@@ -79,11 +95,12 @@ It also logs `interrupt_all`'s response, which is the only thing known to see th
 - `stage1` contains **no executable `interrupt_all`** (one mention, in a comment — checked)
 - patch A's instrumentation block was **executed against the live device**, not just parsed:
   ```
-  running: Qwen/Qwen3-Embedding-0.6B active=1 npu=1; Qwen/Qwen3-30B-A3B-Instruct active=0 npu=55
+  running: Qwen3-Embedding-0.6B active=1 npu=1 last_inf=+2s; Qwen3-30B-A3B-Instruct active=0 npu=55 last_inf=+17s
   npu: used=56/100 available=44
-  direct: Qwen/Qwen3-Embedding-0.6B tasks=1
+  direct: Qwen3-Embedding-0.6B tasks=1 oldest=+1s
   accounting: npu_used=56 listed_sum=56 gap=+0
   ```
+- device-vs-local clock skew measured at ~1s, so the ages above are trustworthy
 - the name list the recovery loop depends on still parses after the rewrite (the regression risk
   in splicing `-w %{http_code}` into a response that was previously piped raw)
 - **stage 2's escalation path has never fired.** It cannot be tested without a wedge.

@@ -2,14 +2,14 @@
   "mode": "free",
   "previous_mode": null,
   "failure_count": 0,
-  "success_count": 5,
+  "success_count": 7,
   "consecutive_failures": 0,
-  "turns_in_mode": 5,
+  "turns_in_mode": 7,
   "turns_in_previous_mode": 0,
-  "total_calls": 5,
+  "total_calls": 7,
   "mode_switches": 0,
   "tools_used_in_mode": {
-    "Bash": 5
+    "Bash": 7
   },
   "suggestions_given": [
     "jetsam"
@@ -23,7 +23,7 @@
   "edits_since_test": 0,
   "last_edit_turn": 0,
   "semantic_tools_used": false,
-  "bash_without_structured": 5,
+  "bash_without_structured": 7,
   "test_file_edits": {},
   "first_edit_type": null,
   "nudge_trials": [

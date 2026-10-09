@@ -44,7 +44,9 @@ while true; do
       npu_json="$(curl -s -m 10 -w '\n%{http_code}' -H "Authorization: Bearer $KEY" "$MGMT/models/npu/status" 2>/dev/null)"
       dir_json="$(curl -s -m 10 -w '\n%{http_code}' -H "Authorization: Bearer $KEY" "$NPU_DIRECT" 2>/dev/null)"
       FIRE_RUN="$run_json" FIRE_NPU="$npu_json" FIRE_DIR="$dir_json" python3 <<'PYFIRE' | while read -r l; do log "  $l"; done
-import json, os
+import json, os, time
+now = time.time()
+
 def view(name, blob):
     body, _, code = (blob or "").rpartition("\n")
     code = (code or "?").strip()
@@ -57,14 +59,37 @@ def view(name, blob):
     if name == "running":
         inst = (d.get("instances") or {}).get("running") or []
         if not inst: return "running: no instances listed"
-        return "running: " + "; ".join("%s active=%s npu=%s" % (
-            i.get("model_id"), i.get("active_request_count"), i.get("npu_usage")) for i in inst)
+        # last_inference_time gives an AGE per listed instance at no extra call. Weaker than the
+        # direct socket's per-task age -- a model holding stuck work may not be listed here at all,
+        # which is the 2026-10-08 failure -- but free, and it distinguishes idle-resident from busy.
+        def lag(i):
+            li = i.get("last_inference_time")
+            try: return "%+ds" % (now - float(li))
+            except Exception: return "?"
+        return "running: " + "; ".join("%s active=%s npu=%s last_inf=%s" % (
+            i.get("model_id"), i.get("active_request_count"), i.get("npu_usage"), lag(i)) for i in inst)
     if name == "npu":
         return "npu: used=%s/%s available=%s" % (d.get("npu_used"), d.get("npu_total"), d.get("npu_available"))
-    busy = [(m.get("model_name"), len(m.get("active_tasks") or []))
-            for o in (d.get("occupants") or []) for m in (o.get("activate_model") or [])]
-    if not busy: return "direct: no occupants"
-    return "direct: " + "; ".join("%s tasks=%d" % t for t in busy)
+    # AGE, not count. active_request_count=1 is indistinguishable from healthy work in flight,
+    # which is exactly what a wedge looks like from outside; a task 900s old on a device that
+    # answers nothing is unambiguous. Device-vs-local clock skew measured at ~1s on 2026-10-09,
+    # so these ages are trustworthy. This endpoint enumerates TASKS, so it may show a model that
+    # models/running omits -- the case that defeated every other view during the wedge.
+    out, oldest = [], None
+    for o in (d.get("occupants") or []):
+        for m in (o.get("activate_model") or []):
+            ages = []
+            for tk in (m.get("active_tasks") or []):
+                try: ages.append(now - float(tk.get("started_at")))
+                except Exception: pass
+            if ages:
+                oldest = max(ages) if oldest is None else max(oldest, max(ages))
+                out.append("%s tasks=%d oldest=%+ds" % (m.get("model_name"), len(ages), max(ages)))
+            else:
+                out.append("%s tasks=0" % m.get("model_name"))
+    if not out: return "direct: no occupants"
+    flag = "  <-- STUCK TASK (>300s)" if (oldest or 0) > 300 else ""
+    return "direct: " + "; ".join(out) + flag
 for n, k in (("running","FIRE_RUN"), ("npu","FIRE_NPU"), ("direct","FIRE_DIR")):
     print(view(n, os.environ.get(k)))
 
