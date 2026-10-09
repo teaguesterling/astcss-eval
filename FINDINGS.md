@@ -4268,3 +4268,52 @@ structurally cannot measure over-firing. The holdout is the control for that, an
 cost showed up. The gate's 284/300 and 260/276 yields with **zero** distractor collisions should
 have been the tell: a gate that rejects nothing is not filtering, it is confirming that the
 population was pre-filtered.
+
+## Phrasing diversity in training does not fix the rewording gap — it widens it. Fifth falsified explanation.
+
+`train/audit/reword_train.py` was built to test exactly this: replace each training pair's human
+paraphrases with MODEL-written ones, **rows held constant** (same pairs, same count, same gradient
+steps), so the delta isolates phrasing diversity from training volume. The adapter
+(`t5-langcard-rw`) existed and had been scored on both holdout suites; it had not been rescored
+onto the v1.15.4 pin or compared paired. Doing that answers the open question in one step:
+
+```
+paired on the same 298 ids, v1.15.4 pin
+arm                                  n   original   reworded    delta
+A   control (human paraphrases)    298      77.9%      79.2%     +1.3
+B'  v2 cards, no pairs             298      72.1%      70.8%     -1.3
+C'  v2 cards + vocab pairs         298      75.8%      69.5%     -6.4
+D   v1 cards + vocab pairs         298      79.2%      72.5%     -6.7
+RW  MODEL-reworded paraphrases     298      73.2%      67.1%     -6.0
+Haiku 4.5 (no training)            298      73.2%      77.2%     +4.0
+```
+
+**Training on diversely worded requests widened the gap to −6.0 from the control's +1.3.** That
+was the surviving hypothesis after three earlier falsifications (length/register, synonym rarity,
+synonym presence) recorded in this file; it is now the fifth explanation to fail, alongside the two
+mechanisms I proposed this week (frame collision: ~20% of the effect; construct non-discrimination:
+refuted outright by the eval_defname baseline).
+
+**The pattern across arms is consistent and counterintuitive.** Every intervention that changed the
+training *request* distribution cost ~6 points of paraphrase robustness — whether it **added**
+pairs (C', D) or merely **swapped paraphrase authorship with rows held constant** (RW). The one
+intervention that changed only the card text did not (B', −1.3, inside the noise floor). And the
+untrained frontier model is robust (+4.0), so the reworded queries are plainly answerable.
+
+**And the obvious style-matching account predicts the opposite of what we see.** If the control
+were robust merely because its training paraphrases share a human author with the eval phrasings,
+then RW — trained on model-written paraphrases — should do *better* on `holdout_rw`, which is
+itself model-reworded (a single `reword_model` hash). It does 12 points worse. I do not have an
+explanation that survives this, and I am not going to invent a sixth one.
+
+**What is worth keeping from RW:** it scores **91.4% on eval_t5's 105 engine pairs**, the best of
+any 0.8B this session (control 84.8%, D 81.4%). So model-written paraphrases buy +6.6 on eval_t5
+while costing 4.7 on the holdout and 6.0 of rewording robustness. That is a real trade, not a
+failure — it just is not a fix for the gap it was built to test.
+
+**Practical position.** Arm D under `card_pd` (79.2% paired / 80.3% full holdout, eval_vocab 84.1%)
+remains the best configuration measured. The rewording gap now has **five falsified explanations
+and no known fix**, so the honest move is to stop attacking it and record it as a characterised
+limitation of the 0.8B rather than keep spending 3.5-hour arms against a mechanism nobody has
+pinned down. It is worth noting plainly: on in-distribution phrasing the tuned 0.8B beats Haiku by
+6 points; on reworded phrasing Haiku beats it by 4.7. That is the shape of the remaining gap.
