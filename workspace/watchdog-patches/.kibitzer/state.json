@@ -1,0 +1,38 @@
+{
+  "mode": "free",
+  "previous_mode": null,
+  "failure_count": 0,
+  "success_count": 1,
+  "consecutive_failures": 0,
+  "turns_in_mode": 1,
+  "turns_in_previous_mode": 0,
+  "total_calls": 1,
+  "mode_switches": 0,
+  "tools_used_in_mode": {
+    "Bash": 1
+  },
+  "suggestions_given": [
+    "jetsam"
+  ],
+  "nudge_ignore_streaks": {},
+  "model": null,
+  "session_id": "0645d04e-2329-4248-b77f-cc34f6d2c4bf",
+  "consecutive_edit_failures": 0,
+  "last_failed_edit_file": "",
+  "consecutive_reads": 0,
+  "edits_since_test": 0,
+  "last_edit_turn": 0,
+  "semantic_tools_used": false,
+  "bash_without_structured": 1,
+  "test_file_edits": {},
+  "first_edit_type": null,
+  "nudge_trials": [
+    {
+      "plugin": "jetsam",
+      "arm": "nudge",
+      "start_turn": 1,
+      "deadline": 11,
+      "session": "0645d04e-2329-4248-b77f-cc34f6d2c4bf"
+    }
+  ]
+}
