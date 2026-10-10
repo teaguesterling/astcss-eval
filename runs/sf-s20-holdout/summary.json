@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:sf-s20",
+    "n": 320,
+    "request_errors": 0,
+    "executes": 320,
+    "exec_match": 240,
+    "exact": 233,
+    "by_tier": {
+      "5": [
+        240,
+        320
+      ]
+    },
+    "median_latency_s": 0.26,
+    "mean_completion_tokens": 6.359375,
+    "thinking": "off"
+  }
+]

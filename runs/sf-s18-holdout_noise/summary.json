@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:sf-s18",
+    "n": 317,
+    "request_errors": 0,
+    "executes": 316,
+    "exec_match": 218,
+    "exact": 204,
+    "by_tier": {
+      "5": [
+        218,
+        317
+      ]
+    },
+    "median_latency_s": 0.27,
+    "mean_completion_tokens": 6.630914826498422,
+    "thinking": "off"
+  }
+]
