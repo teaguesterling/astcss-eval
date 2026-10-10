@@ -4317,3 +4317,74 @@ and no known fix**, so the honest move is to stop attacking it and record it as 
 limitation of the 0.8B rather than keep spending 3.5-hour arms against a mechanism nobody has
 pinned down. It is worth noting plainly: on in-distribution phrasing the tuned 0.8B beats Haiku by
 6 points; on reworded phrasing Haiku beats it by 4.7. That is the shape of the remaining gap.
+
+## Arm N (noise training): negative, and the headline I first reported was my own artifact
+
+Teague asked for input noise — misspellings, different phrasings. Measured before training, per the
+arm E lesson, and the measurement itself was wrong.
+
+**The artifact.** `train/audit/noise.py` carries this at line 10:
+
+> IDENTIFIERS MUST SURVIVE VERBATIM. A typo in the identifier makes the request ask about a symbol
+> that is not in the fixture, so the reference no longer answers it and the pair teaches a lie.
+
+and then at line 48 defined `"lower": (lambda s, p, r: s.lower(), ...)`, which takes the protection
+set `p` and ignores it. So `"which file holds TYPEDEFS"` became `"which file holds typedefs"` while
+the reference stayed `.mod#TYPEDEFS`. **35 of 320 noised pairs were unanswerable.** I wrote the
+invariant and violated it in the same file.
+
+**What the artifact did to the numbers I reported:**
+
+```
+                              all 320 (as reported)   excluding the 35 broken
+arm D clean -> noised                 -20.0                    -11.9
+arm N minus arm D (noised)            +4.4                      -0.7
+```
+
+So "noise is a 20-point problem, three times the rewording gap" was inflated by 8 points, and
+arm N's apparent gain was **the arm learning to undo my corruption** — restoring lowercased
+identifiers. The per-transform split is what exposed it:
+
+```
+transform     n        D        N      N-D
+typo        140    66.4%    63.6%     -2.9
+typo2        58    60.3%    72.4%    +12.1
+filler       56    80.4%    69.6%    -10.7
+lower        37     8.1%    51.4%    +43.2   <- the artifact
+```
+
+An 8.1% score on pairs whose only change is casing is not a capability gap, and a +43-point
+training gain is not a plausible learning effect. **Implausibly large effects are the tell**, and
+both were visible in the aggregate's favour before anyone looked inside it.
+
+**Fixed structurally, not patched.** `lower` and `nopunct` now respect the guard, and generation
+carries a **post-check** that every name the reference mentions still appears verbatim in the
+noised request, rejecting the pair otherwise — because trusting each transform to respect the
+invariant is precisely how this happened, and a gate catches the next one. It rejected 3 more
+(2 `typo`, 1 `lower`), leaving 317 pairs with zero destroyed identifiers.
+
+**The corrected result, paired on 317 ids:**
+
+```
+                            clean    noised      gap
+arm D (settled)             80.1%     69.1%     -11.0
+arm N (noise-trained)       74.8%     67.5%      -7.3
+
+arm N minus arm D:  clean -5.4   noised -1.6   reworded -4.0   eval_t5 -2.9   eval_vocab 0.0
+```
+
+**Arm N is negative on every suite including the one it was built for.** It narrows its own
+clean-to-noised gap (−7.3 against −11.0) but only by lowering the clean score; the absolute noised
+score is 1.6 points *worse* than the untrained-for-noise model.
+
+**Against the three predictions recorded before the run:** `holdout_noise` would rise — true only
+through the artifact, false once corrected; `holdout` would hold near 80.3% because every pair's
+canonical request was untouched — **wrong, it fell 5.4**; `holdout_rw` would drop — right, −4.0.
+The second miss is the informative one: replacing only the *second paraphrase* of each pair, with
+the canonical left verbatim and rows held constant, still cost 5 points of clean accuracy. It is
+not about which strings are present. **Any change to the training request distribution costs ~5
+points, and this is the seventh consecutive instance.**
+
+**What survives:** a corrected `holdout_noise` suite showing the settled model is **11.0 points**
+more fragile on messy input than clean — real, worth knowing, and unaddressed by the only
+intervention tried. The settled baseline is unchanged.

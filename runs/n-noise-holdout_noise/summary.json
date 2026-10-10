@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:n-noise",
+    "n": 320,
+    "request_errors": 0,
+    "executes": 318,
+    "exec_match": 207,
+    "exact": 175,
+    "by_tier": {
+      "5": [
+        207,
+        320
+      ]
+    },
+    "median_latency_s": 0.255,
+    "mean_completion_tokens": 6.278125,
+    "thinking": "off"
+  }
+]

@@ -166,7 +166,8 @@ def eval_overlap(rows):
                        + glob.glob(os.path.join(HERE, "holdout", "pairs", "*.jsonl"))
                        + glob.glob(os.path.join(HERE, "abstain", "pairs", "*.jsonl"))
                        + glob.glob(os.path.join(HERE, "eval_vocab", "pairs", "*.jsonl"))
-                       + glob.glob(os.path.join(HERE, "eval_defname", "pairs", "*.jsonl"))):
+                       + glob.glob(os.path.join(HERE, "eval_defname", "pairs", "*.jsonl"))
+                       + glob.glob(os.path.join(HERE, "holdout_noise", "pairs", "*.jsonl"))):
         if os.path.basename(path).startswith("rejected-"):
             continue
         # abstain/ is request-only for the same reason as holdout/: its unanswerable
@@ -174,7 +175,8 @@ def eval_overlap(rows):
         holdout = (os.sep + "holdout" + os.sep in path
                    or os.sep + "abstain" + os.sep in path
                    or os.sep + "eval_vocab" + os.sep in path
-                   or os.sep + "eval_defname" + os.sep in path)
+                   or os.sep + "eval_defname" + os.sep in path
+                   or os.sep + "holdout_noise" + os.sep in path)
         for line in open(path):
             p = json.loads(line)
             for t in [p.get("nl", "")] + (p.get("paraphrases") or []):
