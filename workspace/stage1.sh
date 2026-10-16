@@ -29,8 +29,11 @@ cd /srv/logical/workspace/home/teague/Projects/astcss-eval/trees/tune/setup
 L=workspace/logs/stage1; mkdir -p "$L"; PY=~/.venvs/astcss-tune/bin/python
 B08=/home/teague/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17
 note(){ echo "$(date +%H:%M:%S) [stage1] $*" | tee -a "$L/queue.log"; }
-trap 'workspace/ocr_pause.sh resume >/dev/null 2>&1 || true' EXIT
-workspace/ocr_pause.sh pause >/dev/null 2>&1 || true
+# `pause` is NOT a verb of ocr_pause.sh -- it takes run|hold|status|resume. The first version of
+# this line called `pause` with `|| true`, so it silently did nothing while looking correct: the
+# exact failure mode Chapter 2 of the method doc is about, written while writing that chapter.
+trap 'workspace/ocr_pause.sh resume >/dev/null 2>&1' EXIT
+workspace/ocr_pause.sh hold $$ || note "WARNING: OCR not paused -- expect ~3.5x slower scoring"
 note "start: 2 recipes x 6 seeds; seed 18 already trained for both"
 
 # recipe label : dataset : seed-18 adapter that already exists

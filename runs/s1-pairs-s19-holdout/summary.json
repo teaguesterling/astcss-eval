@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:s1-pairs-s19",
+    "n": 320,
+    "request_errors": 0,
+    "executes": 319,
+    "exec_match": 235,
+    "exact": 202,
+    "by_tier": {
+      "5": [
+        235,
+        320
+      ]
+    },
+    "median_latency_s": 0.27,
+    "mean_completion_tokens": 6.303125,
+    "thinking": "off"
+  }
+]

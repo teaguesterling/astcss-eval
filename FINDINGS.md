@@ -4388,3 +4388,94 @@ points, and this is the seventh consecutive instance.**
 **What survives:** a corrected `holdout_noise` suite showing the settled model is **11.0 points**
 more fragile on messy input than clean — real, worth knowing, and unaddressed by the only
 intervention tried. The settled baseline is unchanged.
+
+## Stage 1: the vocabulary effect is real and enormous. Everything else was seed noise.
+
+Two recipes (`base` = settled corpus, `pairs` = plus the 491 vocabulary pairs) x six seeds x five
+suites, 60 scored runs. The calibration the project never had, and it invalidates most of what the
+project reported.
+
+### The paired effect of the vocabulary pairs, n=6
+
+```
+metric          mean diff   sd diff       t    MDE n=6   verdict
+eval_vocab        +71.09      2.35    74.02      2.69    REAL
+holdout            +1.04      5.45     0.47      6.24    inside the noise
+holdout_rw         +0.22      4.58     0.12      5.24    inside the noise
+holdout_noise      +0.58      5.52     0.26      6.32    inside the noise
+eval_t5            -1.75      2.44    -1.75      2.79    inside the noise
+```
+
+**Both pre-registered predictions held.** `eval_vocab` is +71.1 at t=74 — not merely significant
+but in a different regime, exactly as predicted, so the refutation condition did not fire and
+Stage 2 may proceed. And the holdout effect came back at **+1.04, t=0.47** — the "+1.2, best
+holdout of the session" that I reported repeatedly **was never a result**, as predicted.
+
+**The rewording brittleness is gone.** It was −6.7 at n=1 and is **+0.22 at n=6**. Six arms, seven
+sections of mechanism-hunting, two proposed mechanisms, five falsified explanations — all of it
+chasing a difference that does not exist. The noise fragility difference likewise: +0.58, n.s.
+
+### Sigma, and why the old floor lied
+
+```
+metric          sd base  sd pairs   pooled      earlier estimate
+holdout            4.70      4.11     4.42      1.07  (4 seeds, a DIFFERENT recipe)
+holdout_rw         5.55      2.61     4.34      3.20
+holdout_noise      5.80      4.38     5.14      2.87
+eval_vocab         1.83      1.55     1.69      --
+eval_t5            0.85      2.37     1.78      --
+```
+
+The holdout's true σ is **4.42, four times the figure Stage 0 used**, because that figure came
+from four seeds of `small-langcard/epoch2` — a different recipe. Across six seeds the settled
+recipe spans **11.6 holdout points**:
+
+```
+base, seeds 18..23:  79.1  76.6  75.0  71.2  68.1  67.5
+```
+
+**Seed 18 — which every arm in the old project used — is the best of the six.** Drop it and the
+base mean falls from 72.9 to 71.7. The entire project was built on its luckiest seed.
+
+### What this does to the plan
+
+```
+metric        sigma   MDE at the 8-run factorial   seeds/side for delta=3
+holdout        4.42            8.8                        35
+holdout_rw     4.34            8.6                        33
+holdout_noise  5.14           10.2                        47
+eval_vocab     1.69            3.3                         5
+eval_t5        1.78            3.5                         6
+```
+
+**The holdout is not usable as a comparative instrument at any affordable n.** δ=3 needs 35 seeds
+a side — 70 runs, 235 GPU-hours, for one comparison. `eval_vocab` and `eval_t5` are usable at 5–6.
+
+**ρ does not rescue it.** Measured at matched seeds: holdout 0.24, holdout_noise 0.44, eval_vocab
+0.04, eval_t5 0.09; only holdout_rw reaches 0.57. The pre-registered rule fires: **the gap metrics
+become descriptive only**, and the holdout joins them.
+
+### The lever is σ, not n
+
+The comparison that matters is between the two floors: `small-langcard/**epoch2**` gives σ 1.07,
+and `t5-langcard/**epoch1**` gives σ 4.70 on the same metric. Seeds scale badly — σ enters the
+seed count squared:
+
+```
+sigma 4.42 -> 35 seeds/side      sigma 2.00 -> 7      sigma 1.07 -> 2
+```
+
+Halving σ is worth more than quadrupling the seeds, and costs far less. The obvious candidate is
+**training to convergence**: the settled recipe is one epoch, the stable old floor was two. That is
+one controlled test — the same recipe at 1 vs 2 epochs across several seeds — and it should run
+before any factorial.
+
+### Revised position
+
+1. **Ship what is real.** The 491 vocabulary pairs buy +71.1 points of construct coverage at t=74,
+   paired across six seeds, with no measurable cost anywhere else. That is the project's result.
+2. **Retract the rest.** The card tax, the rewording brittleness, the noise fragility difference,
+   the few-shot penalty and the capacity ladder were all measured at n=1 against a σ four times
+   smaller than the truth. They are not findings; they are scatter.
+3. **Do not run Stage 2 as designed.** Its primary metric cannot support it. Run the σ-reduction
+   test first.
