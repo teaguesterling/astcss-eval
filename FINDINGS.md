@@ -4479,3 +4479,91 @@ before any factorial.
    smaller than the truth. They are not findings; they are scatter.
 3. **Do not run Stage 2 as designed.** Its primary metric cannot support it. Run the σ-reduction
    test first.
+
+## Stage 1b: convergence cuts sigma by 40%, and the second epoch is what does it
+
+Two recipes x six seeds x two epochs, both checkpoints scored on all five suites. 120 runs,
+finished 2026-10-19. The pre-registered question was whether training to convergence reduces the
+holdout's seed variance from 4.42.
+
+### The answer, against the threshold written before the run
+
+```
+config                               sd base   sd pairs    pooled
+Stage 1:  1-epoch schedule              4.70       4.11      4.42
+Stage 1b: 2-epoch schedule, epoch1      5.52       5.98      5.76
+Stage 1b: 2-epoch schedule, epoch2      3.32       1.70      2.64
+```
+
+**σ(holdout, epoch2) = 2.64**, a 40% cut. The refutation condition was σ ≥ 3.5, so the holdout
+is **not** retired. The prediction said "roughly 2 or under"; 2.64 is directionally right and
+optimistic by half a point.
+
+**The schedule contrast is the mechanism, and it was worth building.** Epoch 1 of the two-epoch
+schedule has σ = **5.76**, which is *worse* than the one-epoch run's 4.42. So the cosine schedule
+alone makes the model less stable at the same point in training, and the second epoch is what
+stabilises it. This is convergence, not the schedule. Scoring both checkpoints cost nothing and
+separated two explanations that a single comparison would have confounded.
+
+### Sigma moved in both directions
+
+```
+metric          Stage 1 (1ep)   Stage 1b epoch2   change
+holdout                  4.42              2.64    -1.78
+holdout_rw               4.34              2.84    -1.49
+holdout_noise            5.14              3.37    -1.76
+eval_vocab               1.69              2.32    +0.63
+eval_t5                  1.78              2.79    +1.01
+```
+
+Convergence stabilises the three noisy suites and **destabilises the two quiet ones**. Every
+metric now sits between 2.3 and 3.4. The corpus-wide suites converge toward a common σ rather
+than toward zero, which is a different shape of result from "more training is better".
+
+### Two epochs also raise the means, modestly
+
+```
+metric          1ep base   2ep base   1ep pairs   2ep pairs
+holdout            72.9%      75.1%       74.0%       75.7%
+holdout_rw         69.1%      69.6%       69.4%       72.8%
+eval_vocab         10.9%      10.8%       82.0%       85.0%
+eval_t5            82.9%      84.0%       81.1%       81.1%
+```
+
+### The vocabulary effect replicates, larger
+
+Paired at n=6 on the epoch-2 checkpoints:
+
+```
+eval_vocab      +74.19   sd 3.51   t 51.72   REAL
+holdout_rw       +3.24   sd 3.17   t  2.51   inside the noise (critical t is 2.571)
+holdout          +0.57   sd 3.18   t  0.44   inside the noise
+holdout_noise    -0.42   sd 5.34   t -0.19   inside the noise
+eval_t5          -2.86   sd 3.61   t -1.94   inside the noise
+```
+
+**+74.2 against Stage 1's +71.1.** Two independent six-seed replications now agree, at two epoch
+counts. Everything else remains inside the noise, including `holdout_rw` at t = 2.51 — close
+enough to the 2.571 critical value to be worth naming rather than rounding away, and still not a
+result.
+
+### What the new sigma buys, and what it still costs
+
+```
+metric        sigma   MDE 8-run   MDE 16-run   MDE 24-run   seeds/side d=3
+holdout        2.64         5.2          3.7          3.0               13
+eval_vocab     2.32         4.6          3.2          2.7               10
+holdout_noise  3.37         6.7          4.7          3.9               20
+```
+
+Seeds for a 3-point holdout effect fall from **35 a side to 13**. That is the whole value of the
+40% cut, and it is large. It is still not cheap: at 6.5 h per two-epoch run, a 2³ factorial with
+one seed per cell costs 52 h and resolves only 5-point effects. Three replicates reach δ = 3 at
+156 h.
+
+**The decision this forces.** Either accept δ_care = 5 and run the eight-cell factorial in 2.2
+days, or hold δ_care = 3 and pay 6.5 days for three replicates. The arithmetic no longer rules out
+the factorial, which is what Stage 1b was for.
+
+**Unrelated blocker:** the GPU reports `Failed to initialize NVML: Driver/library version
+mismatch` (library 595.104). The host took a driver update. Nothing trains until it is rebooted.
