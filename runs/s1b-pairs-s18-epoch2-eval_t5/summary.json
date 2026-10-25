@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:s1b-pairs-s18-epoch2",
+    "n": 105,
+    "request_errors": 0,
+    "executes": 102,
+    "exec_match": 82,
+    "exact": 67,
+    "by_tier": {
+      "5": [
+        82,
+        105
+      ]
+    },
+    "median_latency_s": 0.34,
+    "mean_completion_tokens": 11.41904761904762,
+    "thinking": "off"
+  }
+]

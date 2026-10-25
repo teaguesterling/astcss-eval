@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:s1b-base-s23-epoch1",
+    "n": 320,
+    "request_errors": 0,
+    "executes": 317,
+    "exec_match": 219,
+    "exact": 215,
+    "by_tier": {
+      "5": [
+        219,
+        320
+      ]
+    },
+    "median_latency_s": 0.26,
+    "mean_completion_tokens": 6.29375,
+    "thinking": "off"
+  }
+]
