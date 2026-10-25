@@ -4567,3 +4567,42 @@ the factorial, which is what Stage 1b was for.
 
 **Unrelated blocker:** the GPU reports `Failed to initialize NVML: Driver/library version
 mismatch` (library 595.104). The host took a driver update. Nothing trains until it is rebooted.
+
+## The capacity leg lost five seeds to my own probe, not to the memory budget
+
+The leg started at 10:48:19 on 2026-10-25. By 10:52:33 five of its six seeds had failed, each with
+`CUDA error: out of memory` while loading weights. Each got as far as `train rows 16288 (median 580
+tokens, max 670)` and died before `allocated 8146 MiB`.
+
+The budget was not wrong. The cause was a collision with the calibration probe that established the
+budget, which was still on the GPU:
+
+```
+probe4b2.log  last write 10:52:35, ending in its own torch.OutOfMemoryError
+seed 22       last failure   10:52:33
+seed 23       loaded cleanly 10:53:47, peak 8,882 MiB held for 540 steps
+```
+
+Two 8,146 MiB weight loads do not fit in 10.56 GiB. The probe and seed 22 killed each other, the
+GPU came free, and seed 23 took it. That is measured from file timestamps, not inferred from the
+error text: the first success begins 74 seconds after the probe's last write.
+
+**The fault is mine, and it is the familiar one.** I started the queue without checking the GPU was
+free, with my own probe still holding it. The probe was the thing that proved the plateau, and then
+it ate the queue.
+
+**What the loop did wrong, separately from what I did wrong.** It caught each OOM, wrote
+`TRAIN FAILED`, and moved to the next seed. Five seeds burned in four minutes and the service
+stayed green. A loop that treats a busy GPU as a reason to proceed is not a queue, and a failure
+line in a log nobody reads for three hours is not a gate. `capacity4b_retry.sh` now waits for
+`capacity4b.service` to be gone AND for 9,800 MiB free before each seed, and retries a seed once
+rather than skipping it. Verified against the live system before launch: `is-active --quiet` returns
+true and free memory reads 268 MiB, so the gate waits on both counts.
+
+**A timing correction.** `epoch 1 step 540/2036` counts optimizer steps across BOTH epochs
+(16,288 rows x 2 / accum 16 = 2,036), not per epoch. At a measured 19.9 s/step a seed is ~11.3 h
+total, so six seeds land near 2.9 days. The 11.2 h figure I first read off the log as per-epoch
+would have doubled the leg on paper.
+
+The displayed `1.25 s/row` is not consistent with 19.9 s/step at 16 rows per step; wall-clock from
+the step timestamps is the number used here, and the s/row field is not trusted.
