@@ -27,18 +27,35 @@ L=workspace/logs/capacity4b; mkdir -p "$L"; PY=~/.venvs/astcss-tune/bin/python
 B4=/home/teague/.cache/huggingface/hub/models--Qwen--Qwen3.5-4B/snapshots/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
 note(){ echo "$(date +%F' '%H:%M:%S) [retry] $*" | tee -a "$L/queue.log"; }
 
-# A full load is 8,146 MiB of weights and settles near 9,478 MiB resident. Require 9,800 free.
-NEED=9800
+# AN IDLE GPU ON THIS BOX DOES NOT REPORT 11,264 MiB FREE. Measured 2026-10-25 while seed 23 ran:
+#   total 11264   reserved 450   used 10548   free 268,  with the trainer itself at 9478
+# so free-when-idle is 268 + 9478 = 9,746 MiB. The 450 MiB reserve and roughly 1,070 MiB of
+# desktop and compositor memory never go away. My first draft of this gate required 9,800 free,
+# which an idle GPU NEVER reports: every seed would have waited the full 48 h, logged SKIPPED, and
+# the leg would have spent the week producing nothing. 9,000 separates idle (9,746) from occupied
+# (268) with wide margin on both sides.
+NEED=9000
+# Belt and braces, and the sturdier of the two checks: no OTHER process may hold a 4B-scale
+# allocation. The desktop clients sit at 33-102 MiB each, so a 1,024 MiB line tells a stray trainer
+# apart from the desktop without depending on a free-memory figure at all.
+BIG=1024
 gate(){
-  local waited=0 free
+  local waited=0 free hog
   while :; do
     if systemctl --user is-active --quiet astcss-cap4b.service; then
       [ $((waited % 1800)) -eq 0 ] && note "waiting: capacity4b.service still running (${waited}s)"
     else
       free=$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits 2>/dev/null)
       case "$free" in ''|*[!0-9]*) note "gate: cannot read GPU free memory"; return 1 ;; esac
-      [ "$free" -ge "$NEED" ] && { note "gate open: $free MiB free"; return 0; }
-      [ $((waited % 1800)) -eq 0 ] && note "waiting: only $free MiB free, need $NEED (${waited}s)"
+      hog=$(nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits 2>/dev/null \
+            | awk -F", *" -v b="$BIG" '$2+0 >= b {print $1":"$2"MiB"}' | tr '\n' ' ')
+      if [ -n "$hog" ]; then
+        [ $((waited % 1800)) -eq 0 ] && note "waiting: another job holds the GPU: $hog (${waited}s)"
+      elif [ "$free" -ge "$NEED" ]; then
+        note "gate open: $free MiB free, no process over $BIG MiB"; return 0
+      else
+        [ $((waited % 1800)) -eq 0 ] && note "waiting: only $free MiB free, need $NEED (${waited}s)"
+      fi
     fi
     [ $waited -ge 172800 ] && { note "gate TIMED OUT after 48h"; return 1; }
     sleep 60; waited=$((waited+60))

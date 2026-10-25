@@ -4595,14 +4595,35 @@ it ate the queue.
 `TRAIN FAILED`, and moved to the next seed. Five seeds burned in four minutes and the service
 stayed green. A loop that treats a busy GPU as a reason to proceed is not a queue, and a failure
 line in a log nobody reads for three hours is not a gate. `capacity4b_retry.sh` now waits for
-`capacity4b.service` to be gone AND for 9,800 MiB free before each seed, and retries a seed once
-rather than skipping it. Verified against the live system before launch: `is-active --quiet` returns
-true and free memory reads 268 MiB, so the gate waits on both counts.
+`capacity4b.service` to be gone, for no process to hold more than 1,024 MiB, AND for 9,000 MiB free
+before each seed, and retries a seed once rather than skipping it.
+
+**The first draft of that gate would have been worse than no gate at all.** It required 9,800 MiB
+free, and an idle GPU on this box does not report that. Measured while seed 23 ran: total 11,264,
+reserved 450, used 10,548, free 268, with the trainer itself at 9,478 - so free-when-idle is
+268 + 9,478 = **9,746 MiB**. Every seed would have waited the full 48 h, logged `SKIPPED`, and the
+leg would have spent the week producing nothing, with the service green throughout. The threshold
+only has to separate idle (9,746) from occupied (268), so 9,000 sits in the middle of a wide gap,
+and the process check does not depend on a memory figure at all. Three paths were run against the
+live system before launch: occupied (`397071:9478MiB` detected), idle (9,746 >= 9,000 opens), and
+`nvidia-smi` unreadable (returns non-zero and says so).
+
+That near-miss is the same error as the original failure, one level up: I wrote a gate from an
+assumed quantity rather than a measured one. The reserve and the desktop's ~1,070 MiB are in every
+reading I had already taken.
 
 **A timing correction.** `epoch 1 step 540/2036` counts optimizer steps across BOTH epochs
 (16,288 rows x 2 / accum 16 = 2,036), not per epoch. At a measured 19.9 s/step a seed is ~11.3 h
-total, so six seeds land near 2.9 days. The 11.2 h figure I first read off the log as per-epoch
-would have doubled the leg on paper.
+of training, plus about 34 min of validation passes. The 11.2 h figure I first read off the log as
+per-epoch would have doubled the leg on paper.
 
-The displayed `1.25 s/row` is not consistent with 19.9 s/step at 16 rows per step; wall-clock from
-the step timestamps is the number used here, and the s/row field is not trusted.
+The log's `1.25 s/row` field is consistent with that, and I was wrong to distrust it: 1.25 s/row x
+16 rows/step = 20.0 s/step against 19.9 measured. One epoch is 1,018 steps, so 1,018 x 19.9 s =
+338 min = 1.25 s/row x 16,288 rows. The two figures agree; only my reading of which quantity the
+step counter covered was wrong.
+
+**Dates, not durations.** Seed 23 finishes training near 22:45 on 2026-10-25, then scores five
+suites. The retry's five seeds then take about 58 h, so training completes around midday on
+2026-10-28. The scoring that follows is the one unquantified piece: 25 generate-and-score runs at
+4B with `--batch 2`, a combination never timed on this box. Seed 23's five suites tonight give the
+first measurement, and the end date should be revised from it rather than guessed now.
