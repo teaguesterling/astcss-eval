@@ -4627,3 +4627,68 @@ suites. The retry's five seeds then take about 58 h, so training completes aroun
 2026-10-28. The scoring that follows is the one unquantified piece: 25 generate-and-score runs at
 4B with `--batch 2`, a combination never timed on this box. Seed 23's five suites tonight give the
 first measurement, and the end date should be revised from it rather than guessed now.
+
+## The capacity leg: 5x the parameters buys noise robustness and nothing else
+
+The leg completed 2026-10-28 12:40:19. Six 4B seeds trained and scored on five suites, against the
+six 0.8B seeds of stage 1b. Both sides: same 16,288 rows, same 2,246 val rows, 2 epochs, 2,036
+optimizer steps, `--quant none`. Paired by seed, `exec_match`.
+
+```
+suite           0.8B pairs        4B               paired delta        MDE
+eval_vocab      84.96 sd 3.12     84.66 sd 2.66    -0.29  t -0.24      3.5
+holdout         75.68 sd 1.70     75.83 sd 1.54    +0.16  t  0.14      3.1
+holdout_rw      72.82 sd 3.12     72.65 sd 2.03    -0.17  t -0.10      4.7
+holdout_noise   63.35 sd 3.38     72.71 sd 1.46    +9.36  t  5.34      4.9
+eval_t5         81.11 sd 1.94     88.25 sd 4.95    +7.14  t  4.61      4.3
+```
+
+**Against the prediction recorded before the GPU started.** Three of four resolved as written, one
+did not.
+
+- `eval_vocab` holds: 84.66 against 84.96. The refutation condition was a material fall below 85%,
+  and it did not happen. The vocabulary pairs are not a small-model crutch; they teach the same
+  constructs at both sizes.
+- `holdout` was predicted to rise. **It did not.** +0.16 points, t = 0.14. This prediction was
+  wrong, and it is the most useful thing the leg produced.
+- `holdout_rw` did not move: -0.17, t = -0.10.
+- `holdout_noise` moved, and strongly: **+9.36, t = 5.34**, positive in all six seeds.
+
+**What that splits.** The pre-registration committed to an interpretation in advance: if capacity
+moves these suites the gaps are a size limit, and if not they belong to the task or the suites.
+Applying it without reopening it:
+
+- Noisy input is a **size limit**. Misspellings and mangled phrasing cost the 0.8B 12.3 points
+  against its own clean holdout (75.68 -> 63.35). At 4B that cost falls to 3.1 points
+  (75.83 -> 72.71). Five times the parameters buys most of the noise robustness back.
+- Rewordings are **not** a size limit. No corpus intervention moved `holdout_rw`, and capacity does
+  not move it either. It is a property of the task or of the suite, and neither more data nor a
+  bigger model is the lever. This is now the clearest open question in the project.
+- Clean holdout is at a **ceiling the 0.8B already reaches**. 5x the parameters is worth no more
+  than 3.1 points there, which is the detection limit, not a measured gain.
+
+**The practical consequence.** For clean input the small model is not a compromise. Shipping the
+0.8B costs nothing measurable on `holdout` and nothing on `eval_vocab`. The 4B earns its cost only
+where the input is dirty.
+
+**I nearly reported the wrong number, and the error was mine.** My first comparison used
+`runs/s1b-base-*`, and it gave `eval_vocab` +73.89 with t = 58. That is the vocabulary effect
+replicated for a third time, not a capacity effect: `s1b-base` trained on a DIFFERENT dataset of
+15,928 rows and scores 10.77% on `eval_vocab`. The matched arm is `s1b-pairs`, at 16,288 rows -
+identical to the 4B. The row counts in the two `train.log` files are what caught it.
+
+**Precision was verified from the artifacts, not from my own note.** `capacity4b.sh` claims the
+0.8B side ran `--quant none`, but a comment is a description. The evidence is the allocation:
+`s1b-pairs-seed18/train.log` records 1,476 MiB of weights for 10.8M trainable params, and
+`cap4b-seed18` records 8,146 MiB. Both are about 2 bytes per parameter, so both are unquantised.
+A 4-bit 0.8B would have been near 500 MiB. This matters because the FIRST capacity attempt
+compared a 4-bit 9B against an unquantised 0.8B and measured quantisation.
+
+**Caveat on the nulls.** With six seeds a side, "did not move" means "no effect larger than about
+3 to 5 points". It is not a measurement of zero. The three nulls here are bounded, not exact.
+
+**The leg ran outside Slurm, and that is now against house rules.** The homelab gained a
+`gpu2080ti` licence in commit 24af33a, dated 2026-11-08. This leg ran 2026-10-25 to 2026-10-28, so
+it predates the rule. Future GPU work on longbottom goes through Slurm holding that licence, which
+is a stronger guarantee than my free-memory gate: a licence admits one holder, while my gate cannot
+see a job another session starts between the check and the load.
