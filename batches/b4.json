@@ -1,0 +1,22 @@
+{
+ "accepted": 8,
+ "accepted_by_tier": {
+  "1": 2,
+  "2": 1,
+  "4": 5
+ },
+ "batch": "b4",
+ "candidates": 8,
+ "engine": {
+  "cli": "/home/teague/Projects/sitting_duck/build/release/duckdb",
+  "extension": "/home/teague/Projects/sitting_duck/build/release/extension/sitting_duck/sitting_duck.duckdb_extension",
+  "extension_mtime": 1794251942.3152454,
+  "sitting_duck_checkout_head": "821af42a367b217065a667ee7429d272fcc6b373",
+  "macros": "/home/teague/Projects/sitting_duck/trees/fix/127-combinator-steps/src/sql_macros/css_selectors.sql",
+  "macros_sha256": null
+ },
+ "pending": 0,
+ "rejected": 0,
+ "source": "candidates/b4.jsonl",
+ "when": "2026-11-09T20:20:52-0800"
+}
