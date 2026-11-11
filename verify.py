@@ -50,8 +50,12 @@ EXT = os.path.join(SD, "build/release/extension/sitting_duck/sitting_duck.duckdb
 # DuckDB 2.0 turns agent mode ON when stdout is not a terminal, and prints a banner to STDOUT:
 # "duckdb agent mode on: AI_AGENT is set ...". -no-agent turns it off. This is HYGIENE, not
 # correctness: _collect ignores every line before the first @@BEGIN, and the parsed result is
-# identical either way (measured 2026-11-11). The banner is still worth removing, because stdout
-# and stderr are merged here and it prefixes every error report. A pre-2.0 CLI REJECTS the flag
+# identical either way (measured 2026-11-11). The flag still pays for itself on TIME: agent mode
+# plans every statement twice, and it triggers on CLAUDECODE/AI_AGENT, which are set whenever this
+# runs from a Claude Code session -- which is always, here. Measured through this function on one
+# .fn:not(:has(.call)): 2.18 s with the flag, 3.51 s without. sitting_duck's brief 94af4e6 records
+# 18.230 s against 36.133 s on a larger call, so the ratio grows with the query. A pre-2.0 CLI
+# REJECTS the flag
 # ("Unrecognized option"), so a probe against an older build must drop it:
 # ASTCSS_CLI_ARGS="-unsigned -noheader".
 CLI_ARGS = os.environ.get("ASTCSS_CLI_ARGS", "-unsigned -noheader -no-agent").split()

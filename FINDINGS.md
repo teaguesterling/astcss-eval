@@ -4716,9 +4716,16 @@ ignores every line before the first `@@BEGIN`, and the parsed result is identica
 the flag -- the same two nodes for `lambda` on `repo-small-py`, measured both ways. The remint
 branch has been running this CLI with no such flag, and b4 still reproduces. The flag stays,
 because stdout and stderr are merged here and the banner otherwise prefixes every error report,
-but the justification is hygiene plus the double planning `ast-select-perf` reports and I have not
-measured -- not correctness. I asserted a mechanism I had not traced, for the second time in one
-day; the first was an editable-install meta-path finder that also did not exist.
+and the flag does pay for itself, on **time** rather than correctness. Agent mode plans every
+statement twice, and it triggers on `CLAUDECODE`/`AI_AGENT`, which are set whenever verification
+runs from a Claude Code session - which is always, here. Measured both ways through `_run_script`
+on one `.fn:not(:has(.call))`: **2.18 s with the flag, 3.51 s without**. sitting_duck's own brief
+(`94af4e6`) records 18.230 s against 36.133 s on a larger call, so the ratio grows with the query.
+
+The lesson stands even though the flag does: I asserted a mechanism I had not traced, for the
+second time in one day. The first was an editable-install meta-path finder that does not exist in
+this venv either. Both times the real justification was available and different from the one I
+gave, and both times someone else had to point at it.
 
 A pre-2.0 CLI rejects the flag outright ("Unrecognized option"), so `ASTCSS_CLI_ARGS` exists to
 drop it for a cross-engine probe.
