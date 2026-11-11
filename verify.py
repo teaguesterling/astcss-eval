@@ -19,10 +19,11 @@ every ast_select_from call costs ~6 s of planning whatever the data (sitting_duc
 pilot.py answers most relaxation and distractor checks from oracle.py instead, so a training
 batch reaches the engine with roughly one query per pair.
 
-Engine: see memory `astcss-eval-verifier-runtime`. Until a sitting_duck release
-ships PR #129, the only runtime that executes combinators correctly is the local
-HEAD build's CLI with the #129 macros loaded over it. engine_identity() records
-exactly what was used; store it with every verified batch.
+Engine: see memory `astcss-eval-verifier-runtime`. The PR #129 selector macros now ship
+INSIDE the extension, so the pinned engine loads no external macros file -- the override
+exists only for cross-engine probes. engine_identity() records exactly what was used, and
+_assert_pinned_engine() refuses to execute on anything but the declared pin; store the
+identity with every verified batch.
 """
 import functools
 import glob
@@ -37,13 +38,26 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # checkout, whose build and macros move under us -- that default silently invalidated
 # three measurements (two engines compared as one). The default is now the pinned
 # snapshot; the env var still overrides it for deliberate cross-engine probes.
-PIN = "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-v1.15.4-803b35b"
+PIN = "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-v1.18.4-community"
+# The community registry build of sitting_duck v1.18.4, on the DuckDB v2.0.0 (Cyanoptera,
+# d54cbbe3df) CLI. A path and an mtime are not an identity: this is the content hash the engine
+# must have, and _assert_pinned_engine() refuses to execute without it, so an extension upgrade
+# cannot quietly re-mint a reference. Set it to None only to retire the check deliberately.
+PIN_EXT_SHA256 = "f8c0e70e1ea280410b0ef498bcdfccd2c83da3bd9843089ce14046b67477c8f0"
 SD = os.environ.get("SITTING_DUCK", PIN)
 CLI = os.path.join(SD, "build/release/duckdb")
 EXT = os.path.join(SD, "build/release/extension/sitting_duck/sitting_duck.duckdb_extension")
+# DuckDB 2.0 turns agent mode ON when stdout is not a terminal, and prints a banner to STDOUT,
+# ahead of the real output: measured 2026-11-11, "duckdb agent mode on: AI_AGENT is set ..." lands
+# in the parsed lines. -no-agent turns it off, so the flag is a correctness requirement here, not
+# a speed one. A pre-2.0 CLI REJECTS it ("Unrecognized option"), so a probe against an older build
+# must drop it: ASTCSS_CLI_ARGS="-unsigned -noheader".
+CLI_ARGS = os.environ.get("ASTCSS_CLI_ARGS", "-unsigned -noheader -no-agent").split()
+# v1.18.4 carries the selector macros in the extension, so the pin's macros file is EMPTY and the
+# `.read` of it is a no-op. The override still loads a checkout's macros for a cross-engine probe.
 MACROS = os.environ.get(
     "ASTCSS_MACROS",
-    os.path.join(PIN, "css_selectors-v1.15.4.sql") if SD == PIN
+    os.path.join(PIN, "css_selectors-v1.18.4.sql") if SD == PIN
     else os.path.join(SD, "src/sql_macros/css_selectors.sql")
     if os.path.exists(os.path.join(SD, "src/sql_macros/css_selectors.sql"))
     else os.path.join(SD, "trees/fix/127-combinator-steps/src/sql_macros/css_selectors.sql"))
@@ -84,12 +98,40 @@ def _sha256_file(path):
 
 def engine_identity():
     """What executed the selectors. Store with every batch."""
-    commit = subprocess.run(["git", "-C", SD, "rev-parse", "HEAD"],
-                            capture_output=True, text=True).stdout.strip()
+    # A pinned snapshot is a plain directory, not a checkout. `git -C <pin> rev-parse HEAD` there
+    # walks UP to the enclosing repo and reports astcss-eval's OWN head -- a commit another session
+    # moves -- which reads as valid provenance and is not. Report a commit only for a real work
+    # tree. Measured 2026-11-11: the v1.15.4 pin recorded 4cf4ec06, astcss-eval's own HEAD.
+    commit = None
+    if os.path.exists(os.path.join(SD, ".git")):
+        commit = subprocess.run(["git", "-C", SD, "rev-parse", "HEAD"],
+                                capture_output=True, text=True).stdout.strip() or None
     ext_mtime = os.path.getmtime(EXT) if os.path.exists(EXT) else None
-    return {"cli": CLI, "extension": EXT, "extension_mtime": ext_mtime,
+    return {"cli": CLI, "cli_args": CLI_ARGS,
+            "cli_sha256": _sha256_file(CLI) if os.path.exists(CLI) else None,
+            "extension": EXT, "extension_mtime": ext_mtime,
+            "extension_sha256": _sha256_file(EXT) if os.path.exists(EXT) else None,
             "sitting_duck_checkout_head": commit, "macros": MACROS,
             "macros_sha256": _sha256_file(MACROS) if os.path.exists(MACROS) else None}
+
+
+@functools.lru_cache(maxsize=1)
+def _assert_pinned_engine():
+    """Refuse to execute on anything but the declared pin, hashed.
+
+    _engine_key() already keys the result cache on the binaries' contents, so a swapped engine
+    cannot serve a stale cached row. It cannot stop a swapped engine from MINTING a reference,
+    which is how a frozen reference ends up irreproducible. This gate does. A deliberate probe
+    sets SITTING_DUCK, which is not the pin, and is left alone."""
+    if SD != PIN or not PIN_EXT_SHA256:
+        return
+    got = _sha256_file(EXT) if os.path.exists(EXT) else None
+    if got != PIN_EXT_SHA256:
+        raise RuntimeError(
+            "pinned engine mismatch -- refusing to execute\n"
+            "  extension: %s\n  sha256   : %s\n  expected : %s\n"
+            "Set SITTING_DUCK for a deliberate cross-engine probe, or update PIN_EXT_SHA256 "
+            "together with every frozen reference it would change." % (EXT, got, PIN_EXT_SHA256))
 
 
 def _table(fixture):
@@ -108,9 +150,10 @@ def _run_script(lines, timeout=None):
     # kernel OOM-killed the run. With a cap, a runaway selector query fails as that query's error.
     limits = ["SET memory_limit='%s';" % os.environ.get("ASTCSS_DUCKDB_MEMORY", "6GB"),
               "SET threads=%d;" % int(os.environ.get("ASTCSS_DUCKDB_THREADS", "4"))]
+    _assert_pinned_engine()
     script = "\n".join(["LOAD '%s';" % _q(EXT)] + limits + [".read %s" % MACROS,
                         ".mode list", ".headers off"] + lines) + "\n"
-    out = subprocess.run([CLI, "-unsigned", "-noheader"], input=script,
+    out = subprocess.run([CLI] + CLI_ARGS, input=script,
                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                          text=True, timeout=timeout)
     return out.stdout.splitlines()
