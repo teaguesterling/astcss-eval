@@ -4701,9 +4701,9 @@ build of sitting_duck **v1.18.4** on the DuckDB v2.0.0 (Cyanoptera, `d54cbbe3df`
 replay. The pin is a copy, in `workspace/engine/sd-v1.18.4-community/`, because the source path
 `~/.duckdb/extensions/v2.0.0/` is shared with normal use and `UPDATE EXTENSIONS` replaces it.
 
-**`-no-agent` is a correctness requirement on this CLI, not a speed one.** DuckDB 2.0 turns agent
-mode on whenever stdout is not a terminal, which is exactly how `verify.py` runs it, and prints a
-banner to **stdout**, ahead of the real output:
+**`-no-agent` is output hygiene, and I first wrote it up as more than that.** DuckDB 2.0 turns
+agent mode on whenever stdout is not a terminal, which is exactly how `verify.py` runs it, and
+prints a banner to **stdout**, ahead of the real output:
 
 ```
 $ printf "...\n.mode list\nSELECT 'SMOKE_OK';\n" | duckdb -unsigned -noheader
@@ -4711,8 +4711,17 @@ duckdb agent mode on: AI_AGENT is set and stdout is not a terminal; -no-agent tu
 SMOKE_OK
 ```
 
-That first line would have been parsed as a result row. A pre-2.0 CLI rejects the flag outright
-("Unrecognized option"), so `ASTCSS_CLI_ARGS` exists to drop it for a cross-engine probe.
+I wrote in `e4892c1` that this line would be parsed as a result row. **It would not.** `_collect`
+ignores every line before the first `@@BEGIN`, and the parsed result is identical with and without
+the flag -- the same two nodes for `lambda` on `repo-small-py`, measured both ways. The remint
+branch has been running this CLI with no such flag, and b4 still reproduces. The flag stays,
+because stdout and stderr are merged here and the banner otherwise prefixes every error report,
+but the justification is hygiene plus the double planning `ast-select-perf` reports and I have not
+measured -- not correctness. I asserted a mechanism I had not traced, for the second time in one
+day; the first was an editable-install meta-path finder that also did not exist.
+
+A pre-2.0 CLI rejects the flag outright ("Unrecognized option"), so `ASTCSS_CLI_ARGS` exists to
+drop it for a cross-engine probe.
 
 **All 108 accepted references, re-executed on the new pin with the cache off: 99 match, 9 do not.**
 Eight of the nine are exactly the eight that `4cf4ec0` retired against v1.17.0, and every count
@@ -4734,11 +4743,23 @@ Of the five bare-type selectors in the accepted corpus - `with_statement`, `lamb
 `decorated_definition`, `continue_statement`, `while_statement` - `lambda` is the only one that is
 a prefix of another type present in its fixture. Retired and re-minted as t1-p28 in b5.
 
-**No reported score moves.** t1-p21 appears in no eval suite; it occurs only in training rows under
-derived ids such as `t1-p21_reflexive_352`, whose `gold` is `lambda`, which is itself a correct
-selector. `exec_match` compares a live run of the prediction against the frozen reference's
-`sha256` (`qualify.py:437`), so a stale reference makes a pair unwinnable rather than mis-scored -
-and this one was never scored. The capacity-leg numbers above are unaffected.
+**The capacity-leg numbers are unaffected. The 108-pair suite is not, and I said otherwise.**
+`e4892c1` and `34bb407` claim t1-p21 "is in no eval suite" and "was never scored". That is wrong,
+and I checked dataset directories instead of what was scored. t1-p21 is absent from the
+`holdout`, `holdout_rw`, `holdout_noise`, `eval_vocab` and `eval_t5` suites, so the capacity result
+above does stand. But it IS in the **108-pair suite**, which 125 run directories scored: 146 rows
+on t1-p21, **64 of them `exec_match` true**, every one from predicting exactly `lambda`. Those runs
+ran on the pre-#151 engine, where `lambda` returned 3 nodes and the pair was winnable.
+
+`exec_match` compares a live run of the prediction against the frozen reference's `sha256`
+(`qualify.py:441`), so once the engine returned 2 nodes the pair became **unwinnable for every
+arm** -- which is what the retirement repairs: t1-p28 is winnable again by answering `lambda`.
+
+The same holds for the other eight, and they are NOT repaired on this branch. Each was winnable
+historically -- `exec_match` true 80 to 129 times apiece -- and on the new pin each returns zero for
+every arm. **Re-scoring the 108-pair suite on `tune/tier5` before `4cf4ec0` is merged would depress
+every arm by 8 of 108 pairs and would not be comparable with any historical number.** That is a
+constraint on the next scoring run, not a defect in this one.
 
 **The provenance field was lying, and it was worse than empty.** `engine_identity()` ran
 `git -C <SD> rev-parse HEAD`. A pinned snapshot is a plain directory, so git walked **up** to the

@@ -47,11 +47,13 @@ PIN_EXT_SHA256 = "f8c0e70e1ea280410b0ef498bcdfccd2c83da3bd9843089ce14046b67477c8
 SD = os.environ.get("SITTING_DUCK", PIN)
 CLI = os.path.join(SD, "build/release/duckdb")
 EXT = os.path.join(SD, "build/release/extension/sitting_duck/sitting_duck.duckdb_extension")
-# DuckDB 2.0 turns agent mode ON when stdout is not a terminal, and prints a banner to STDOUT,
-# ahead of the real output: measured 2026-11-11, "duckdb agent mode on: AI_AGENT is set ..." lands
-# in the parsed lines. -no-agent turns it off, so the flag is a correctness requirement here, not
-# a speed one. A pre-2.0 CLI REJECTS it ("Unrecognized option"), so a probe against an older build
-# must drop it: ASTCSS_CLI_ARGS="-unsigned -noheader".
+# DuckDB 2.0 turns agent mode ON when stdout is not a terminal, and prints a banner to STDOUT:
+# "duckdb agent mode on: AI_AGENT is set ...". -no-agent turns it off. This is HYGIENE, not
+# correctness: _collect ignores every line before the first @@BEGIN, and the parsed result is
+# identical either way (measured 2026-11-11). The banner is still worth removing, because stdout
+# and stderr are merged here and it prefixes every error report. A pre-2.0 CLI REJECTS the flag
+# ("Unrecognized option"), so a probe against an older build must drop it:
+# ASTCSS_CLI_ARGS="-unsigned -noheader".
 CLI_ARGS = os.environ.get("ASTCSS_CLI_ARGS", "-unsigned -noheader -no-agent").split()
 # v1.18.4 carries the selector macros in the extension, so the pin's macros file is EMPTY and the
 # `.read` of it is a no-op. The override still loads a checkout's macros for a cross-engine probe.
