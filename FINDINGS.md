@@ -4692,3 +4692,65 @@ compared a 4-bit 9B against an unquantised 0.8B and measured quantisation.
 it predates the rule. Future GPU work on longbottom goes through Slurm holding that licence, which
 is a stronger guarantee than my free-memory gate: a licence admits one holder, while my gate cannot
 see a job another session starts between the check and the load.
+
+## Moving the pin to v1.18.4 exposed nine stale references, and eight were already solved
+
+Teague moved the verifier pin from the local `sd-v1.15.4-803b35b` build to the community registry
+build of sitting_duck **v1.18.4** on the DuckDB v2.0.0 (Cyanoptera, `d54cbbe3df`) CLI, after the
+`ast-select-perf` session measured it at 102.7 s against 1099 s for v1.18.3 on a 264-selector
+replay. The pin is a copy, in `workspace/engine/sd-v1.18.4-community/`, because the source path
+`~/.duckdb/extensions/v2.0.0/` is shared with normal use and `UPDATE EXTENSIONS` replaces it.
+
+**`-no-agent` is a correctness requirement on this CLI, not a speed one.** DuckDB 2.0 turns agent
+mode on whenever stdout is not a terminal, which is exactly how `verify.py` runs it, and prints a
+banner to **stdout**, ahead of the real output:
+
+```
+$ printf "...\n.mode list\nSELECT 'SMOKE_OK';\n" | duckdb -unsigned -noheader
+duckdb agent mode on: AI_AGENT is set and stdout is not a terminal; -no-agent turns it off, ...
+SMOKE_OK
+```
+
+That first line would have been parsed as a result row. A pre-2.0 CLI rejects the flag outright
+("Unrecognized option"), so `ASTCSS_CLI_ARGS` exists to drop it for a cross-engine probe.
+
+**All 108 accepted references, re-executed on the new pin with the cache off: 99 match, 9 do not.**
+Eight of the nine are exactly the eight that `4cf4ec0` retired against v1.17.0, and every count
+agrees with that commit's own table: `.import` 31 -> 20, `.fn[params=0]` 29 -> 24,
+`.fn:not(:has(.call))` 46 -> 41, `.fn:not(:has(.jump))` 36 -> 31, `.fn:not(:has(.if))` 14 -> 13,
+`.fn` 39 -> 38, `.fn:not(:has(.call#print))` 25 -> 24, `.fn:not(:has(.jump))` 11 -> 10. So v1.18.4
+reproduces the v1.17.0 verdicts, and b4's eight replacement references all reproduce on it too,
+8/8 - checked by executing b4 out of the other branch. That is an independent confirmation of
+someone else's re-mint, not a repeat of it.
+
+**The ninth is t1-p21, and its cause is a different bug.** The missing node is `node_id` 247, whose
+type is `lambda_parameters`. The selector is the bare type `lambda`. That is sitting_duck **#151**,
+the prefix match `aeede43` documents, where a bare type also returns types it is a prefix of. Per
+this project's own position in that commit - "the pair and its documented node set are right, the
+engine is not" - the 3-node reference **encodes the bug**, and v1.18.4 returning 2 is the correct
+answer. It is irreproducible on v1.15.4, v1.18.3 and v1.18.4 alike, so it is not an artifact of
+moving the pin. `4cf4ec0` missed it because that sweep targeted the v1.17.0 classification changes.
+Of the five bare-type selectors in the accepted corpus - `with_statement`, `lambda`,
+`decorated_definition`, `continue_statement`, `while_statement` - `lambda` is the only one that is
+a prefix of another type present in its fixture. Retired and re-minted as t1-p28 in b5.
+
+**No reported score moves.** t1-p21 appears in no eval suite; it occurs only in training rows under
+derived ids such as `t1-p21_reflexive_352`, whose `gold` is `lambda`, which is itself a correct
+selector. `exec_match` compares a live run of the prediction against the frozen reference's
+`sha256` (`qualify.py:437`), so a stale reference makes a pair unwinnable rather than mis-scored -
+and this one was never scored. The capacity-leg numbers above are unaffected.
+
+**The provenance field was lying, and it was worse than empty.** `engine_identity()` ran
+`git -C <SD> rev-parse HEAD`. A pinned snapshot is a plain directory, so git walked **up** to the
+enclosing repository and recorded astcss-eval's own HEAD - `4cf4ec06`, the main checkout's commit,
+which another session moves - as `sitting_duck_checkout_head`. Every batch verified from the pin
+carries that. It now reports `null` unless `SD` really is a work tree, and records `cli_sha256` and
+`extension_sha256` instead of an mtime. `_assert_pinned_engine()` refuses to execute when the
+extension's hash is not `PIN_EXT_SHA256`: `_engine_key()` already stopped a swapped engine serving
+a **cached** row, but nothing stopped one from **minting** a reference, which is how a frozen
+reference becomes irreproducible in the first place.
+
+**Still outstanding.** `tune/tier5` does not contain `4cf4ec0`, so those eight references are still
+stale here; the fix is to merge that commit, not to re-mint them again. Both branches need this
+engine change, and `corpus/remint-sitting-duck-v1-17-0` has no pin at all - its `SD` still defaults
+to the live `~/Projects/sitting_duck` checkout. Merging the two will conflict in `verify.py`.
