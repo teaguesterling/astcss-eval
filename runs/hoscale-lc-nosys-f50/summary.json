@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:lc-nosys-f50",
+    "n": 323,
+    "request_errors": 0,
+    "executes": 323,
+    "exec_match": 220,
+    "exact": 206,
+    "by_tier": {
+      "5": [
+        220,
+        323
+      ]
+    },
+    "median_latency_s": 0.7,
+    "mean_completion_tokens": 6.222910216718266,
+    "thinking": "off"
+  }
+]

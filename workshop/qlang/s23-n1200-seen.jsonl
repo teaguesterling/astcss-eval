@@ -1,0 +1,150 @@
+{"id": 0, "request": "items in garden, color and category only", "prediction": "{\"where\": {\"category\": \"garden\"}, \"select\": [\"color\", \"category\"]}"}
+{"id": 1, "request": "copper items", "prediction": "{\"where\": {\"color\": \"copper\"}}"}
+{"id": 2, "request": "name and price only", "prediction": "{\"select\": [\"name\", \"price\"]}"}
+{"id": 3, "request": "the kitchen category", "prediction": "{\"where\": {\"category\": \"kitchen\"}}"}
+{"id": 4, "request": "anything over $46", "prediction": "{\"where\": {\"price\": {\"gt\": 46}}}"}
+{"id": 5, "request": "in descending price order, top 4", "prediction": "{\"order_by\": {\"price\": \"desc\"}, \"limit\": 4}"}
+{"id": 6, "request": "in descending price order, the first 11", "prediction": "{\"order_by\": {\"price\": \"desc\"}, \"limit\": 11}"}
+{"id": 7, "request": "sorted by name, the first 10", "prediction": "{\"order_by\": {\"name\": \"asc\"}, \"limit\": 10}"}
+{"id": 8, "request": "items in tools, sorted by stock, lowest first", "prediction": "{\"where\": {\"category\": \"tools\"}, \"order_by\": {\"stock\": \"asc\"}}"}
+{"id": 9, "request": "items in measuring, sorted by stock, lowest first", "prediction": "{\"where\": {\"category\": \"measuring\"}, \"order_by\": {\"stock\": \"asc\"}}"}
+{"id": 10, "request": "anything $20 or less", "prediction": "{\"where\": {\"price\": {\"lte\": 20}}}"}
+{"id": 11, "request": "items with at most 18 in stock, just 2", "prediction": "{\"where\": {\"stock\": {\"lte\": 18}}, \"limit\": 2}"}
+{"id": 12, "request": "items $48 or less", "prediction": "{\"where\": {\"price\": {\"lte\": 48}}}"}
+{"id": 13, "request": "orange things, with stock, color and category", "prediction": "{\"where\": {\"color\": \"orange\"}, \"select\": [\"stock\", \"color\", \"category\"]}"}
+{"id": 14, "request": "color and price only", "prediction": "{\"select\": [\"color\", \"price\"]}"}
+{"id": 15, "request": "anything from kitchen, showing price, category and stock", "prediction": "{\"where\": {\"category\": \"kitchen\"}, \"select\": [\"price\", \"category\", \"stock\"]}"}
+{"id": 16, "request": "anything from measuring, just the color", "prediction": "{\"where\": {\"category\": \"measuring\"}, \"select\": [\"color\"]}"}
+{"id": 17, "request": "either black, brass or silver", "prediction": "{\"where\": {\"color\": {\"in\": [\"black\", \"brass\", \"silver\"]}}}"}
+{"id": 18, "request": "green items", "prediction": "{\"where\": {\"color\": \"green\"}}"}
+{"id": 19, "request": "cheapest first, top 7", "prediction": "{\"order_by\": {\"price\": \"asc\"}, \"limit\": 7}"}
+{"id": 20, "request": "anything with fewer than 12 in stock", "prediction": "{\"where\": {\"stock\": {\"lt\": 12}}}"}
+{"id": 21, "request": "anything with at least 36 in stock", "prediction": "{\"where\": {\"stock\": {\"gte\": 36}}}"}
+{"id": 22, "request": "either yellow or brown", "prediction": "{\"where\": {\"color\": {\"in\": [\"yellow\", \"brown\"]}}}"}
+{"id": 23, "request": "anything under $22, 6 of them", "prediction": "{\"where\": {\"price\": {\"lt\": 22}}, \"limit\": 6}"}
+{"id": 24, "request": "items $42 or more", "prediction": "{\"where\": {\"price\": {\"gte\": 42}}}"}
+{"id": 25, "request": "anything $48 or more, the first 2", "prediction": "{\"where\": {\"price\": {\"gte\": 48}}, \"limit\": 2}"}
+{"id": 26, "request": "anything $20 or less, 6 of them", "prediction": "{\"where\": {\"price\": {\"lte\": 20}}, \"limit\": 6}"}
+{"id": 27, "request": "everything red, rarest first", "prediction": "{\"where\": {\"color\": \"red\"}, \"order_by\": {\"stock\": \"asc\"}}"}
+{"id": 28, "request": "more than 26 in stock, 10 of them", "prediction": "{\"where\": {\"stock\": {\"gt\": 26}}, \"limit\": 10}"}
+{"id": 29, "request": "most in stock first, 9 of them", "prediction": "{\"order_by\": {\"stock\": \"desc\"}, \"limit\": 9}"}
+{"id": 30, "request": "anything under $10, just 10", "prediction": "{\"where\": {\"price\": {\"lt\": 10}}, \"limit\": 10}"}
+{"id": 31, "request": "anything with at most 16 in stock", "prediction": "{\"where\": {\"stock\": {\"lte\": 16}}}"}
+{"id": 32, "request": "anything over $10, top 10", "prediction": "{\"where\": {\"price\": {\"gt\": 10}}, \"limit\": 10}"}
+{"id": 33, "request": "items with at most 14 in stock, 10 of them", "prediction": "{\"where\": {\"stock\": {\"lte\": 14}}, \"limit\": 10}"}
+{"id": 34, "request": "anything under $8, just 9", "prediction": "{\"where\": {\"price\": {\"lt\": 8}}, \"limit\": 9}"}
+{"id": 35, "request": "items over $42, top 5", "prediction": "{\"where\": {\"price\": {\"gt\": 42}}, \"limit\": 5}"}
+{"id": 36, "request": "sorted by stock, highest first, 2 of them", "prediction": "{\"order_by\": {\"stock\": \"desc\"}, \"limit\": 2}"}
+{"id": 37, "request": "anything black, Z to A", "prediction": "{\"where\": {\"color\": \"black\"}, \"order_by\": {\"name\": \"desc\"}}"}
+{"id": 38, "request": "the tools category, in reverse alphabetical order", "prediction": "{\"where\": {\"category\": \"tools\"}, \"order_by\": {\"name\": \"desc\"}}"}
+{"id": 39, "request": "with just color and name", "prediction": "{\"select\": [\"color\", \"name\"]}"}
+{"id": 40, "request": "at least 42 in stock, the first 4", "prediction": "{\"where\": {\"stock\": {\"gte\": 42}}, \"limit\": 4}"}
+{"id": 41, "request": "anything $52 or less", "prediction": "{\"where\": {\"price\": {\"lte\": 52}}}"}
+{"id": 42, "request": "most expensive first, 6 of them", "prediction": "{\"order_by\": {\"price\": \"desc\"}, \"limit\": 6}"}
+{"id": 43, "request": "anything grey, orange or black", "prediction": "{\"where\": {\"color\": {\"in\": [\"grey\", \"orange\", \"black\"]}}}"}
+{"id": 44, "request": "green items, priciest first", "prediction": "{\"where\": {\"color\": \"green\"}, \"order_by\": {\"price\": \"desc\"}}"}
+{"id": 45, "request": "more than 36 in stock, the first 7", "prediction": "{\"where\": {\"stock\": {\"gt\": 36}}, \"limit\": 7}"}
+{"id": 46, "request": "everything brown, showing name and color", "prediction": "{\"where\": {\"color\": \"brown\"}, \"select\": [\"name\", \"color\"]}"}
+{"id": 47, "request": "garden stock, with just name and color", "prediction": "{\"where\": {\"category\": \"garden\"}, \"select\": [\"name\", \"color\"]}"}
+{"id": 48, "request": "in ascending price order, just 2", "prediction": "{\"order_by\": {\"price\": \"asc\"}, \"limit\": 2}"}
+{"id": 49, "request": "items with at most 30 in stock, 10 of them", "prediction": "{\"where\": {\"stock\": {\"lte\": 30}}, \"limit\": 10}"}
+{"id": 50, "request": "items $28 or more", "prediction": "{\"where\": {\"price\": {\"gte\": 28}}}"}
+{"id": 51, "request": "tools, garden or measuring", "prediction": "{\"where\": {\"category\": {\"in\": [\"tools\", \"garden\", \"measuring\"]}}}"}
+{"id": 52, "request": "anything terracotta", "prediction": "{\"where\": {\"color\": \"terracotta\"}}"}
+{"id": 53, "request": "priced $14 or more, no more than 3", "prediction": "{\"where\": {\"price\": {\"gte\": 14}}, \"limit\": 3}"}
+{"id": 54, "request": "priced $50 or less, no more than 6", "prediction": "{\"where\": {\"price\": {\"lte\": 50}}, \"limit\": 6}"}
+{"id": 55, "request": "everything yellow, Z to A", "prediction": "{\"where\": {\"color\": \"yellow\"}, \"order_by\": {\"name\": \"desc\"}}"}
+{"id": 56, "request": "anything from tools, with just stock and name", "prediction": "{\"where\": {\"category\": \"tools\"}, \"select\": [\"stock\", \"name\"]}"}
+{"id": 57, "request": "measuring, with just color and category", "prediction": "{\"where\": {\"category\": \"measuring\"}, \"select\": [\"color\", \"category\"]}"}
+{"id": 58, "request": "either green, steel or silver", "prediction": "{\"where\": {\"color\": {\"in\": [\"green\", \"steel\", \"silver\"]}}}"}
+{"id": 59, "request": "items in garden, in descending price order", "prediction": "{\"where\": {\"category\": \"garden\"}, \"order_by\": {\"price\": \"desc\"}}"}
+{"id": 60, "request": "with color, stock and name", "prediction": "{\"select\": [\"color\", \"stock\", \"name\"]}"}
+{"id": 61, "request": "showing price, category and name", "prediction": "{\"select\": [\"price\", \"category\", \"name\"]}"}
+{"id": 62, "request": "stock only", "prediction": "{\"select\": [\"stock\"]}"}
+{"id": 63, "request": "the tan ones, in descending price order", "prediction": "{\"where\": {\"color\": \"tan\"}, \"order_by\": {\"price\": \"desc\"}}"}
+{"id": 64, "request": "everything silver, price only", "prediction": "{\"where\": {\"color\": \"silver\"}, \"select\": [\"price\"]}"}
+{"id": 65, "request": "green or silver items", "prediction": "{\"where\": {\"color\": {\"in\": [\"green\", \"silver\"]}}}"}
+{"id": 66, "request": "items over $50, top 4", "prediction": "{\"where\": {\"price\": {\"gt\": 50}}, \"limit\": 4}"}
+{"id": 67, "request": "tan items, just the name", "prediction": "{\"where\": {\"color\": \"tan\"}, \"select\": [\"name\"]}"}
+{"id": 68, "request": "with just price and category", "prediction": "{\"select\": [\"price\", \"category\"]}"}
+{"id": 69, "request": "either green or brown", "prediction": "{\"where\": {\"color\": {\"in\": [\"green\", \"brown\"]}}}"}
+{"id": 70, "request": "items from tools or measuring", "prediction": "{\"where\": {\"category\": {\"in\": [\"tools\", \"measuring\"]}}}"}
+{"id": 71, "request": "either grey, red or brass", "prediction": "{\"where\": {\"color\": {\"in\": [\"grey\", \"red\", \"brass\"]}}}"}
+{"id": 72, "request": "anything with at most 46 in stock, the first 2", "prediction": "{\"where\": {\"stock\": {\"lte\": 46}}, \"limit\": 2}"}
+{"id": 73, "request": "anything steel, grey or green", "prediction": "{\"where\": {\"color\": {\"in\": [\"steel\", \"grey\", \"green\"]}}}"}
+{"id": 74, "request": "the white ones", "prediction": "{\"where\": {\"color\": \"white\"}}"}
+{"id": 75, "request": "items in tools, with name, category and color", "prediction": "{\"where\": {\"category\": \"tools\"}, \"select\": [\"name\", \"category\", \"color\"]}"}
+{"id": 76, "request": "anything with at most 50 in stock, just 4", "prediction": "{\"where\": {\"stock\": {\"lte\": 50}}, \"limit\": 4}"}
+{"id": 77, "request": "black or brown items", "prediction": "{\"where\": {\"color\": {\"in\": [\"black\", \"brown\"]}}}"}
+{"id": 78, "request": "rarest first, 11 of them", "prediction": "{\"order_by\": {\"stock\": \"asc\"}, \"limit\": 11}"}
+{"id": 79, "request": "Z to A, top 4", "prediction": "{\"order_by\": {\"name\": \"desc\"}, \"limit\": 4}"}
+{"id": 80, "request": "anything orange, green or blue", "prediction": "{\"where\": {\"color\": {\"in\": [\"orange\", \"green\", \"blue\"]}}}"}
+{"id": 81, "request": "at most 24 in stock, no more than 12", "prediction": "{\"where\": {\"stock\": {\"lte\": 24}}, \"limit\": 12}"}
+{"id": 82, "request": "rarest first, 4 of them", "prediction": "{\"order_by\": {\"stock\": \"asc\"}, \"limit\": 4}"}
+{"id": 83, "request": "anything with at least 8 in stock", "prediction": "{\"where\": {\"stock\": {\"gte\": 8}}}"}
+{"id": 84, "request": "over $26, top 8", "prediction": "{\"where\": {\"price\": {\"gt\": 26}}, \"limit\": 8}"}
+{"id": 85, "request": "the terracotta ones, sorted by price, lowest first", "prediction": "{\"where\": {\"color\": \"terracotta\"}, \"order_by\": {\"price\": \"asc\"}}"}
+{"id": 86, "request": "anything with more than 6 in stock, 8 of them", "prediction": "{\"where\": {\"stock\": {\"gt\": 6}}, \"limit\": 8}"}
+{"id": 87, "request": "anything copper, in reverse alphabetical order", "prediction": "{\"where\": {\"color\": \"copper\"}, \"order_by\": {\"name\": \"desc\"}}"}
+{"id": 88, "request": "either tan, brown or steel", "prediction": "{\"where\": {\"color\": {\"in\": [\"tan\", \"brown\", \"steel\"]}}}"}
+{"id": 89, "request": "sorted by name, Z first, top 12", "prediction": "{\"order_by\": {\"name\": \"desc\"}, \"limit\": 12}"}
+{"id": 90, "request": "at least 16 in stock", "prediction": "{\"where\": {\"stock\": {\"gte\": 16}}}"}
+{"id": 91, "request": "blue items, best stocked first", "prediction": "{\"where\": {\"color\": \"blue\"}, \"order_by\": {\"stock\": \"desc\"}}"}
+{"id": 92, "request": "showing color, name and stock", "prediction": "{\"select\": [\"color\", \"name\", \"stock\"]}"}
+{"id": 93, "request": "priced $40 or more, the first 5", "prediction": "{\"where\": {\"price\": {\"gte\": 40}}, \"limit\": 5}"}
+{"id": 94, "request": "items from garden or measuring", "prediction": "{\"where\": {\"category\": {\"in\": [\"garden\", \"measuring\"]}}}"}
+{"id": 95, "request": "anything white or yellow", "prediction": "{\"where\": {\"color\": {\"in\": [\"white\", \"yellow\"]}}}"}
+{"id": 96, "request": "brass things, with price, name and category", "prediction": "{\"where\": {\"color\": \"brass\"}, \"select\": [\"price\", \"name\", \"category\"]}"}
+{"id": 97, "request": "kitchen stock, with just price and name", "prediction": "{\"where\": {\"category\": \"kitchen\"}, \"select\": [\"price\", \"name\"]}"}
+{"id": 98, "request": "cheapest first, the first 6", "prediction": "{\"order_by\": {\"price\": \"asc\"}, \"limit\": 6}"}
+{"id": 99, "request": "items in tools, showing stock and color", "prediction": "{\"where\": {\"category\": \"tools\"}, \"select\": [\"stock\", \"color\"]}"}
+{"id": 100, "request": "anything red, showing category, stock and color", "prediction": "{\"where\": {\"color\": \"red\"}, \"select\": [\"category\", \"stock\", \"color\"]}"}
+{"id": 101, "request": "items under $26", "prediction": "{\"where\": {\"price\": {\"lt\": 26}}}"}
+{"id": 102, "request": "silver things, showing color, name and stock", "prediction": "{\"where\": {\"color\": \"silver\"}, \"select\": [\"color\", \"name\", \"stock\"]}"}
+{"id": 103, "request": "sorted by stock, lowest first, just 6", "prediction": "{\"order_by\": {\"stock\": \"asc\"}, \"limit\": 6}"}
+{"id": 104, "request": "tan or steel items", "prediction": "{\"where\": {\"color\": {\"in\": [\"tan\", \"steel\"]}}}"}
+{"id": 105, "request": "brass things, sorted by name, Z first", "prediction": "{\"where\": {\"color\": \"brass\"}, \"order_by\": {\"name\": \"desc\"}}"}
+{"id": 106, "request": "the steel ones, sorted by name", "prediction": "{\"where\": {\"color\": \"steel\"}, \"order_by\": {\"name\": \"asc\"}}"}
+{"id": 107, "request": "items in measuring, most in stock first", "prediction": "{\"where\": {\"category\": \"measuring\"}, \"order_by\": {\"stock\": \"desc\"}}"}
+{"id": 108, "request": "black things, name only", "prediction": "{\"where\": {\"color\": \"black\"}, \"select\": [\"name\"]}"}
+{"id": 109, "request": "priced $34 or more, top 10", "prediction": "{\"where\": {\"price\": {\"gte\": 34}}, \"limit\": 10}"}
+{"id": 110, "request": "most expensive first, top 11", "prediction": "{\"order_by\": {\"price\": \"desc\"}, \"limit\": 11}"}
+{"id": 111, "request": "everything green, with stock, color and name", "prediction": "{\"where\": {\"color\": \"green\"}, \"select\": [\"stock\", \"color\", \"name\"]}"}
+{"id": 112, "request": "with category, name and color", "prediction": "{\"select\": [\"category\", \"name\", \"color\"]}"}
+{"id": 113, "request": "tools, least stocked first", "prediction": "{\"where\": {\"category\": \"tools\"}, \"order_by\": {\"stock\": \"asc\"}}"}
+{"id": 114, "request": "the brass ones", "prediction": "{\"where\": {\"color\": \"brass\"}}"}
+{"id": 115, "request": "sorted by name, Z first, the first 3", "prediction": "{\"order_by\": {\"name\": \"desc\"}, \"limit\": 3}"}
+{"id": 116, "request": "sorted by stock, lowest first, just 7", "prediction": "{\"order_by\": {\"stock\": \"asc\"}, \"limit\": 7}"}
+{"id": 117, "request": "anything under $52, just 5", "prediction": "{\"where\": {\"price\": {\"lt\": 52}}, \"limit\": 5}"}
+{"id": 118, "request": "items in garden, sorted by name", "prediction": "{\"where\": {\"category\": \"garden\"}, \"order_by\": {\"name\": \"asc\"}}"}
+{"id": 119, "request": "items from kitchen or garden", "prediction": "{\"where\": {\"category\": {\"in\": [\"kitchen\", \"garden\"]}}}"}
+{"id": 120, "request": "anything in measuring, garden or tools", "prediction": "{\"where\": {\"category\": {\"in\": [\"measuring\", \"garden\", \"tools\"]}}}"}
+{"id": 121, "request": "rarest first, the first 7", "prediction": "{\"order_by\": {\"stock\": \"asc\"}, \"limit\": 7}"}
+{"id": 122, "request": "most in stock first, top 7", "prediction": "{\"order_by\": {\"stock\": \"desc\"}, \"limit\": 7}"}
+{"id": 123, "request": "in alphabetical order, no more than 6", "prediction": "{\"order_by\": {\"name\": \"asc\"}, \"limit\": 6}"}
+{"id": 124, "request": "items with at least 50 in stock", "prediction": "{\"where\": {\"stock\": {\"gte\": 50}}}"}
+{"id": 125, "request": "$22 or less", "prediction": "{\"where\": {\"price\": {\"lte\": 22}}}"}
+{"id": 126, "request": "priced under $36", "prediction": "{\"where\": {\"price\": {\"lt\": 36}}}"}
+{"id": 127, "request": "anything with more than 30 in stock, 9 of them", "prediction": "{\"where\": {\"stock\": {\"gt\": 30}}, \"limit\": 9}"}
+{"id": 128, "request": "anything terracotta, show only color", "prediction": "{\"where\": {\"color\": \"terracotta\"}, \"select\": [\"color\"]}"}
+{"id": 129, "request": "anything with fewer than 8 in stock, the first 11", "prediction": "{\"where\": {\"stock\": {\"lt\": 8}}, \"limit\": 11}"}
+{"id": 130, "request": "at least 18 in stock, 8 of them", "prediction": "{\"where\": {\"stock\": {\"gte\": 18}}, \"limit\": 8}"}
+{"id": 131, "request": "anything brown or yellow", "prediction": "{\"where\": {\"color\": {\"in\": [\"brown\", \"yellow\"]}}}"}
+{"id": 132, "request": "least stocked first, 2 of them", "prediction": "{\"order_by\": {\"stock\": \"asc\"}, \"limit\": 2}"}
+{"id": 133, "request": "anything $40 or more, 5 of them", "prediction": "{\"where\": {\"price\": {\"gte\": 40}}, \"limit\": 5}"}
+{"id": 134, "request": "priciest first, 9 of them", "prediction": "{\"order_by\": {\"price\": \"desc\"}, \"limit\": 9}"}
+{"id": 135, "request": "tan items, showing category and name", "prediction": "{\"where\": {\"color\": \"tan\"}, \"select\": [\"category\", \"name\"]}"}
+{"id": 136, "request": "in alphabetical order, just 9", "prediction": "{\"order_by\": {\"name\": \"asc\"}, \"limit\": 9}"}
+{"id": 137, "request": "the terracotta ones, with just price and stock", "prediction": "{\"where\": {\"color\": \"terracotta\"}, \"select\": [\"price\", \"stock\"]}"}
+{"id": 138, "request": "copper, tan or steel items", "prediction": "{\"where\": {\"color\": {\"in\": [\"copper\", \"tan\", \"steel\"]}}}"}
+{"id": 139, "request": "everything tan, sorted by price, lowest first", "prediction": "{\"where\": {\"color\": \"tan\"}, \"order_by\": {\"price\": \"asc\"}}"}
+{"id": 140, "request": "everything orange, most in stock first", "prediction": "{\"where\": {\"color\": \"orange\"}, \"order_by\": {\"stock\": \"desc\"}}"}
+{"id": 141, "request": "fewer than 10 in stock", "prediction": "{\"where\": {\"stock\": {\"lt\": 10}}}"}
+{"id": 142, "request": "blue, red or brass items", "prediction": "{\"where\": {\"color\": {\"in\": [\"blue\", \"red\", \"brass\"]}}}"}
+{"id": 143, "request": "best stocked first, no more than 10", "prediction": "{\"order_by\": {\"stock\": \"desc\"}, \"limit\": 10}"}
+{"id": 144, "request": "items in tools, with price, color and name", "prediction": "{\"where\": {\"category\": \"tools\"}, \"select\": [\"price\", \"color\", \"name\"]}"}
+{"id": 145, "request": "the kitchen category, just the category", "prediction": "{\"where\": {\"category\": \"kitchen\"}, \"select\": [\"category\"]}"}
+{"id": 146, "request": "steel items, with name, price and stock", "prediction": "{\"where\": {\"color\": \"steel\"}, \"select\": [\"name\", \"price\", \"stock\"]}"}
+{"id": 147, "request": "the tools category, showing price and color", "prediction": "{\"where\": {\"category\": \"tools\"}, \"select\": [\"price\", \"color\"]}"}
+{"id": 148, "request": "steel things, sorted by name, Z first", "prediction": "{\"where\": {\"color\": \"steel\"}, \"order_by\": {\"name\": \"desc\"}}"}
+{"id": 149, "request": "everything white, category and price only", "prediction": "{\"where\": {\"color\": \"white\"}, \"select\": [\"category\", \"price\"]}"}

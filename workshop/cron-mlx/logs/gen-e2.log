@@ -1,0 +1,4 @@
+Loading weights:   0%|          | 0/320 [00:00<?, ?it/s]Loading weights:   0%|          | 1/320 [00:00<00:36,  8.76it/s]Loading weights:  55%|█████▍    | 175/320 [00:00<00:00, 967.48it/s]Loading weights:  96%|█████████▌| 307/320 [00:00<00:00, 1117.16it/s]Loading weights: 100%|██████████| 320/320 [00:00<00:00, 983.41it/s] 
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+120 rows in 20s -> preds-tuned-e2.jsonl

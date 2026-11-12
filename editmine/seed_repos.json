@@ -1,0 +1,65 @@
+{
+  "python": [
+    {"repo": "pallets/flask", "url": "https://github.com/pallets/flask.git"},
+    {"repo": "tiangolo/fastapi", "url": "https://github.com/tiangolo/fastapi.git"},
+    {"repo": "psf/requests", "url": "https://github.com/psf/requests.git"},
+    {"repo": "Textualize/rich", "url": "https://github.com/Textualize/rich.git"},
+    {"repo": "pydantic/pydantic", "url": "https://github.com/pydantic/pydantic.git"},
+    {"repo": "pallets/click", "url": "https://github.com/pallets/click.git"},
+    {"repo": "psf/black", "url": "https://github.com/psf/black.git"},
+    {"repo": "pytest-dev/pytest", "url": "https://github.com/pytest-dev/pytest.git"},
+    {"repo": "sqlalchemy/sqlalchemy", "url": "https://github.com/sqlalchemy/sqlalchemy.git"},
+    {"repo": "django/django", "url": "https://github.com/django/django.git"}
+  ],
+  "rust": [
+    {"repo": "BurntSushi/ripgrep", "url": "https://github.com/BurntSushi/ripgrep.git"},
+    {"repo": "tokio-rs/tokio", "url": "https://github.com/tokio-rs/tokio.git"},
+    {"repo": "serde-rs/serde", "url": "https://github.com/serde-rs/serde.git"},
+    {"repo": "clap-rs/clap", "url": "https://github.com/clap-rs/clap.git"},
+    {"repo": "hyperium/hyper", "url": "https://github.com/hyperium/hyper.git"},
+    {"repo": "tokio-rs/axum", "url": "https://github.com/tokio-rs/axum.git"},
+    {"repo": "sharkdp/bat", "url": "https://github.com/sharkdp/bat.git"},
+    {"repo": "sharkdp/fd", "url": "https://github.com/sharkdp/fd.git"},
+    {"repo": "tokio-rs/tracing", "url": "https://github.com/tokio-rs/tracing.git"}
+  ],
+  "typescript": [
+    {"repo": "colinhacks/zod", "url": "https://github.com/colinhacks/zod.git"},
+    {"repo": "trpc/trpc", "url": "https://github.com/trpc/trpc.git"},
+    {"repo": "honojs/hono", "url": "https://github.com/honojs/hono.git"},
+    {"repo": "prisma/prisma", "url": "https://github.com/prisma/prisma.git"},
+    {"repo": "vitest-dev/vitest", "url": "https://github.com/vitest-dev/vitest.git"},
+    {"repo": "sveltejs/svelte", "url": "https://github.com/sveltejs/svelte.git"}
+  ],
+  "javascript": [
+    {"repo": "expressjs/express", "url": "https://github.com/expressjs/express.git"},
+    {"repo": "axios/axios", "url": "https://github.com/axios/axios.git"},
+    {"repo": "lodash/lodash", "url": "https://github.com/lodash/lodash.git"}
+  ],
+  "go": [
+    {"repo": "gin-gonic/gin", "url": "https://github.com/gin-gonic/gin.git"},
+    {"repo": "spf13/cobra", "url": "https://github.com/spf13/cobra.git"},
+    {"repo": "junegunn/fzf", "url": "https://github.com/junegunn/fzf.git"},
+    {"repo": "gofiber/fiber", "url": "https://github.com/gofiber/fiber.git"},
+    {"repo": "sirupsen/logrus", "url": "https://github.com/sirupsen/logrus.git"},
+    {"repo": "gohugoio/hugo", "url": "https://github.com/gohugoio/hugo.git"}
+  ],
+  "cpp": [
+    {"repo": "redis/redis", "url": "https://github.com/redis/redis.git"},
+    {"repo": "fmtlib/fmt", "url": "https://github.com/fmtlib/fmt.git"},
+    {"repo": "nlohmann/json", "url": "https://github.com/nlohmann/json.git"},
+    {"repo": "gabime/spdlog", "url": "https://github.com/gabime/spdlog.git"},
+    {"repo": "catchorg/Catch2", "url": "https://github.com/catchorg/Catch2.git"}
+  ],
+  "c": [
+    {"repo": "sqlite/sqlite", "url": "https://github.com/sqlite/sqlite.git"},
+    {"repo": "libuv/libuv", "url": "https://github.com/libuv/libuv.git"}
+  ],
+  "java": [
+    {"repo": "google/guava", "url": "https://github.com/google/guava.git"},
+    {"repo": "square/okhttp", "url": "https://github.com/square/okhttp.git"},
+    {"repo": "square/retrofit", "url": "https://github.com/square/retrofit.git"}
+  ],
+  "sql": [
+    {"repo": "dbt-labs/dbt-core", "url": "https://github.com/dbt-labs/dbt-core.git"}
+  ]
+}

@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:0.8b-arity-e2",
+    "n": 323,
+    "request_errors": 0,
+    "executes": 322,
+    "exec_match": 202,
+    "exact": 198,
+    "by_tier": {
+      "5": [
+        202,
+        323
+      ]
+    },
+    "median_latency_s": 0.28,
+    "mean_completion_tokens": 6.7027863777089784,
+    "thinking": "off"
+  }
+]

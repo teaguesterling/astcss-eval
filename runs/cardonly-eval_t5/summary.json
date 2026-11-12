@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:cardonly-eval_t5",
+    "n": 118,
+    "request_errors": 0,
+    "executes": 115,
+    "exec_match": 103,
+    "exact": 85,
+    "by_tier": {
+      "5": [
+        103,
+        118
+      ]
+    },
+    "median_latency_s": 0.33,
+    "mean_completion_tokens": 10.974576271186441,
+    "thinking": "off"
+  }
+]

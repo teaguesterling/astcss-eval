@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:v2-v2full",
+    "n": 320,
+    "request_errors": 0,
+    "executes": 320,
+    "exec_match": 247,
+    "exact": 220,
+    "by_tier": {
+      "5": [
+        247,
+        320
+      ]
+    },
+    "median_latency_s": 0.31,
+    "mean_completion_tokens": 6.165625,
+    "thinking": "off"
+  }
+]

@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:arity-plus-epoch1",
+    "n": 118,
+    "request_errors": 0,
+    "executes": 114,
+    "exec_match": 95,
+    "exact": 74,
+    "by_tier": {
+      "5": [
+        95,
+        118
+      ]
+    },
+    "median_latency_s": 0.31,
+    "mean_completion_tokens": 11.23728813559322,
+    "thinking": "off"
+  }
+]

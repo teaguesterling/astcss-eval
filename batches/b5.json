@@ -1,0 +1,27 @@
+{
+ "accepted": 1,
+ "accepted_by_tier": {
+  "1": 1
+ },
+ "batch": "b5",
+ "candidates": 1,
+ "engine": {
+  "cli": "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-v1.18.4-community/build/release/duckdb",
+  "cli_args": [
+   "-unsigned",
+   "-noheader",
+   "-no-agent"
+  ],
+  "cli_sha256": "c41f957db5645d545a9caef430994cf262d24fad9297fef70c691395aadb43fb",
+  "extension": "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-v1.18.4-community/build/release/extension/sitting_duck/sitting_duck.duckdb_extension",
+  "extension_mtime": 1794438188.5433125,
+  "extension_sha256": "f8c0e70e1ea280410b0ef498bcdfccd2c83da3bd9843089ce14046b67477c8f0",
+  "sitting_duck_checkout_head": null,
+  "macros": "/srv/logical/workspace/home/teague/Projects/astcss-eval/workspace/engine/sd-v1.18.4-community/css_selectors-v1.18.4.sql",
+  "macros_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ },
+ "pending": 0,
+ "rejected": 0,
+ "source": "re-mint of t1-p21 from pairs/accepted-b2.jsonl",
+ "when": "2026-11-11T15:12:52-0800"
+}

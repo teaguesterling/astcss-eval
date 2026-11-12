@@ -1,0 +1,19 @@
+[
+  {
+    "model": "claude-haiku-4-5-20251001",
+    "n": 320,
+    "request_errors": 0,
+    "executes": 319,
+    "exec_match": 239,
+    "exact": 168,
+    "by_tier": {
+      "5": [
+        239,
+        320
+      ]
+    },
+    "median_latency_s": 5.42,
+    "mean_completion_tokens": 439.9375,
+    "thinking": "n/a"
+  }
+]

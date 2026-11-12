@@ -30,6 +30,7 @@ import os
 import random
 import re
 import signal
+import socket
 import statistics
 import subprocess
 import sys
@@ -65,6 +66,12 @@ def load_pairs():
     for kind in kinds:
         for path in sorted(glob.glob(os.path.join(root, "%s-*.jsonl" % kind))):
             pairs.extend(json.loads(line) for line in open(path) if line.strip())
+    # Tier is an int. A hand-written batch once carried "5" as a STRING, and the two forms
+    # are not the same key: sample() raised TypeError comparing them (the lucky outcome),
+    # while the by_tier table would have silently reported T5 and T"5" as separate columns
+    # with half the pairs in each. Coerce once, here, where every eval enters.
+    for p in pairs:
+        p["tier"] = int(p["tier"])
     return pairs
 
 
@@ -215,10 +222,17 @@ PAUSE_LEASE = "~/astcss-tune/npu-pause.lease"
 
 
 def _ssh(cmd, timeout=40):
-    out = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", EMBED_HOST, cmd],
-                         capture_output=True, text=True, timeout=timeout)
+    """Run a pause command on the embedding host -- through a local shell when that host IS this
+    machine (2026-09-15: the ssh hop failed host key verification from an unattended session, so
+    every device run had to pass --no-embed-pause and then met the contention the pause prevents)."""
+    if EMBED_HOST in ("localhost", "127.0.0.1", socket.gethostname(), socket.gethostname().split(".")[0]):
+        argv = ["bash", "-lc", cmd]
+    else:
+        argv = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", EMBED_HOST, cmd]
+    out = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
     if out.returncode != 0:
-        raise RuntimeError("ssh %s exit %s: %s" % (EMBED_HOST, out.returncode, (out.stderr or out.stdout)[:200]))
+        raise RuntimeError("%s %s exit %s: %s" % (argv[0], EMBED_HOST, out.returncode,
+                                                  (out.stderr or out.stdout)[:200]))
     return out.stdout.strip()
 
 
@@ -268,8 +282,8 @@ class EmbedPause:
 
 
 def request_body(model, thinking, card, nl):
-    body = {"model": model, "stream": True, "temperature": 0,
-            "messages": [{"role": "system", "content": card}, {"role": "user", "content": nl}]}
+    msgs = ([{"role": "system", "content": card}] if card else []) + [{"role": "user", "content": nl}]
+    body = {"model": model, "stream": True, "temperature": 0, "messages": msgs}
     mode = "none"
     if thinking.get("supported") and thinking.get("toggleable"):
         body["chat_template_kwargs"] = {"enable_thinking": False}
@@ -475,7 +489,17 @@ def rescore(out_dir, pairs_by_id):
         k = (r["model"], r["id"])
         if k not in latest or not r.get("error") or latest[k].get("error"):
             latest[k] = r
-    scored = score(list(latest.values()), pairs_by_id)
+    # A re-pin can RETIRE pairs (v1.15.4 retired 3 holdout pairs the gates now reject and the 13
+    # oracle-sourced eval_t5 pairs). Runs generated before that carry answers for ids the suite no
+    # longer has, and score() would KeyError on them. Drop them, and say how many: a silently
+    # shrinking denominator is how a re-pin would flatter every earlier arm.
+    kept, dropped = [], []
+    for r in latest.values():
+        (kept if r["id"] in pairs_by_id else dropped).append(r)
+    if dropped:
+        print("skipped %d answer(s) for pairs retired from this suite: %s" % (
+            len(dropped), ", ".join(sorted({r["id"] for r in dropped}))))
+    scored = score(kept, pairs_by_id)
     meta_path = os.path.join(out_dir, "meta.json")
     meta = json.load(open(meta_path)) if os.path.exists(meta_path) else {}
     leaked = set(meta.get("leaked_ids") or [])
@@ -516,8 +540,11 @@ def cmd_oracle(args):
 
 def cmd_run(args):
     key = auth_key()
-    card_path = os.path.abspath(args.card or CARD)
-    card = open(card_path).read()
+    # --card none asks with no system message at all (the "plain" arm): what the model does
+    # knowing nothing about the selector language, which is the floor every card is measured against.
+    plain = (args.card or "").lower() == "none"
+    card_path = "none" if plain else os.path.abspath(args.card or CARD)
+    card = "" if plain else open(card_path).read()
     pairs = sample(load_pairs(), args.per_tier, args.seed)
     by_id = {p["id"]: p for p in pairs}
     # Per-request context: {pair id: (system prompt, example ids)}. Without --retrieve every
@@ -628,7 +655,13 @@ def cmd_run(args):
                         log("%s: 3 consecutive request errors, skipping the rest" % model)
                         break
     finally:
-        if original:
+        # A CLOUD-ONLY run needs nothing from the device, so it must not touch the device's model
+        # state. It used to "restore" whatever models it found resident, issuing start POSTs and
+        # letting ensure_loaded stop other chat models -- pointless churn on hardware another
+        # session is using. Measured: four cloud-only Haiku runs on 2026-10-06 each read
+        # models/running and restored, 37 hours before a device wedge that cost that session a
+        # 2.4-day embedding job. Same defect class as a watchdog acting on models it did not start.
+        if original and has_device:
             # Everything that was resident, not just the first: another client may
             # have loaded a second model (stage 1 found the embedder beside 30B-Instruct).
             try:

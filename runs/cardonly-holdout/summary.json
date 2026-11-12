@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:cardonly-holdout",
+    "n": 323,
+    "request_errors": 0,
+    "executes": 322,
+    "exec_match": 240,
+    "exact": 239,
+    "by_tier": {
+      "5": [
+        240,
+        323
+      ]
+    },
+    "median_latency_s": 0.27,
+    "mean_completion_tokens": 6.247678018575852,
+    "thinking": "off"
+  }
+]

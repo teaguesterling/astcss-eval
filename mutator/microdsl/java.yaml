@@ -1,0 +1,176 @@
+language: java
+operators:
+  # Structure & Movement
+  replaceWith:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}"
+    example:
+      context:
+        target: "int count = 0;"
+        code: "int count = 1;"
+      expected: "int count = 1;"
+
+  append:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+
+  prepend:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+
+  addComment:
+    match: "${target}"
+    params: [text, pos]
+    rewrite: |
+      // ${text}
+      ${target}
+    example:
+      context:
+        text: "Synchronized block"
+        target: "synchronized(this) {}"
+      expected: |
+        // Synchronized block
+        synchronized(this) {}
+
+  # Declarations & Signatures
+  addDecorator:
+    match: ".fn@target, .class@target"
+    params: [annotation]
+    rewrite: "@${annotation}\n${target}"
+    example:
+      context:
+        annotation: "Override"
+        target: "public String toString() { return \"\"; }"
+      expected: |
+        @Override
+        public String toString() { return ""; }
+
+  addAnnotation:
+    match: ".fn@target, .class@target"
+    params: [annotation]
+    rewrite: "@${annotation}\n${target}"
+
+  addImport:
+    match: "mod@target"
+    params: [pkg]
+    rewrite: |
+      import ${pkg};
+      ${target}
+    example:
+      context:
+        pkg: "java.util.List"
+        target: "public class Data {}"
+      expected: |
+        import java.util.List;
+        public class Data {}
+
+  ensureImport:
+    match: "mod@target"
+    params: [pkg]
+    rewrite: |
+      import ${pkg};
+      ${target}
+
+  setVisibility:
+    match: ".fn@target, .class@target, .decl@target"
+    params: [vis]
+    rewrite: "${vis} ${target}"
+    example:
+      context:
+        vis: "public"
+        target: "void execute()"
+      expected: "public void execute()"
+
+  setStatic:
+    match: ".fn@target, .decl@target"
+    rewrite: "static ${target}"
+
+  setFinal:
+    match: ".fn@target, .decl@target"
+    rewrite: "final ${target}"
+
+  setSynchronized:
+    match: ".fn@target"
+    rewrite: "synchronized ${target}"
+    example:
+      context:
+        target: "void updateState()"
+      expected: "synchronized void updateState()"
+
+  # Control Flow & Error Handling
+  wrapInTry:
+    match: ".fn > .body@body"
+    params: []
+    rewrite: |
+      try {
+      ${body|indent(4)}
+      } ${handlers|map_join("catch ({exc} e) {\n    {body}\n}")}
+      ${finally|if_present("finally {\n    {finally}\n}")}
+    example:
+      context:
+        body: "connectSocket();"
+        handlers:
+          - exc: "IOException"
+            body: "return null;"
+        finally: "close();"
+      expected: |
+        try {
+            connectSocket();
+        } catch (IOException e) {
+            return null;
+        }
+        finally {
+            close();
+        }
+
+  wrapWith:
+    match: ".fn > .body@body"
+    params: [resource_type, var_name, init_expr]
+    rewrite: |
+      try (${resource_type} ${var_name} = ${init_expr}) {
+      ${body|indent(4)}
+      }
+    example:
+      context:
+        resource_type: "Scanner"
+        var_name: "scanner"
+        init_expr: "new Scanner(new File(\"data.txt\"))"
+        body: "scanner.nextLine();"
+      expected: |
+        try (Scanner scanner = new Scanner(new File("data.txt"))) {
+            scanner.nextLine();
+        }
+
+  # Expressions & Calls
+  wrapCall:
+    match: ".call@target, .expr@target"
+    params: [fn_name]
+    rewrite: "${fn_name}(${target})"
+
+  chainCall:
+    match: ".call@target, .expr@target"
+    params: [method, args]
+    rewrite: "${target}.${method}(${args})"
+
+  setReturn:
+    match: ".jump#return@target"
+    params: [expr]
+    rewrite: "return ${expr};"
+
+  addAssertion:
+    match: ".fn > .body@body"
+    params: [assertion, msg]
+    rewrite: |
+      ${body}
+      assert ${assertion} : "${msg}";
+    example:
+      context:
+        body: "int val = calculate();"
+        assertion: "val >= 0"
+        msg: "value cannot be negative"
+      expected: |
+        int val = calculate();
+        assert val >= 0 : "value cannot be negative";

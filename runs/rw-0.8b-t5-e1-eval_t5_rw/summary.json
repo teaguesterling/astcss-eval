@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:rw-0.8b-t5-e1",
+    "n": 113,
+    "request_errors": 0,
+    "executes": 108,
+    "exec_match": 70,
+    "exact": 44,
+    "by_tier": {
+      "5": [
+        70,
+        113
+      ]
+    },
+    "median_latency_s": 0.33,
+    "mean_completion_tokens": 10.619469026548673,
+    "thinking": "off"
+  }
+]

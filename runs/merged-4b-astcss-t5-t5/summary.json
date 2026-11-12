@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:merged-4b-t5",
+    "n": 55,
+    "request_errors": 0,
+    "executes": 55,
+    "exec_match": 50,
+    "exact": 42,
+    "by_tier": {
+      "5": [
+        50,
+        55
+      ]
+    },
+    "median_latency_s": 0.82,
+    "mean_completion_tokens": 9.654545454545454,
+    "thinking": "off"
+  }
+]

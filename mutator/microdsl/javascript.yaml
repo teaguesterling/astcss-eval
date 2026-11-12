@@ -1,0 +1,147 @@
+language: javascript
+operators:
+  # Structure & Movement
+  replaceWith:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}"
+    example:
+      context:
+        target: "let a = 1;"
+        code: "let a = 2;"
+      expected: "let a = 2;"
+
+  append:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+
+  prepend:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+
+  addComment:
+    match: "${target}"
+    params: [text, pos]
+    rewrite: |
+      // ${text}
+      ${target}
+    example:
+      context:
+        text: "Initialize event listeners"
+        target: "setupListeners();"
+      expected: |
+        // Initialize event listeners
+        setupListeners();
+
+  # Declarations & Signatures
+  addDecorator:
+    match: ".fn@target, .class@target"
+    params: [decorator]
+    rewrite: "@${decorator}\n${target}"
+    example:
+      context:
+        decorator: "readonly"
+        target: "class Model {}"
+      expected: |
+        @readonly
+        class Model {}
+
+  setAsync:
+    match: ".fn:not(.async)@target"
+    rewrite: "async ${target}"
+    example:
+      context:
+        target: "function fetchItems() {}"
+      expected: "async function fetchItems() {}"
+
+  setExport:
+    match: ".fn@target, .class@target, .decl@target"
+    rewrite: "export ${target}"
+    example:
+      context:
+        target: "const config = {};"
+      expected: "export const config = {};"
+
+  setExportDefault:
+    match: ".fn@target, .class@target, .decl@target"
+    rewrite: "export default ${target}"
+
+  addImport:
+    match: "mod@target"
+    params: [stmt]
+    rewrite: "${stmt}\n${target}"
+    example:
+      context:
+        stmt: "import express from 'express';"
+        target: "const app = express();"
+      expected: |
+        import express from 'express';
+        const app = express();
+
+  ensureImport:
+    match: "mod@target"
+    params: [stmt]
+    rewrite: "${stmt}\n${target}"
+
+  # Control Flow & Wrapping
+  wrapWith:
+    match: ".fn > .body@body"
+    params: [context_expr, as_name]
+    rewrite: |
+      using ${as_name} = ${context_expr};
+      ${body}
+
+  wrapInTry:
+    match: ".fn > .body@body"
+    params: []
+    rewrite: |
+      try {
+      ${body|indent(4)}
+      } ${handlers|map_join("catch (e if e instanceof {exc}) {{\n    {body}\n}}")}
+      ${finally|if_present("finally {{\n    {finally}\n}}")}
+
+  # Expressions & Calls
+  wrapAwait:
+    match: ".call@target, .expr@target"
+    rewrite: "await ${target}"
+    example:
+      context:
+        target: "loadProfile()"
+      expected: "await loadProfile()"
+
+  wrapCall:
+    match: ".call@target, .expr@target"
+    params: [fn_name]
+    rewrite: "${fn_name}(${target})"
+    example:
+      context:
+        fn_name: "parseInt"
+        target: "raw_str"
+      expected: "parseInt(raw_str)"
+
+  chainCall:
+    match: ".call@target, .expr@target"
+    params: [method, args]
+    rewrite: "${target}.${method}(${args})"
+
+  setReturn:
+    match: ".jump#return@target"
+    params: [expr]
+    rewrite: "return ${expr};"
+
+  addAssertion:
+    match: ".fn > .body@body"
+    params: [assertion, msg]
+    rewrite: |
+      ${body}
+      console.assert(${assertion}, "${msg}");
+    example:
+      context:
+        body: "const res = check();"
+        assertion: "res !== null"
+        msg: "must return object"
+      expected: |
+        const res = check();
+        console.assert(res !== null, "must return object");

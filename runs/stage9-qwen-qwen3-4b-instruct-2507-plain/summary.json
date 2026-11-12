@@ -1,0 +1,31 @@
+[
+  {
+    "model": "Qwen/Qwen3-4B-Instruct-2507",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 108,
+    "exec_match": 0,
+    "exact": 0,
+    "by_tier": {
+      "1": [
+        0,
+        21
+      ],
+      "2": [
+        0,
+        25
+      ],
+      "3": [
+        0,
+        31
+      ],
+      "4": [
+        0,
+        31
+      ]
+    },
+    "median_latency_s": 10.445,
+    "mean_completion_tokens": 188.97222222222223,
+    "thinking": "none"
+  }
+]

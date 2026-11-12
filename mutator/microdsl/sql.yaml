@@ -1,0 +1,149 @@
+language: sql
+operators:
+  # Structure & Movement
+  replaceWith:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}"
+    example:
+      context:
+        target: "SELECT 1;"
+        code: "SELECT 2;"
+      expected: "SELECT 2;"
+
+  append:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+
+  prepend:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+
+  insertBefore:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+
+  insertAfter:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+
+  remove:
+    match: "${target}"
+    rewrite: ""
+
+  addComment:
+    match: "${target}"
+    params: [text, pos]
+    rewrite: |
+      -- ${text}
+      ${target}
+    example:
+      context:
+        text: "Fetch active customers"
+        target: "SELECT * FROM customers WHERE status = 'active';"
+      expected: |
+        -- Fetch active customers
+        SELECT * FROM customers WHERE status = 'active';
+
+  # Control Flow & CTE Wrapping
+  wrapWithCTE:
+    match: "stmt@target"
+    params: [cte_name, cte_query]
+    rewrite: |
+      WITH ${cte_name} AS (
+      ${cte_query|indent(4)}
+      )
+      ${target}
+    example:
+      context:
+        cte_name: "high_scores"
+        cte_query: "SELECT user_id, score FROM leaderboard WHERE score > 100"
+        target: "SELECT * FROM high_scores ORDER BY score DESC;"
+      expected: |
+        WITH high_scores AS (
+            SELECT user_id, score FROM leaderboard WHERE score > 100
+        )
+        SELECT * FROM high_scores ORDER BY score DESC;
+
+  wrapInTransaction:
+    match: "stmt@target"
+    params: []
+    rewrite: |
+      BEGIN TRANSACTION;
+      ${target|indent(4)}
+      COMMIT;
+    example:
+      context:
+        target: "UPDATE balance SET amount = 50;\nINSERT INTO logs VALUES ('updated');"
+      expected: |
+        BEGIN TRANSACTION;
+            UPDATE balance SET amount = 50;
+            INSERT INTO logs VALUES ('updated');
+        COMMIT;
+
+  # Query Building & Modifiers
+  addWhere:
+    match: "query@target"
+    params: [condition]
+    rewrite: "${target}\nWHERE ${condition}"
+    example:
+      context:
+        target: "SELECT id FROM accounts"
+        condition: "balance > 1000"
+      expected: |
+        SELECT id FROM accounts
+        WHERE balance > 1000
+
+  addOrderBy:
+    match: "query@target"
+    params: [columns]
+    rewrite: "${target}\nORDER BY ${columns}"
+    example:
+      context:
+        target: "SELECT * FROM users"
+        columns: "created_at DESC"
+      expected: |
+        SELECT * FROM users
+        ORDER BY created_at DESC
+
+  addLimit:
+    match: "query@target"
+    params: [n]
+    rewrite: "${target}\nLIMIT ${n}"
+    example:
+      context:
+        target: "SELECT * FROM users"
+        n: "10"
+      expected: |
+        SELECT * FROM users
+        LIMIT 10
+
+  addColumn:
+    match: "select_clause@target"
+    params: [column_expr]
+    rewrite: "${target}, ${column_expr}"
+    example:
+      context:
+        target: "SELECT id, name"
+        column_expr: "email"
+      expected: "SELECT id, name, email"
+
+  wrapSubquery:
+    match: "query@target"
+    params: [alias]
+    rewrite: |
+      (
+      ${target|indent(4)}
+      ) AS ${alias}
+    example:
+      context:
+        target: "SELECT user_id, count(*) FROM orders GROUP BY user_id"
+        alias: "user_counts"
+      expected: |
+        (
+            SELECT user_id, count(*) FROM orders GROUP BY user_id
+        ) AS user_counts

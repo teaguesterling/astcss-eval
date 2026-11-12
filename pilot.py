@@ -156,17 +156,51 @@ def eval_overlap(rows):
     allowed. Eval pairs are pairs/{accepted,pending,retired}*.jsonl."""
     norm = lambda s: " ".join(s.lower().split())  # noqa: E731
     ev_nl, ev_css = {}, {}
-    # The tier-5 eval (eval_t5/, 2026-09-15) is held out too.
-    for path in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl")) + glob.glob(os.path.join(HERE, "eval_t5", "pairs", "*.jsonl"))):
+    # The tier-5 eval (eval_t5/, 2026-09-15) is held out too, and so is the holdout
+    # validation suite (holdout/pairs/, 2026-10-02) -- 11 repos in 11 languages that appear in
+    # no training fixture. The suite exists to be the one measurement no training has touched,
+    # so it is enforced HERE, in the gate every dataset build runs, rather than by discipline:
+    # a training pair whose request or selector matches it aborts the build.
+    for path in sorted(glob.glob(os.path.join(HERE, "pairs", "*.jsonl"))
+                       + glob.glob(os.path.join(HERE, "eval_t5", "pairs", "*.jsonl"))
+                       + glob.glob(os.path.join(HERE, "holdout", "pairs", "*.jsonl"))
+                       + glob.glob(os.path.join(HERE, "abstain", "pairs", "*.jsonl"))
+                       + glob.glob(os.path.join(HERE, "eval_vocab", "pairs", "*.jsonl"))
+                       + glob.glob(os.path.join(HERE, "eval_defname", "pairs", "*.jsonl"))
+                       + glob.glob(os.path.join(HERE, "holdout_noise", "pairs", "*.jsonl"))):
         if os.path.basename(path).startswith("rejected-"):
             continue
+        # abstain/ is request-only for the same reason as holdout/: its unanswerable
+        # pairs carry css "NONE", which is not a selector anyone could leak.
+        holdout = (os.sep + "holdout" + os.sep in path
+                   or os.sep + "abstain" + os.sep in path
+                   or os.sep + "eval_vocab" + os.sep in path
+                   or os.sep + "eval_defname" + os.sep in path
+                   or os.sep + "holdout_noise" + os.sep in path)
         for line in open(path):
             p = json.loads(line)
             for t in [p.get("nl", "")] + (p.get("paraphrases") or []):
                 if t:
                     ev_nl[norm(t)] = p["id"]
-            if p.get("css"):
-                ev_css[p["css"]] = p["id"]
+            css = p.get("css")
+            # For pairs/ and eval_t5/ every selector is registered: those are drafted to be
+            # distinctive, so a training pair sharing one is teaching the answer.
+            #
+            # The HOLDOUT registers its REQUESTS ONLY, not its selectors, and the reason is
+            # that a selector string is not an answer -- a node set in a fixture is. A holdout
+            # pair asking `.fn#run` about plinking_duck and a training pair asking `.fn#run`
+            # about lackpy are different questions with different answers; the training pair
+            # teaches "find the function named run", which is the SKILL under test, not the
+            # result. And the holdout's fixtures are repos that appear in no training fixture,
+            # so no training pair can carry a holdout answer by construction.
+            #
+            # Two rounds of narrowing got here. Registering every holdout selector blocked 23
+            # legitimate training pairs over generic vocabulary (`.fn:has(.call)`, `.loop`).
+            # Restricting it to selectors naming an identifier still blocked 10, over names as
+            # common as run, constructor, concat and Error. Both were me treating a shared
+            # selector string as leakage when the fixtures differ.
+            if css and not holdout:
+                ev_css[css] = p["id"]
     bad = {}
     for r in rows:
         hits = []

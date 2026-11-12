@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:gemma270-e2",
+    "n": 120,
+    "request_errors": 0,
+    "executes": 104,
+    "exec_match": 72,
+    "exact": 56,
+    "by_tier": {
+      "5": [
+        72,
+        120
+      ]
+    },
+    "median_latency_s": 0.31,
+    "mean_completion_tokens": 13.591666666666667,
+    "thinking": "off"
+  }
+]

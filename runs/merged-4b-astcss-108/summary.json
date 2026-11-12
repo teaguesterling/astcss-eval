@@ -1,0 +1,31 @@
+[
+  {
+    "model": "local:merged-4b-astcss",
+    "n": 108,
+    "request_errors": 0,
+    "executes": 108,
+    "exec_match": 96,
+    "exact": 93,
+    "by_tier": {
+      "1": [
+        21,
+        21
+      ],
+      "2": [
+        20,
+        25
+      ],
+      "3": [
+        28,
+        31
+      ],
+      "4": [
+        27,
+        31
+      ]
+    },
+    "median_latency_s": 0.76,
+    "mean_completion_tokens": 5.37962962962963,
+    "thinking": "off"
+  }
+]

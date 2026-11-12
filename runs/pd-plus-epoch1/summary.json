@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:pd-plus",
+    "n": 43,
+    "request_errors": 0,
+    "executes": 43,
+    "exec_match": 42,
+    "exact": 42,
+    "by_tier": {
+      "5": [
+        42,
+        43
+      ]
+    },
+    "median_latency_s": 0.29,
+    "mean_completion_tokens": 8.372093023255815,
+    "thinking": "off"
+  }
+]

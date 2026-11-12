@@ -1,0 +1,36 @@
+{
+  "epoch": 1,
+  "val_loss": 0.002691489404188966,
+  "args": {
+    "base": "/home/teague/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17",
+    "data": "data",
+    "out": "adapters/cron-0.8b",
+    "epochs": 2,
+    "lr": 0.0002,
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "accum": 16,
+    "warmup": 0.05,
+    "max_len": 512,
+    "limit": 0,
+    "save_every_steps": 250,
+    "seed": 18,
+    "embed_cpu": false,
+    "quant": "none"
+  },
+  "prompt_format": "chat-template+gen-prompt+nothink/v1",
+  "dataset_manifest": {
+    "name": "cron-workshop-v1",
+    "task": "plain English -> one five-field cron expression",
+    "generator": "make_corpus.py --train 1200 --valid 150 --eval 120 --seed 7",
+    "labels": "correct by construction: the cron expression is sampled first and the English rendered from it",
+    "held_out": "eval.jsonl draws from 4 shape families disjoint from training's 6; asserted by check_corpus",
+    "card": "data/card.md, ~101 words",
+    "rows": {
+      "train": 1200,
+      "valid": 150,
+      "eval": 120
+    }
+  }
+}

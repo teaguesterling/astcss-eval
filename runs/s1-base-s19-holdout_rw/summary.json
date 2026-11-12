@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:s1-base-s19",
+    "n": 298,
+    "request_errors": 0,
+    "executes": 296,
+    "exec_match": 207,
+    "exact": 201,
+    "by_tier": {
+      "5": [
+        207,
+        298
+      ]
+    },
+    "median_latency_s": 0.27,
+    "mean_completion_tokens": 6.369127516778524,
+    "thinking": "off"
+  }
+]

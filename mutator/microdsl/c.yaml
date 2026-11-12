@@ -1,0 +1,180 @@
+language: c
+operators:
+  # Structure & Movement
+  replaceWith:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}"
+    example:
+      context:
+        target: "int x = 0;"
+        code: "int x = 1;"
+      expected: "int x = 1;"
+
+  append:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+
+  prepend:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+
+  insertBefore:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+
+  insertAfter:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+
+  remove:
+    match: "${target}"
+    rewrite: ""
+
+  addComment:
+    match: "${target}"
+    params: [text, pos]
+    rewrite: |
+      // ${text}
+      ${target}
+    example:
+      context:
+        text: "Allocate memory block"
+        target: "void *p = malloc(sz);"
+      expected: |
+        // Allocate memory block
+        void *p = malloc(sz);
+
+  # Declarations & Signatures
+  addImport:
+    match: "mod@target"
+    params: [header]
+    rewrite: |
+      #include <${header}>
+      ${target}
+    example:
+      context:
+        header: "stdio.h"
+        target: "int main() {}"
+      expected: |
+        #include <stdio.h>
+        int main() {}
+
+  addInclude:
+    match: "mod@target"
+    params: [header]
+    rewrite: |
+      #include <${header}>
+      ${target}
+    example:
+      context:
+        header: "stdlib.h"
+        target: "int main() {}"
+      expected: |
+        #include <stdlib.h>
+        int main() {}
+
+  ensureInclude:
+    match: "mod@target"
+    params: [header]
+    rewrite: |
+      #include <${header}>
+      ${target}
+
+  addMacro:
+    match: "mod@target"
+    params: [macro_def]
+    rewrite: |
+      #define ${macro_def}
+      ${target}
+    example:
+      context:
+        macro_def: "MAX_BUF 4096"
+        target: "char buf[MAX_BUF];"
+      expected: |
+        #define MAX_BUF 4096
+        char buf[MAX_BUF];
+
+  setStatic:
+    match: ".fn@target, .decl@target"
+    rewrite: "static ${target}"
+    example:
+      context:
+        target: "int helper() { return 0; }"
+      expected: "static int helper() { return 0; }"
+
+  setConst:
+    match: ".decl@target, .param@target"
+    rewrite: "const ${target}"
+
+  # Control Flow & Error Handling (C Idiom: rc check / cleanup label)
+  wrapInTry:
+    match: ".fn > .body@body"
+    params: []
+    rewrite: |
+      int __rc = 0;
+      ${body}
+      ${handlers|map_join("if (__rc != 0) {\n    {body}\n}")}
+      ${finally|if_present("cleanup:\n    {finally}")}
+    example:
+      context:
+        body: "__rc = init_driver();"
+        handlers:
+          - body: "return -1;"
+        finally: "free_driver();"
+      expected: |
+        int __rc = 0;
+        __rc = init_driver();
+        if (__rc != 0) {
+            return -1;
+        }
+        cleanup:
+            free_driver();
+
+  wrapWith:
+    match: ".fn > .body@body"
+    params: [cleanup_expr]
+    rewrite: |
+      ${body}
+      goto cleanup;
+      cleanup:
+          ${cleanup_expr};
+
+  # Expressions & Calls
+  wrapCall:
+    match: ".call@target, .expr@target"
+    params: [fn_name]
+    rewrite: "${fn_name}(${target})"
+    example:
+      context:
+        fn_name: "abs"
+        target: "delta"
+      expected: "abs(delta)"
+
+  setReturn:
+    match: ".jump#return@target"
+    params: [expr]
+    rewrite: "return ${expr};"
+    example:
+      context:
+        expr: "0"
+      expected: "return 0;"
+
+  addAssertion:
+    match: ".fn > .body@body"
+    params: [assertion, msg]
+    rewrite: |
+      ${body}
+      assert((${assertion}) && "${msg}");
+    example:
+      context:
+        body: "int *ptr = get_ptr();"
+        assertion: "ptr != NULL"
+        msg: "pointer must not be null"
+      expected: |
+        int *ptr = get_ptr();
+        assert((ptr != NULL) && "pointer must not be null");

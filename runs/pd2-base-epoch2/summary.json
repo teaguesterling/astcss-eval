@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:pd2-base-epoch2",
+    "n": 43,
+    "request_errors": 0,
+    "executes": 38,
+    "exec_match": 23,
+    "exact": 23,
+    "by_tier": {
+      "5": [
+        23,
+        43
+      ]
+    },
+    "median_latency_s": 0.33,
+    "mean_completion_tokens": 8.627906976744185,
+    "thinking": "off"
+  }
+]

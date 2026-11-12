@@ -41,10 +41,17 @@ def load_rows(path, limit=0):
 
 
 def encode(tok, row, max_len):
-    msgs = row["messages"]
-    system = next((m["content"] for m in msgs if m["role"] == "system"), None)
-    request = next(m["content"] for m in msgs if m["role"] == "user")
-    answer = next(m["content"] for m in msgs if m["role"] == "assistant")
+    if "messages" in row:
+        msgs = row["messages"]
+        system = next((m["content"] for m in msgs if m["role"] == "system"), None)
+        request = next(m["content"] for m in msgs if m["role"] == "user")
+        answer = next(m["content"] for m in msgs if m["role"] == "assistant")
+    else:
+        system = row.get("system")
+        request = row.get("description") or row.get("nl") or row.get("prompt") or row.get("request") or ""
+        answer = row.get("fluent_call") or row.get("css") or row.get("target") or row.get("answer") or ""
+        if row.get("language"):
+            request = prompting.tag_request(row["language"], request)
     prompt_ids = tok(prompting.prompt_text(tok, system, request), add_special_tokens=False).input_ids
     answer_ids = tok(answer + prompting.end_of_turn(tok), add_special_tokens=False).input_ids
     ids = (prompt_ids + answer_ids)[-max_len:]
@@ -52,22 +59,30 @@ def encode(tok, row, max_len):
     return ids, n_answer
 
 
-def load_model(base, embed_cpu, quant="4bit"):
+def load_model(base, embed_cpu, quant="4bit", dtype="float16"):
     """Base model for training or generation; returns (model, device for input ids).
 
     quant="4bit": NF4 with double quantization, float16 compute (the 9B).
     quant="none": plain float16 weights, no bitsandbytes -- for small models (Qwen3.5-0.8B
     is ~1.6 GiB in float16), where LoRA on the full-precision base is cheaper and exact.
+
+    dtype: float16 by default, which every Qwen and SmolLM2 checkpoint here trains in
+    happily even though their configs declare bfloat16. Gemma-3 does NOT: in float16 every
+    step produced a NaN gradient and every step was skipped (60/60 at step 60), so the
+    adapter never changed while the loop reported a loss. Pass bfloat16 for Gemma. The
+    autocast dtype in the training loop follows this, or the cast the model was loaded
+    under is undone on every forward.
     """
     import torch
     from transformers import AutoModelForCausalLM, BitsAndBytesConfig
+    dt = getattr(torch, dtype)
     device_map = {"model.embed_tokens": "cpu", "": 0} if embed_cpu else {"": 0}
     if quant == "none":
-        model = AutoModelForCausalLM.from_pretrained(base, dtype=torch.float16, device_map=device_map)
+        model = AutoModelForCausalLM.from_pretrained(base, dtype=dt, device_map=device_map)
     else:
-        bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.float16,
+        bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=dt,
                                  bnb_4bit_use_double_quant=True, llm_int8_enable_fp32_cpu_offload=embed_cpu)
-        model = AutoModelForCausalLM.from_pretrained(base, quantization_config=bnb, dtype=torch.float16, device_map=device_map)
+        model = AutoModelForCausalLM.from_pretrained(base, quantization_config=bnb, dtype=dt, device_map=device_map)
     return model, ("cpu" if embed_cpu else "cuda:0")
 
 
@@ -85,10 +100,13 @@ def main():
     ap.add_argument("--warmup", type=float, default=0.05, help="fraction of optimizer steps")
     ap.add_argument("--max-len", type=int, default=1024)
     ap.add_argument("--limit", type=int, default=0, help="first N training rows (smoke runs)")
+    ap.add_argument("--save-every-steps", type=int, default=250, help="save checkpoint every N optimizer steps")
     ap.add_argument("--seed", type=int, default=17)
     ap.add_argument("--embed-cpu", action="store_true", help="embedding table on the CPU (long prompts only; ~3x slower)")
     ap.add_argument("--quant", choices=("4bit", "none"), default="4bit",
                     help="4bit (NF4, the 9B) or none (float16 base, small models)")
+    ap.add_argument("--dtype", choices=("float16", "bfloat16"), default="float16",
+                    help="compute dtype; bfloat16 for Gemma-3, which NaNs in float16")
     args = ap.parse_args()
 
     import torch
@@ -113,7 +131,7 @@ def main():
     lens = sorted(len(i) for i, _ in train)
     say("train rows %d (median %d tokens, max %d), val rows %d" % (len(train), lens[len(lens) // 2], lens[-1], len(val)))
 
-    model, dev = load_model(args.base, args.embed_cpu, args.quant)
+    model, dev = load_model(args.base, args.embed_cpu, args.quant, args.dtype)
     model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     model.enable_input_require_grads()
     model = get_peft_model(model, LoraConfig(r=args.rank, lora_alpha=args.alpha, lora_dropout=args.dropout,
@@ -163,7 +181,7 @@ def main():
         running, seen = 0.0, 0
         for k, idx in enumerate(order, 1):
             ids, n = train[idx]
-            with torch.autocast("cuda", dtype=torch.float16):
+            with torch.autocast("cuda", dtype=getattr(torch, args.dtype)):
                 loss = loss_of(ids, n) / args.accum
             loss.backward()
             running += loss.item() * args.accum
@@ -183,6 +201,10 @@ def main():
                         epoch, step, total_steps, running / seen, sched.get_last_lr()[0], gnorm, skipped,
                         el / (step * args.accum), el / step * (total_steps - step) / 60, torch.cuda.max_memory_allocated() / 2**20))
                     running, seen = 0.0, 0
+                if args.save_every_steps and step % args.save_every_steps == 0:
+                    step_ckpt = os.path.join(args.out, "checkpoint-step%d" % step)
+                    model.save_pretrained(step_ckpt)
+                    say("saved step checkpoint -> %s" % step_ckpt)
         vl, vt = val_loss()
         ckpt = os.path.join(args.out, "epoch%d" % epoch)
         model.save_pretrained(ckpt)

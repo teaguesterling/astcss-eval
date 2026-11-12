@@ -1,0 +1,8 @@
+15:21:37 train rows 300 (median 285 tokens, max 296), val rows 150
+15:21:39 trainable params 10092544; embedding on gpu; allocated 1175 MiB
+15:22:03 val loss before training 0.5955 (24.4s for 150 rows)
+15:22:15 epoch 1 step 1/19 loss 0.4868 lr 2.00e-04 grad 8.08 skipped 0  0.72s/row  eta 3 min  peak 1582 MiB
+15:22:25 epoch 1 step 2/19 loss 0.3279 lr 1.98e-04 grad 5.35 skipped 0  0.69s/row  eta 3 min  peak 1582 MiB
+15:22:35 epoch 1 step 3/19 loss 0.0581 lr 1.94e-04 grad 1.3 skipped 0  0.67s/row  eta 3 min  peak 1582 MiB
+15:23:48 epoch 1 step 10/19 loss 0.0401 lr 1.00e-04 grad 1.44 skipped 0  0.66s/row  eta 2 min  peak 1582 MiB
+15:25:44 epoch 1 done: val loss 0.0104 (17.9s) -> adapters/s11-n300/epoch1; peak 1582 MiB

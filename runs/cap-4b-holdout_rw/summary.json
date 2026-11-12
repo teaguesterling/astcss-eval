@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:cap-4b",
+    "n": 298,
+    "request_errors": 0,
+    "executes": 298,
+    "exec_match": 202,
+    "exact": 201,
+    "by_tier": {
+      "5": [
+        202,
+        298
+      ]
+    },
+    "median_latency_s": 0.84,
+    "mean_completion_tokens": 6.436241610738255,
+    "thinking": "off"
+  }
+]

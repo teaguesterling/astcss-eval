@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:x22-langcard-card_v2",
+    "n": 320,
+    "request_errors": 0,
+    "executes": 320,
+    "exec_match": 250,
+    "exact": 249,
+    "by_tier": {
+      "5": [
+        250,
+        320
+      ]
+    },
+    "median_latency_s": 0.31,
+    "mean_completion_tokens": 6.2375,
+    "thinking": "off"
+  }
+]

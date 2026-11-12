@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:fs4-D",
+    "n": 320,
+    "request_errors": 0,
+    "executes": 319,
+    "exec_match": 248,
+    "exact": 198,
+    "by_tier": {
+      "5": [
+        248,
+        320
+      ]
+    },
+    "median_latency_s": 0.26,
+    "mean_completion_tokens": 6.090625,
+    "thinking": "off"
+  }
+]

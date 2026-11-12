@@ -1,0 +1,120 @@
+{"id": 0, "request": "Saturdays and Sundays at 7:30pm", "prediction": "30 19 * * 6,0"}
+{"id": 1, "request": "once every 3 hours", "prediction": "0 */3 * * *"}
+{"id": 2, "request": "Saturdays and Sundays at 7pm", "prediction": "0 19 * * 6,0"}
+{"id": 3, "request": "hourly from 12pm to 11pm", "prediction": "0 12-23 * * *"}
+{"id": 4, "request": "weekends at 5am", "prediction": "0 5 * * 6,0"}
+{"id": 5, "request": "hourly from 3am to 4am", "prediction": "0 3-4 * * *"}
+{"id": 6, "request": "hourly from 6am to 9am", "prediction": "0 6-9 * * *"}
+{"id": 7, "request": "hourly from 6:30am to 8:30am", "prediction": "30 6-8 * * *"}
+{"id": 8, "request": "on January 1 at 10pm", "prediction": "0 22 1 * *"}
+{"id": 9, "request": "Saturdays and Sundays at 1:30am", "prediction": "30 1 * * 0,6"}
+{"id": 10, "request": "once every 2 hours", "prediction": "0 */2 * * *"}
+{"id": 11, "request": "every hour between 12am and 7pm", "prediction": "0 12-19 * * *"}
+{"id": 12, "request": "every 4 hours", "prediction": "0 */4 * * *"}
+{"id": 13, "request": "every 8 hours", "prediction": "0 */8 * * *"}
+{"id": 14, "request": "Saturdays and Sundays at 5pm", "prediction": "0 17 * * 6,0"}
+{"id": 15, "request": "every hour between 6am and 12pm", "prediction": "0 6-11 * * *"}
+{"id": 16, "request": "once a year, September 1 at 11pm", "prediction": "0 23 1 9 *"}
+{"id": 17, "request": "every hour between 3:30am and 10:30pm", "prediction": "30 3-22 * * *"}
+{"id": 18, "request": "once every 8 hours", "prediction": "0 */8 * * *"}
+{"id": 19, "request": "hourly from 3:30am to 11:30am", "prediction": "30 3-11 * * *"}
+{"id": 20, "request": "every 6 hours", "prediction": "0 */6 * * *"}
+{"id": 21, "request": "weekends at 7:30pm", "prediction": "30 19 * * 6,0"}
+{"id": 22, "request": "weekends at 3am", "prediction": "0 3 * * 6,0"}
+{"id": 23, "request": "weekends at 8:30am", "prediction": "30 8 * * 6,0"}
+{"id": 24, "request": "on November 15 at 3am", "prediction": "0 3 15 11 *"}
+{"id": 25, "request": "hourly from 12:30pm to 5:30pm", "prediction": "30 12-17 * * *"}
+{"id": 26, "request": "on December 1 at 6pm", "prediction": "0 18 1 * *"}
+{"id": 27, "request": "weekends at 8pm", "prediction": "0 20 * * 6,0"}
+{"id": 28, "request": "Saturdays and Sundays at 4:30pm", "prediction": "30 16 * * 6,0"}
+{"id": 29, "request": "every 12 hours", "prediction": "0 0 */2 * * *"}
+{"id": 30, "request": "once a year, January 1 at 5am", "prediction": "0 5 1 1 *"}
+{"id": 31, "request": "every 2 hours", "prediction": "0 */2 * * *"}
+{"id": 32, "request": "hourly from 1am to 2pm", "prediction": "0 1-13/1 * * *"}
+{"id": 33, "request": "once a year, October 1 at 11am", "prediction": "0 11 1 10 *"}
+{"id": 34, "request": "every 6 hours", "prediction": "0 */6 * * *"}
+{"id": 35, "request": "every hour between 5:30pm and 11:30pm", "prediction": "30 17-23 * * *"}
+{"id": 36, "request": "hourly from 1pm to 2pm", "prediction": "0 13-14 * * *"}
+{"id": 37, "request": "once every 12 hours", "prediction": "0 */12 * * *"}
+{"id": 38, "request": "on February 1 at 8am", "prediction": "0 8 1 * *"}
+{"id": 39, "request": "every 12 hours", "prediction": "0 0 */2 * * *"}
+{"id": 40, "request": "weekends at 2:30pm", "prediction": "30 14 * * 6,0"}
+{"id": 41, "request": "once every 8 hours", "prediction": "0 */8 * * *"}
+{"id": 42, "request": "hourly from 12:30am to 8:30pm", "prediction": "30 0-20/1 * * *"}
+{"id": 43, "request": "every hour between 6:30pm and 8:30pm", "prediction": "30 19-20 * * *"}
+{"id": 44, "request": "every hour between 3:30pm and 10:30pm", "prediction": "30 15-22 * * *"}
+{"id": 45, "request": "once a year, April 15 at 7am", "prediction": "0 7 15 4 *"}
+{"id": 46, "request": "weekends at 7am", "prediction": "0 7 * * 6,0"}
+{"id": 47, "request": "every hour between 1:30pm and 9:30pm", "prediction": "30 13-21/1 * * *"}
+{"id": 48, "request": "every hour between 1am and 6am", "prediction": "0 1-6 * * *"}
+{"id": 49, "request": "hourly from 12:30am to 11:30am", "prediction": "30 0-11 * * *"}
+{"id": 50, "request": "every hour between 2:30am and 10:30pm", "prediction": "30 2-22 * * *"}
+{"id": 51, "request": "on January 15 at 2pm", "prediction": "0 14 15 * *"}
+{"id": 52, "request": "weekends at 3pm", "prediction": "0 15 * * 6,0"}
+{"id": 53, "request": "on November 1 at 2pm", "prediction": "0 14 1 * *"}
+{"id": 54, "request": "every 3 hours", "prediction": "0 */3 * * *"}
+{"id": 55, "request": "hourly from 2am to 3am", "prediction": "0 2-3 * * *"}
+{"id": 56, "request": "every hour between 12:30am and 11:30pm", "prediction": "30 * * * *"}
+{"id": 57, "request": "on November 1 at 7am", "prediction": "0 7 1 * *"}
+{"id": 58, "request": "once a year, September 1 at 12am", "prediction": "0 0 1 9 *"}
+{"id": 59, "request": "once a year, October 1 at 3am", "prediction": "3 0 1 10 *"}
+{"id": 60, "request": "every hour between 8:30am and 3:30pm", "prediction": "30 8-15 * * *"}
+{"id": 61, "request": "hourly from 8am to 9pm", "prediction": "0 8-21 * * *"}
+{"id": 62, "request": "every hour between 5:30am and 11:30am", "prediction": "30 5-11 * * *"}
+{"id": 63, "request": "once a year, February 1 at 10am", "prediction": "0 10 1 2 *"}
+{"id": 64, "request": "once every 6 hours", "prediction": "0 */6 * * *"}
+{"id": 65, "request": "on July 15 at 6am", "prediction": "0 6 15 * *"}
+{"id": 66, "request": "once a year, May 15 at 2pm", "prediction": "2 15 15 * * 0"}
+{"id": 67, "request": "Saturdays and Sundays at 12pm", "prediction": "0 12 * * 0,6"}
+{"id": 68, "request": "weekends at 1:30am", "prediction": "30 1 * * 6,0"}
+{"id": 69, "request": "every hour between 10:30am and 2:30pm", "prediction": "30 10-14 * * *"}
+{"id": 70, "request": "once a year, February 1 at 9pm", "prediction": "0 21 1 2 *"}
+{"id": 71, "request": "weekends at 7:30am", "prediction": "30 7 * * 6,0"}
+{"id": 72, "request": "Saturdays and Sundays at 10pm", "prediction": "0 22 * * 6,0"}
+{"id": 73, "request": "once a year, January 1 at 4am", "prediction": "0 4 1 1 *"}
+{"id": 74, "request": "once every 12 hours", "prediction": "0 */12 * * *"}
+{"id": 75, "request": "once a year, May 1 at 10am", "prediction": "0 10 1 5 *"}
+{"id": 76, "request": "hourly from 9am to 9pm", "prediction": "0 9-21 * * *"}
+{"id": 77, "request": "weekends at 4:30pm", "prediction": "30 16 * * 6,0"}
+{"id": 78, "request": "once a year, May 1 at 4pm", "prediction": "0 16 1 5 *"}
+{"id": 79, "request": "weekends at 9pm", "prediction": "0 21 * * 6,0"}
+{"id": 80, "request": "on March 15 at 11pm", "prediction": "0 23 15 3 *"}
+{"id": 81, "request": "on June 1 at 6pm", "prediction": "0 18 1 * *"}
+{"id": 82, "request": "every hour between 4:30am and 2:30pm", "prediction": "30 4-14 * * *"}
+{"id": 83, "request": "Saturdays and Sundays at 12am", "prediction": "0 0 * * 0,6"}
+{"id": 84, "request": "Saturdays and Sundays at 11am", "prediction": "0 11 * * 6,0"}
+{"id": 85, "request": "hourly from 5am to 6pm", "prediction": "0 5-18 * * *"}
+{"id": 86, "request": "on April 15 at 4pm", "prediction": "0 16 15 * *"}
+{"id": 87, "request": "every hour between 5:30pm and 9:30pm", "prediction": "30 17-21/1 * * *"}
+{"id": 88, "request": "Saturdays and Sundays at 1am", "prediction": "0 1 * * 0,6"}
+{"id": 89, "request": "on March 1 at 6pm", "prediction": "0 18 1 * *"}
+{"id": 90, "request": "Saturdays and Sundays at 4pm", "prediction": "0 16 * * 6,0"}
+{"id": 91, "request": "hourly from 4:30am to 12:30pm", "prediction": "30 4-12 * * *"}
+{"id": 92, "request": "weekends at 11pm", "prediction": "0 23 * * 6,0"}
+{"id": 93, "request": "on October 15 at 5pm", "prediction": "0 17 15 * 0"}
+{"id": 94, "request": "on February 1 at 12am", "prediction": "0 0 1 * *"}
+{"id": 95, "request": "Saturdays and Sundays at 11pm", "prediction": "0 23 * * 6,0"}
+{"id": 96, "request": "on May 1 at 12am", "prediction": "0 0 1 * *"}
+{"id": 97, "request": "Saturdays and Sundays at 8:30am", "prediction": "30 8 * * 0,6"}
+{"id": 98, "request": "on September 1 at 5pm", "prediction": "0 17 1 * *"}
+{"id": 99, "request": "hourly from 12:30am to 6:30am", "prediction": "30 0-6 * * *"}
+{"id": 100, "request": "once a year, June 1 at 3am", "prediction": "0 3 1 6 *"}
+{"id": 101, "request": "hourly from 5:30am to 5:30pm", "prediction": "30 5-17 * * *"}
+{"id": 102, "request": "Saturdays and Sundays at 9:30am", "prediction": "30 9 * * 6,0"}
+{"id": 103, "request": "once a year, December 1 at 1pm", "prediction": "0 13 1 12 *"}
+{"id": 104, "request": "once a year, August 15 at 2am", "prediction": "0 2 15 8 *"}
+{"id": 105, "request": "Saturdays and Sundays at 3pm", "prediction": "0 15 * * 6,0"}
+{"id": 106, "request": "Saturdays and Sundays at 2:30am", "prediction": "30 2 * * 0,6"}
+{"id": 107, "request": "every 8 hours", "prediction": "0 */8 * * *"}
+{"id": 108, "request": "every hour between 7am and 9am", "prediction": "0 7-9 * * *"}
+{"id": 109, "request": "hourly from 6am to 2pm", "prediction": "0 6-14 * * *"}
+{"id": 110, "request": "once a year, December 1 at 2am", "prediction": "0 2 1 12 *"}
+{"id": 111, "request": "once every 4 hours", "prediction": "0 */4 * * *"}
+{"id": 112, "request": "every hour between 5:30pm and 6:30pm", "prediction": "30 5-6 * * *"}
+{"id": 113, "request": "every hour between 1:30pm and 11:30pm", "prediction": "30 13-23 * * *"}
+{"id": 114, "request": "Saturdays and Sundays at 5am", "prediction": "0 5 * * 0,6"}
+{"id": 115, "request": "weekends at 5:30pm", "prediction": "30 17 * * 6,0"}
+{"id": 116, "request": "every hour between 9:30am and 10:30pm", "prediction": "30 9-22 * * *"}
+{"id": 117, "request": "on September 1 at 8am", "prediction": "0 8 1 * *"}
+{"id": 118, "request": "once a year, September 15 at 4pm", "prediction": "0 16 15 9 * *"}
+{"id": 119, "request": "once a year, March 1 at 10pm", "prediction": "0 22 1 3 *"}

@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:fs8-D",
+    "n": 320,
+    "request_errors": 0,
+    "executes": 319,
+    "exec_match": 242,
+    "exact": 199,
+    "by_tier": {
+      "5": [
+        242,
+        320
+      ]
+    },
+    "median_latency_s": 0.4,
+    "mean_completion_tokens": 6.059375,
+    "thinking": "off"
+  }
+]

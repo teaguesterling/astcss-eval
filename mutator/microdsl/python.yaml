@@ -1,0 +1,188 @@
+language: python
+operators:
+  # Structure & Movement
+  replaceWith:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}"
+    example:
+      context:
+        target: "old_val = 1"
+        code: "new_val = 2"
+      expected: "new_val = 2"
+
+  append:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+    example:
+      context:
+        target: "print('hello')"
+        code: "print('world')"
+      expected: |
+        print('hello')
+        print('world')
+
+  prepend:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+    example:
+      context:
+        target: "print('world')"
+        code: "print('hello')"
+      expected: |
+        print('hello')
+        print('world')
+
+  insertBefore:
+    match: "${target}"
+    params: [code]
+    rewrite: "${code}\n${target}"
+
+  insertAfter:
+    match: "${target}"
+    params: [code]
+    rewrite: "${target}\n${code}"
+
+  remove:
+    match: "${target}"
+    rewrite: ""
+    example:
+      context:
+        target: "obsolete_call()"
+      expected: ""
+
+  addComment:
+    match: "${target}"
+    params: [text, pos]
+    rewrite: |
+      # ${text}
+      ${target}
+    example:
+      context:
+        text: "Important sanity check"
+        target: "assert x > 0"
+      expected: |
+        # Important sanity check
+        assert x > 0
+
+  # Declarations & Signatures
+  addDecorator:
+    match: ".fn@target, .class@target"
+    params: [decorator]
+    rewrite: "@${decorator}\n${target}"
+    example:
+      context:
+        decorator: "lru_cache(maxsize=128)"
+        target: "def compute(): pass"
+      expected: |
+        @lru_cache(maxsize=128)
+        def compute(): pass
+
+  setAsync:
+    match: ".fn:not(.async)@target"
+    rewrite: "async ${target}"
+    example:
+      context:
+        target: "def fetch_user(): pass"
+      expected: "async def fetch_user(): pass"
+
+  addImport:
+    match: "mod@target"
+    params: [stmt]
+    rewrite: "${stmt}\n${target}"
+    example:
+      context:
+        stmt: "import math"
+        target: "def calc(): return math.sqrt(4)"
+      expected: |
+        import math
+        def calc(): return math.sqrt(4)
+
+  ensureImport:
+    match: "mod@target"
+    params: [stmt]
+    rewrite: "${stmt}\n${target}"
+
+  # Control Flow & Wrapping
+  wrapWith:
+    match: ".fn > .body@body"
+    params: [context_expr, as_name]
+    rewrite: |
+      with ${context_expr} as ${as_name}:
+      ${body|indent(4)}
+    example:
+      context:
+        context_expr: "open('log.txt')"
+        as_name: "f"
+        body: "data = f.read()"
+      expected: |
+        with open('log.txt') as f:
+            data = f.read()
+
+  wrapInTry:
+    match: ".fn > .body@body"
+    params: []
+    rewrite: |
+      try:
+      ${body|indent(4)}
+      ${handlers|map_join("except {exc}:\n    {body}")}
+      ${finally|if_present("finally:\n    {finally}")}
+    example:
+      context:
+        body: "res = fetch()"
+        handlers:
+          - exc: "ConnectionError"
+            body: "return None"
+        finally: "cleanup()"
+      expected: |
+        try:
+            res = fetch()
+        except ConnectionError:
+            return None
+        finally:
+            cleanup()
+
+  # Expressions & Calls
+  wrapCall:
+    match: ".call@target, .expr@target"
+    params: [fn_name]
+    rewrite: "${fn_name}(${target})"
+    example:
+      context:
+        fn_name: "len"
+        target: "items"
+      expected: "len(items)"
+
+  wrapAwait:
+    match: ".call@target, .expr@target"
+    rewrite: "await ${target}"
+    example:
+      context:
+        target: "fetch_data()"
+      expected: "await fetch_data()"
+
+  setReturn:
+    match: ".jump#return@target"
+    params: [expr]
+    rewrite: "return ${expr}"
+    example:
+      context:
+        expr: "x * 2"
+      expected: "return x * 2"
+
+  addAssertion:
+    match: ".fn > .body@body"
+    params: [assertion, msg]
+    rewrite: |
+      ${body}
+      assert ${assertion}${msg|if_present(", '{msg}'")}
+    example:
+      context:
+        body: "x = compute()"
+        assertion: "x > 0"
+        msg: "must be positive"
+      expected: |
+        x = compute()
+        assert x > 0, 'must be positive'

@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:abtrain-holdout",
+    "n": 323,
+    "request_errors": 0,
+    "executes": 321,
+    "exec_match": 227,
+    "exact": 223,
+    "by_tier": {
+      "5": [
+        227,
+        323
+      ]
+    },
+    "median_latency_s": 0.27,
+    "mean_completion_tokens": 6.5170278637770895,
+    "thinking": "off"
+  }
+]

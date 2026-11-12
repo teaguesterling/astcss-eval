@@ -67,10 +67,41 @@ def tag_request(lang, request):
 _eot = {}
 
 
+_ANS = "\x00ASTCSS_ANSWER\x00"
+
+
 def end_of_turn(tok):
-    # Qwen chat templates close every turn with <|im_end|>; fall back to eos elsewhere.
-    # Cached: get_vocab() rebuilds a 248k-entry dict on every call (~0.2 s per row).
+    """The token this tokenizer's template puts AFTER an assistant turn.
+
+    Derived from the template rather than guessed, because guessing was wrong. The first
+    version returned `<|im_end|>` when that was in the vocabulary and `tok.eos_token`
+    otherwise. On Qwen that is correct. On Gemma-3 it is not: turns close with
+    `<end_of_turn>` (id 106) while `eos_token` is `<eos>` (id 1), so training appended a
+    terminator the template never uses -- the model learns to end its answer with a token
+    that does not end a turn. That is train/inference drift of exactly the kind this module
+    exists to prevent, and it is silent.
+
+    So: render a real assistant turn with a sentinel answer and read off whatever the
+    template appends. Falls back to the old behaviour only if the sentinel does not survive
+    (a template that transforms content), which no template we have met does.
+
+    Cached: rendering a template costs ~2 s on some tokenizers and get_vocab() rebuilds a
+    248k-entry dict, neither of which belongs in a per-row path.
+    """
     key = id(tok)
     if key not in _eot:
-        _eot[key] = "<|im_end|>" if "<|im_end|>" in tok.get_vocab() else tok.eos_token
+        tail = None
+        try:
+            rendered = tok.apply_chat_template(
+                [{"role": "user", "content": "x"}, {"role": "assistant", "content": _ANS}],
+                tokenize=False)
+            after = rendered.split(_ANS)[-1].strip() if _ANS in rendered else ""
+            # The template may append several specials; the terminator is the first one.
+            if after.startswith("<"):
+                tail = after[:after.index(">") + 1]
+        except Exception:                       # no chat template, or it rejects the shape
+            tail = None
+        if not tail or tail not in tok.get_vocab():
+            tail = "<|im_end|>" if "<|im_end|>" in tok.get_vocab() else tok.eos_token
+        _eot[key] = tail
     return _eot[key]

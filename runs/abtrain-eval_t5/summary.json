@@ -1,0 +1,19 @@
+[
+  {
+    "model": "local:abtrain-eval_t5",
+    "n": 118,
+    "request_errors": 0,
+    "executes": 115,
+    "exec_match": 97,
+    "exact": 80,
+    "by_tier": {
+      "5": [
+        97,
+        118
+      ]
+    },
+    "median_latency_s": 0.32,
+    "mean_completion_tokens": 11.084745762711865,
+    "thinking": "off"
+  }
+]

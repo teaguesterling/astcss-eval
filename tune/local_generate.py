@@ -44,6 +44,8 @@ def main():
     ap.add_argument("--embed-cpu", action="store_true")
     ap.add_argument("--quant", choices=("4bit", "none"), default="4bit",
                     help="4bit (NF4, the 9B) or none (float16 weights, small models)")
+    ap.add_argument("--dtype", choices=("float16", "bfloat16"), default="float16",
+                    help="compute dtype; bfloat16 for Gemma-3, which NaNs in float16")
     args = ap.parse_args()
 
     import torch
@@ -80,7 +82,7 @@ def main():
 
     tok = AutoTokenizer.from_pretrained(args.base)
     tok.padding_side = "left"
-    model, dev = load_model(args.base, args.embed_cpu, args.quant)
+    model, dev = load_model(args.base, args.embed_cpu, args.quant, args.dtype)
     if args.adapter:
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, args.adapter)

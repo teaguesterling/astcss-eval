@@ -1,0 +1,38 @@
+{
+  "epoch": 1,
+  "val_loss": 0.0011440972027291234,
+  "args": {
+    "base": "/home/teague/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B/snapshots/c1899de289a04d12100db370d81485cdf75e47ca",
+    "data": "data-300",
+    "out": "adapters/qlang-0.6b-300",
+    "epochs": 1,
+    "lr": 0.0002,
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "accum": 16,
+    "warmup": 0.05,
+    "max_len": 768,
+    "limit": 0,
+    "save_every_steps": 250,
+    "seed": 18,
+    "embed_cpu": false,
+    "quant": "none",
+    "dtype": "float16"
+  },
+  "prompt_format": "chat-template+gen-prompt+nothink/v1",
+  "dataset_manifest": {
+    "name": "qlang-workshop-v1",
+    "task": "plain English -> a four-clause query as JSON over a fixed table",
+    "generator": "make_corpus.py --train 300 --valid 150 --eval 150 --seed 11",
+    "labels": "correct by construction: the query is sampled first, the English rendered from it",
+    "held_out": "by clause COMBINATION, not by element -- every element of every eval query appears in training; asserted in main()",
+    "equivalence": "behavioural: same rows in the same order from the same table",
+    "card": "data/card.md",
+    "rows": {
+      "train": 300,
+      "valid": 150,
+      "eval": 150
+    }
+  }
+}
